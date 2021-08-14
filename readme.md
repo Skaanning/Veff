@@ -5,9 +5,11 @@ Well it's easy if you use aspnet core :)
 Currently supports 3 types of feature flags. 
 StringFlag, PercentFlag and BooleanFlag.
 
-**Boolean** is a simple true/false  
-**Percent** takes an int from 0 to 100 and returns true or false with that percentage.   
-**String** can be assigned multiple strings. Checks if string is present. Case insensitive.  
+**Boolean** is a simple true/false
+
+**Percent** takes an int from 0 to 100 and returns true or false with that percentage. Could be useful for split testing     
+
+**String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
 
 ### Setup
 
@@ -72,13 +74,7 @@ StringFlag, PercentFlag and BooleanFlag.
             if (!_features.Foo.IsEnabled)
                 throw new Exception("Foo not enabled");
             
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-                {
-                    Date = DateTime.Now.AddDays(index),
-                    TemperatureC = rng.Next(-20, 55),
-                })
-                .ToArray();
+            .....
         }
 ```
 
