@@ -2,14 +2,24 @@
 
 Well it's easy if you use aspnet core :) 
 
+Currently supports 3 types of feature flags. 
+StringFlag, PercentFlag and BooleanFlag.
+
+**Boolean** is a simple true/false 
+**Percent** takes an int from 0 to 100 and returns true or false with that percentage. 
+**String** can be assigned multiple strings. Checks if string is present. 
+
+
+```C#
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add veff to the project. Currently only works with sqlserver.    
             services.AddVeff(settings =>
             {
                 settings
-                    .UseSqlServer(@"Server=localhost,15789;Database=master;User=sa;Password=Your_password123")
-                    .AddFeatureFlagContainers(new BasketFeatures(), new FooBarFeatures())
-                    .UpdateInBackground(TimeSpan.FromSeconds(30));
+                    .UseSqlServer(@"Server=localho.....") // Saves the featureflags in table dbo.Veff_FeatureFlags. Will be auto created if not there.
+                    .AddFeatureFlagContainers(new FooBarFeatures()) // add your feature flag containers here
+                    .UpdateInBackground(TimeSpan.FromSeconds(30)); // background job runs every 30 sec, updates the singleton feature containers with values from db.
             });
 
             services.AddControllers();
@@ -17,6 +27,7 @@ Well it's easy if you use aspnet core :)
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // dashboard found on this url, auth to come..
             app.UseVeff("/veff");
             
             // all the normal stuff after this :)
@@ -25,3 +36,12 @@ Well it's easy if you use aspnet core :)
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
+        
+        // example of a feature flag container. 
+        public class FooBarFeatures : IFeatureContainer
+        {
+                public BooleanFlag Foo { get;  private set;}
+                public PercentFlag Bar { get; private set; }
+                public StringFlag Baz { get; private set; }
+        }
+```
