@@ -5,9 +5,9 @@ Well it's easy if you use aspnet core :)
 Currently supports 3 types of feature flags. 
 StringFlag, PercentFlag and BooleanFlag.
 
-**Boolean** is a simple true/false 
-**Percent** takes an int from 0 to 100 and returns true or false with that percentage. 
-**String** can be assigned multiple strings. Checks if string is present. 
+**Boolean** is a simple true/false  
+**Percent** takes an int from 0 to 100 and returns true or false with that percentage.   
+**String** can be assigned multiple strings. Checks if string is present.   
 
 
 ```C#
@@ -45,3 +45,9 @@ StringFlag, PercentFlag and BooleanFlag.
                 public StringFlag Baz { get; private set; }
         }
 ```
+
+
+Example of dashboard.
+will be automatically updated with values if you add additional "FeatureFlags" or new "FeatureFlags containers"
+![image](https://user-images.githubusercontent.com/4522165/129459776-629d2312-1829-40ae-b03c-bb855a0528de.png)
+
