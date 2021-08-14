@@ -1,5 +1,8 @@
 ## Veff -> Very easy feature flags
 
+
+Nuget pkg on the way.
+
 Well it's easy if you use aspnet core :) 
 
 Currently supports 3 types of feature flags. 
