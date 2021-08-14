@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Title>Veff</Title>
+        <Authors>Michael Skaanning</Authors>
+        <Description>Very easy feature flags</Description>
+        <PackageTags>FeatureFlag</PackageTags>
+        <PackageVersion>0.2.6</PackageVersion>
+        <Copyright></Copyright>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="contentFiles/**/*.*">
+            <Pack>true</Pack>
+            <PackagePath>contentFiles</PackagePath>
+            <IncludeInPackage>true</IncludeInPackage>
+            <CopyToOutput>true</CopyToOutput>
+            <BuildAction>Content</BuildAction>
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+            <PackageFlatten>true</PackageFlatten>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>
