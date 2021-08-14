@@ -54,6 +54,8 @@ StringFlag, PercentFlag and BooleanFlag.
 ```C#
         private readonly FooBarFeatures _features;
 
+        // works with normal di..
+        // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
         public WeatherForecastController(FooBarFeatures features)
         {
             _features = features;
@@ -77,7 +79,6 @@ StringFlag, PercentFlag and BooleanFlag.
             .....
         }
 ```
-
 
 
 ### Dashboard.
