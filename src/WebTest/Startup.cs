@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Veff;
 using Veff.Flags;
+using WebTest.Controllers;
 
 namespace WebTest
 {
@@ -22,39 +23,30 @@ namespace WebTest
             {
                 settings
                     .UseSqlServer(@"Server=localhost,15789;Database=master;User=sa;Password=Your_password123")
-                    .AddFeatureFlagContainers(new BasketFeatures(), new FooBarFeatures())
+                    .AddFeatureFlagContainers(new FooBarFeatures())
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
-            services.AddCors();
+
+            services.AddSingleton<IMySuperService, MySuperService>();
+
             services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            app.UseVeff();
             app.UseHttpsRedirection();
+
+            app.UseVeff();
             app.UseRouting();
+
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
-
-    public class BasketFeatures : IFeatureContainer
-    {
-        public BooleanFlag Hello { get;  private set;}
-        public PercentFlag Ello { get; private set; }
-        public StringFlag Abc { get; private set; }
-    }    
     
     public class FooBarFeatures : IFeatureContainer
     {
-        public BooleanFlag Foo { get;  private set;}
-        public PercentFlag Bar { get; private set; }
-        public StringFlag Baz { get; private set; }
+        public BooleanFlag Foo { get; set;}
+        public PercentFlag Bar { get; set; }
+        public StringFlag Baz { get; set; }
     }
 }

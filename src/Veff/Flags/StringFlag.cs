@@ -8,7 +8,7 @@ namespace Veff.Flags
     {
         internal readonly HashSet<string> Values;
 
-        public StringFlag(int id, string name, string description, params string[] values)
+        internal StringFlag(int id, string name, string description, params string[] values)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -23,5 +23,7 @@ namespace Veff.Flags
         public string Name { get; }
         public string Description { get; }
         public bool EnabledFor(string value) => Values.Contains(value.ToLower());
+        public bool EnabledForAny(params string[] values) => values.Any(x => Values.Contains(x.ToLower()));
+        public bool EnabledForAll(params string[] values) => values.All(x => Values.Contains(x.ToLower()));
     }
 }

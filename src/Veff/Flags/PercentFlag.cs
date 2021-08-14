@@ -4,6 +4,8 @@ namespace Veff.Flags
 {
     public class PercentFlag : Flag
     {
+        private readonly Random _rnd;
+
         internal PercentFlag(int id, string name, string description, int percent)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -13,12 +15,13 @@ namespace Veff.Flags
             Name = name;
             Description = description;
             Percent = percent;
+            _rnd = new Random();
         }
 
         public int Id { get; }
         public string Name { get; }
         public string Description { get; }
         internal int Percent { get; }
-        public bool IsEnabled => new Random().Next(101) > Percent;
+        public bool IsEnabled => _rnd.Next(101) <= Percent;
     }
 }

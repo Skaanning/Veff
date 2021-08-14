@@ -15,32 +15,52 @@ namespace WebTest.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
-        private readonly BasketFeatures _features;
+        private readonly FooBarFeatures _features;
+        private readonly IMySuperService _mySuperService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger,
-            BasketFeatures features)
+        public WeatherForecastController(FooBarFeatures features,
+            IMySuperService mySuperService)
         {
-            _logger = logger;
             _features = features;
+            _mySuperService = mySuperService;
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public string Get()
         {
-            var featuresEllo = _features.Ello;
-            var hello = _features.Hello;
-            if (!_features.Abc.EnabledFor("michael"))
-                throw new Exception("Michael is totally not allowed");
+            // string flag
+            if (_features.Baz.EnabledFor("michael"))
+                throw new Exception("michael is not allowed");
+
+            // Percent flag
+            if (!_features.Bar.IsEnabled)
+                throw new Exception("Bar not enabled");
             
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-                {
-                    Date = DateTime.Now.AddDays(index),
-                    TemperatureC = rng.Next(-20, 55),
-                    Summary = Summaries[rng.Next(Summaries.Length)] + "    featuresEllo.IsEnabled    " + featuresEllo.IsEnabled + "    featuresHello.IsEnabled    " + hello.IsEnabled
-                })
-                .ToArray();
+            // boolean flag
+            if (!_features.Foo.IsEnabled)
+                throw new Exception("Foo not enabled");
+            
+            return _mySuperService.DoStuff();
         }
+    }
+
+    public class MySuperService : IMySuperService
+    {
+        private readonly FooBarFeatures _fooBarFeatures;
+
+        public MySuperService(FooBarFeatures fooBarFeatures)
+        {
+            _fooBarFeatures = fooBarFeatures;
+        }
+        
+        public string DoStuff()
+        {
+            return _fooBarFeatures.Bar.IsEnabled ? "Hello" : "goodbye";
+        }
+    }
+
+    public interface IMySuperService
+    {
+        string DoStuff();
     }
 }
