@@ -7,8 +7,9 @@ StringFlag, PercentFlag and BooleanFlag.
 
 **Boolean** is a simple true/false  
 **Percent** takes an int from 0 to 100 and returns true or false with that percentage.   
-**String** can be assigned multiple strings. Checks if string is present.   
+**String** can be assigned multiple strings. Checks if string is present. Case insensitive.  
 
+### Setup
 
 ```C#
         public void ConfigureServices(IServiceCollection services)
@@ -46,8 +47,48 @@ StringFlag, PercentFlag and BooleanFlag.
         }
 ```
 
+### Usage
 
-Example of dashboard.
-will be automatically updated with values if you add additional "FeatureFlags" or new "FeatureFlags containers"
+```C#
+        private readonly FooBarFeatures _features;
+
+        public WeatherForecastController(FooBarFeatures features)
+        {
+            _features = features;
+        }
+
+        [HttpGet]
+        public IEnumerable<WeatherForecast> Get()
+        {
+            // string flag
+            if (_features.Baz.EnabledFor("michael"))
+                throw new Exception("michael is not allowed");
+
+            // Percent flag
+            if (!_features.Bar.IsEnabled)
+                throw new Exception("Bar not enabled");
+            
+            // boolean flag
+            if (!_features.Foo.IsEnabled)
+                throw new Exception("Foo not enabled");
+            
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                {
+                    Date = DateTime.Now.AddDays(index),
+                    TemperatureC = rng.Next(-20, 55),
+                })
+                .ToArray();
+        }
+```
+
+
+
+### Dashboard.
+
+Will be automatically updated with values if you add additional "FeatureFlags" or new "FeatureFlags containers".
+After you save, your changes will be live within the specified time configured in .UpdateInBackground()
+
 ![image](https://user-images.githubusercontent.com/4522165/129459776-629d2312-1829-40ae-b03c-bb855a0528de.png)
+
 
