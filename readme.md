@@ -1,7 +1,7 @@
 ## Veff -> Very easy feature flags
 
 
-Nuget pkg on the way.
+`dotnet add package Veff` 
 
 Well it's easy if you use aspnet core :) 
 
