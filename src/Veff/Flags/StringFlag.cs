@@ -23,6 +23,7 @@ namespace Veff.Flags
         public string Name { get; }
         public string Description { get; }
         public bool EnabledFor(string value) => Values.Contains(value.ToLower());
+        public bool DisabledFor(string value) => !Values.Contains(value.ToLower());
         public bool EnabledForAny(params string[] values) => values.Any(x => Values.Contains(x.ToLower()));
         public bool EnabledForAll(params string[] values) => values.All(x => Values.Contains(x.ToLower()));
     }

@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Veff.Extensions;
 using Veff.Flags;
 
@@ -14,9 +11,8 @@ namespace Veff
 {
     public class VeffSettingsBuilder : IUseSqlServerBuilder, IFeatureFlagContainerBuilder, IBackgroundBuilder
     {
-        private SqlConnection _sqlServerConnection;
+        private VeffSqlConnectionFactory _veffSqlConnectionFactory;
         private readonly IServiceCollection _serviceCollection;
-        private IFeatureContainer[] _containers;
 
         internal VeffSettingsBuilder(IServiceCollection serviceCollection)
         {
@@ -25,14 +21,14 @@ namespace Veff
         
         public IFeatureFlagContainerBuilder UseSqlServer(string connectionString)
         {
-            _sqlServerConnection = new SqlConnection(connectionString);
-            EnsureTableExists(_sqlServerConnection);          
+            _veffSqlConnectionFactory = new VeffSqlConnectionFactory(connectionString);
+            _serviceCollection.AddTransient<IVeffSqlConnectionFactory>(x => _veffSqlConnectionFactory);
+            EnsureTableExists(_veffSqlConnectionFactory);          
             return this;
         }
         
         public IBackgroundBuilder AddFeatureFlagContainers(params IFeatureContainer[] containers)
         {
-            _containers = containers;
             var featureFlagNames = new List<(string,string)>();
             foreach (var veffContainer in containers)
             {
@@ -50,22 +46,21 @@ namespace Veff
             
             containers.ForEach(x => _serviceCollection.AddSingleton(x.GetType(), x));
             containers.ForEach(x => _serviceCollection.AddSingleton<IFeatureContainer>(x));
-            _serviceCollection.AddSingleton(_sqlServerConnection);
             
             return this;
         }
         
         public IBackgroundBuilder UpdateInBackground(TimeSpan updateTime)
         {
-            _serviceCollection.AddHostedService(x => new TimedHostedService(updateTime, x.GetService));
+            _serviceCollection.AddHostedService(x => new UpdateInBackgroundHostedService(updateTime, x.GetService));
             return this;
         }
 
         private void SyncFeatureFlagsInDb(IEnumerable<(string Name, string Type)> featureFlagNames)
         {
-            _sqlServerConnection.Open();
+            using var conn = _veffSqlConnectionFactory.UseConnection();
 
-            using var existingFeatureFlags = new SqlCommand(@"SELECT Name FROM Veff_FeatureFlags", _sqlServerConnection);
+            using var existingFeatureFlags = new SqlCommand(@"SELECT Name FROM Veff_FeatureFlags", conn);
 
             using var reader = existingFeatureFlags.ExecuteReader();
             var hashSet = new HashSet<string>();
@@ -78,7 +73,6 @@ namespace Veff
 
             if (flagsMissingInDb.Length == 0)
             {
-                _sqlServerConnection.Close();
                 return;
             }
 
@@ -97,7 +91,7 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
            ,[Type]
            ,[Strings])
      VALUES
-           {values}" , _sqlServerConnection);
+           {values}" , conn);
 
             addFeatureFlags.Parameters.Add("@Percent", SqlDbType.Int).Value = 0;
             addFeatureFlags.Parameters.Add($"@Strings", SqlDbType.NVarChar).Value = "";
@@ -112,18 +106,17 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
             });
             
             addFeatureFlags.ExecuteNonQuery();
-            _sqlServerConnection.Close();
         }
         
         private void SyncValuesFromDb(IFeatureContainer[] veffContainers)
         {
-            _sqlServerConnection.Open();
-
+            using var conn = _veffSqlConnectionFactory.UseConnection();
+            
             using var allValuesCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 
-", _sqlServerConnection);
+", conn);
             using var sqlDataReader = allValuesCommand.ExecuteReader();
 
             var veff = new List<VeffDbModel>();
@@ -138,8 +131,7 @@ FROM Veff_FeatureFlags
                     sqlDataReader.GetString(5));
                 veff.Add(flag);   
             }
-            _sqlServerConnection.Close();
-
+            
             var lookup = veff.ToLookup(x => x.GetClassName());
             var containerDictionary = veffContainers.ToDictionary(x => x.GetType().Name);
             foreach (var ffClass in lookup)
@@ -156,9 +148,9 @@ FROM Veff_FeatureFlags
             }
         }
 
-        private static void EnsureTableExists(SqlConnection conn)
+        private static void EnsureTableExists(IVeffSqlConnectionFactory connFactory)
         {
-            conn.Open();
+            using var conn = connFactory.UseConnection();
             
             using var command = new SqlCommand(@"
 EXEC sp_tables 
@@ -184,8 +176,6 @@ CREATE TABLE Veff_FeatureFlags(
 
                 createTableCmd.ExecuteNonQuery();
             }
-            
-            conn.Close();
         }
     }
 
@@ -204,78 +194,33 @@ CREATE TABLE Veff_FeatureFlags(
         IBackgroundBuilder UpdateInBackground(TimeSpan updateTime);
     }
 
-    public class TimedHostedService : IHostedService, IDisposable
+    public interface IVeffSqlConnectionFactory
     {
-        private readonly TimeSpan _updateTime;
-        private readonly SqlConnection _sqlConnection;
-        private readonly IFeatureContainer[] _featureContainers;
-        private Timer _timer;
+        SqlConnection UseConnection();
+    }
 
-        public TimedHostedService(TimeSpan updateTime, Func<Type, object> serviceLocator)
+    public class VeffSqlConnectionFactory : IVeffSqlConnectionFactory, IDisposable
+    {
+        private readonly string _connectionString;
+        private SqlConnection _connection;
+
+        public VeffSqlConnectionFactory(string connectionString)
         {
-            _updateTime = updateTime;
-            //todo fix
-            _sqlConnection = serviceLocator(typeof(SqlConnection)) as SqlConnection;
-            _featureContainers = ((serviceLocator(typeof(IEnumerable<IFeatureContainer>)) as IEnumerable<IFeatureContainer>) ?? Array.Empty<IFeatureContainer>()).ToArray();
+            _connectionString = connectionString;
         }
 
-        public Task StartAsync(CancellationToken stoppingToken)
+        public SqlConnection UseConnection()
         {
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, _updateTime);
-            return Task.CompletedTask;
-        }
+            var connection = new SqlConnection(_connectionString);
+             connection.Open();
+             _connection = connection;
 
-        private void DoWork(object state)
-        {
-            //todo this and SyncValuesFromDb are almost identical
-            _sqlConnection.Open();
-            
-            using var allValuesCommand = new SqlCommand(@"
-SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
-FROM Veff_FeatureFlags
-
-", _sqlConnection);
-            using var sqlDataReader = allValuesCommand.ExecuteReader();
-
-            var veff = new List<VeffDbModel>();
-            while (sqlDataReader.Read())
-            {
-                var flag = new VeffDbModel(
-                    sqlDataReader.GetInt32(0),
-                    sqlDataReader.GetString(1),
-                    sqlDataReader.GetString(2),
-                    sqlDataReader.GetInt32(3),
-                    sqlDataReader.GetString(4),
-                    sqlDataReader.GetString(5));
-                veff.Add(flag);   
-            }
-            _sqlConnection.Close();
-            
-            var lookup = veff.ToLookup(x => x.GetClassName());
-            var containerDictionary = _featureContainers.ToDictionary(x => x.GetType().Name);
-            foreach (var ffClass in lookup)
-            {
-                if (!containerDictionary.TryGetValue(ffClass.Key, out var container)) continue;
-
-                ffClass.ForEach(property =>
-                {
-                    var p = container
-                        .GetType()
-                        .GetProperty(property.GetPropertyName());
-                    p?.SetValue(container, property.AsImpl());
-                });
-            }
-        }
-
-        public Task StopAsync(CancellationToken stoppingToken)
-        {
-            _timer?.Change(Timeout.Infinite, 0);
-            return Task.CompletedTask;
+             return _connection;
         }
 
         public void Dispose()
         {
-            _timer?.Dispose();
+            _connection?.Close();
         }
     }
 }

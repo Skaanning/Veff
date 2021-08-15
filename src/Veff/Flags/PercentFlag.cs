@@ -23,5 +23,6 @@ namespace Veff.Flags
         public string Description { get; }
         internal int Percent { get; }
         public bool IsEnabled => _rnd.Next(101) <= Percent;
+        public bool IsDisabled => _rnd.Next(101) >= Percent;
     }
 }

@@ -19,5 +19,6 @@ namespace Veff.Flags
         internal string Name { get; }
         public string Description { get; }
         public bool IsEnabled { get; }
+        public bool IsDisabled => !IsEnabled;
     }
 }

@@ -61,16 +61,15 @@ namespace Veff
             using var stream = new StreamReader(httpContext.Request.Body);
             var body = await stream.ReadToEndAsync();
             var obj = JsonConvert.DeserializeObject<FeatureFlagUpdate>(body);
-            await SaveUpdate(obj, services);
+            SaveUpdate(obj, services);
             
             return "ok";
         }
 
-        private static async Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate, IServiceProvider serviceProvider)
+        private static void SaveUpdate(FeatureFlagUpdate featureFlagUpdate, IServiceProvider serviceProvider)
         {
-            // TODO fix this
-            var conn = serviceProvider.GetService(typeof(SqlConnection)) as SqlConnection;
-            await conn!.OpenAsync();
+            var veffSqlConnectionFactory = serviceProvider.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
+            using var conn = veffSqlConnectionFactory!.UseConnection();
 
             var sqlCommand = new SqlCommand(@"
 UPDATE [dbo].[Veff_FeatureFlags]
@@ -88,16 +87,13 @@ UPDATE [dbo].[Veff_FeatureFlags]
             sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = featureFlagUpdate.Id;
 
             sqlCommand.ExecuteNonQuery();
-            
-            await conn.CloseAsync();
         }
 
         private static async Task<string> GetAll(IServiceProvider services)
         {
-            // TODO fix this
-            var conn = services.GetService(typeof(SqlConnection)) as SqlConnection;
+            var veffSqlConnectionFactory = services.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
+            using var conn = veffSqlConnectionFactory!.UseConnection();
             
-            await conn!.OpenAsync();
             var sqlCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
@@ -115,7 +111,6 @@ FROM Veff_FeatureFlags
                     sqlDataReader.GetString(4),
                     sqlDataReader.GetString(5)));
             }
-            conn.Close();
 
             var array = veffDbModels.Select(x => x.AsImpl())
                 .Select(x => new FeatureFlagViewModel(x))
