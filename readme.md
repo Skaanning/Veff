@@ -23,9 +23,12 @@ StringFlag, PercentFlag and BooleanFlag.
             services.AddVeff(settings =>
             {
                 settings
-                    .UseSqlServer(@"Server=localho.....") // Saves the featureflags in table dbo.Veff_FeatureFlags. Will be auto created if not there.
-                    .AddFeatureFlagContainers(new FooBarFeatures()) // add your feature flag containers here
-                    .UpdateInBackground(TimeSpan.FromSeconds(30)); // background job runs every 30 sec, updates the singleton feature containers with values from db.
+                    // Saves the featureflags in table dbo.Veff_FeatureFlags. Will be auto created if not there.
+                    .UseSqlServer(@"Server=localho.....") 
+                    // add your feature flag containers here
+                    .AddFeatureFlagContainers(new FooBarFeatures()) 
+                    // background job runs every 30 sec, updates the singleton feature containers with values from db.
+                    .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
 
             services.AddControllers();
