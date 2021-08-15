@@ -1,4 +1,4 @@
-﻿namespace Veff
+﻿namespace Veff.Internal.Responses
 {
     public class FeatureContainerViewModel
     {

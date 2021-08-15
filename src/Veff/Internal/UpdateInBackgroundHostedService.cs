@@ -5,10 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Veff.Internal;
 using Veff.Internal.Extensions;
 
-namespace Veff
+namespace Veff.Internal
 {
     internal class UpdateInBackgroundHostedService : IHostedService, IDisposable
     {

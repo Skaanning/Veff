@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 
-namespace Veff
+namespace Veff.Internal
 {
     public interface IVeffSqlConnectionFactory
     {

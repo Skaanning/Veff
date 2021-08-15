@@ -8,10 +8,6 @@
 
     <ItemGroup>
         <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+        <PackageReference Include="Veff" Version="0.9.0" />
     </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Veff\Veff.csproj" />
-    </ItemGroup>
-
 </Project>

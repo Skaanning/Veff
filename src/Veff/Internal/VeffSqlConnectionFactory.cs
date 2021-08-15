@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 
-namespace Veff
+namespace Veff.Internal
 {
     public class VeffSqlConnectionFactory : IVeffSqlConnectionFactory, IDisposable
     {

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Veff;
 using Veff.Flags;
 using WebTest.Controllers;
@@ -27,7 +26,6 @@ namespace WebTest
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
 
-            services.AddCors();
             services.AddSingleton<IMySuperService, MySuperService>();
 
             services.AddControllers();
@@ -36,7 +34,6 @@ namespace WebTest
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseHttpsRedirection();
-            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseVeff();
             app.UseRouting();
 

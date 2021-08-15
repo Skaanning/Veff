@@ -4,8 +4,9 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Veff.Extensions;
 using Veff.Flags;
+using Veff.Internal;
+using Veff.Internal.Extensions;
 
 namespace Veff
 {
@@ -192,35 +193,5 @@ CREATE TABLE Veff_FeatureFlags(
     public interface IBackgroundBuilder
     {
         IBackgroundBuilder UpdateInBackground(TimeSpan updateTime);
-    }
-
-    public interface IVeffSqlConnectionFactory
-    {
-        SqlConnection UseConnection();
-    }
-
-    public class VeffSqlConnectionFactory : IVeffSqlConnectionFactory, IDisposable
-    {
-        private readonly string _connectionString;
-        private SqlConnection _connection;
-
-        public VeffSqlConnectionFactory(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
-        public SqlConnection UseConnection()
-        {
-            var connection = new SqlConnection(_connectionString);
-             connection.Open();
-             _connection = connection;
-
-             return _connection;
-        }
-
-        public void Dispose()
-        {
-            _connection?.Close();
-        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Veff.Extensions
+namespace Veff.Internal.Extensions
 {
     internal static class EnumerableExtensions
     {

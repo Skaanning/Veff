@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Veff.Flags;
 
-namespace Veff.Responses
+namespace Veff.Internal.Responses
 {
     public class FeatureFlagViewModel
     {
