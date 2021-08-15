@@ -161,7 +161,7 @@ FROM Veff_FeatureFlags
             {
                 ContainerName = f.Name.Split('.')[0];
                 Name = f.Name.Split('.')[1];
-                Strings = f.Values.ToArray();
+                Strings = string.Join("\n", f.Values.ToArray());
                 Type = nameof(StringFlag);
                 Description = f.Description;
                 Id = f.Id;
@@ -184,6 +184,6 @@ FROM Veff_FeatureFlags
         public string Type { get; }
         public int Percent { get; }
         public bool Enabled { get; }
-        public string[] Strings { get; }
+        public string Strings { get; }
     }
 }

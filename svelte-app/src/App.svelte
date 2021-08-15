@@ -8,12 +8,14 @@
 	import PercentFlag from "./PercentFlag.svelte";
 	import _ from "lodash";
 	import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
+	import Snackbar from '@smui/snackbar';
 
 	let flags = [];
 	let flagsForSelectedTab = [];
 	let tabs;
-	let tab = undefined;
 	let active = undefined;
+	let savedSnackbar;
+	let errorSnackbar;
 
 	onMount(async () => {
 		const res = await fetch(`/veff_internal_api/init`);
@@ -26,6 +28,26 @@
 
 	function updateActive() {
 		flagsForSelectedTab = _.filter(flags, (x) => x.ContainerName == active);
+	}
+
+	function handleError(err) {
+		errorSnackbar.open()
+	}
+	
+	function handleSaved(savedEvent) {
+		savedSnackbar.open()
+		let update = savedEvent.detail
+		console.table(update);
+
+		let index = _.findIndex(flags, (x) => x.Id === update.Id)
+
+		let hll = flags[index]
+		console.log(update, hll)
+
+		let updatedModel =  {...hll, ...update};
+		console.log(updatedModel)
+
+		flags[index] = updatedModel
 	}
 </script>
 
@@ -57,13 +79,17 @@
 									id={f.Id}
 									checked={f.Enabled}
 									description={f.Description}
+									on:error={handleError}
+									on:saved={handleSaved}
 								/>
 							{:else if f.Type == "StringFlag"}
 								<StringFlag
 									name={f.Name}
 									id={f.Id}
-									strings={_.join(f.Strings, "\n")}
+									strings={f.Strings}
 									description={f.Description}
+									on:error={handleError}
+									on:saved={handleSaved}
 								/>
 							{:else if f.Type == "PercentFlag"}
 								<PercentFlag
@@ -71,6 +97,8 @@
 									id={f.Id}
 									percent={f.Percent}
 									description={f.Description}
+									on:error={handleError}
+									on:saved={handleSaved}
 								/>
 							{/if}
 						{/each}
@@ -78,7 +106,15 @@
 				</DataTable>
 			</Content>
 		</Paper>
+
+		<Snackbar bind:this={savedSnackbar}>
+			<Label>Saved!</Label>
+		</Snackbar>
+
+		<Snackbar bind:this={errorSnackbar}>
+			<Label>Error!</Label>
+		</Snackbar>
 	</div>
 {:else}
-	<h1>hello</h1>
+	<h1>Something is very, very wrong..</h1>
 {/if}

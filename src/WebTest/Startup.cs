@@ -23,10 +23,11 @@ namespace WebTest
             {
                 settings
                     .UseSqlServer(@"Server=localhost,15789;Database=master;User=sa;Password=Your_password123")
-                    .AddFeatureFlagContainers(new FooBarFeatures())
+                    .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
 
+            services.AddCors();
             services.AddSingleton<IMySuperService, MySuperService>();
 
             services.AddControllers();
@@ -35,7 +36,7 @@ namespace WebTest
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseHttpsRedirection();
-
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseVeff();
             app.UseRouting();
 
@@ -48,5 +49,18 @@ namespace WebTest
         public BooleanFlag Foo { get; set;}
         public PercentFlag Bar { get; set; }
         public StringFlag Baz { get; set; }
+    }
+    
+    public class NewStuffFeatures : IFeatureContainer
+    {
+        public BooleanFlag Hello { get; set;}
+        public BooleanFlag CanUseEmails { get; set;}
+        public BooleanFlag CanUseSomethingElse { get; set;}
+        public PercentFlag Bar123 { get; set; }
+        public PercentFlag Bar333 { get; set; }
+        public PercentFlag Bar555 { get; set; }
+        public StringFlag Baz111 { get; set; }
+        public StringFlag Baz333 { get; set; }
+        public StringFlag Baz555 { get; set; }
     }
 }

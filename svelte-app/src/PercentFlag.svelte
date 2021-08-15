@@ -5,24 +5,33 @@
 	import Textfield from "@smui/textfield";
 	import Slider from "@smui/slider";
 	import FormField from "@smui/form-field";
+	import { createEventDispatcher } from 'svelte';
 
 	export let percent;
 	export let name;
 	export let description;
 	export let id;
 
+	const dispatch = createEventDispatcher();
+
 	let disabled = false;
-	$: description;
 
 	async function save() {
+		let update = { "Id": id, "Description": description, "Type": "PercentFlag", "Percent": percent, "Strings": "" }
 		const options = {
 			method: "POST",
-			body: JSON.stringify({ "id": id, "description": description, "type": "PercentFlag", "percent": percent, "strings": "" }),
+			body: JSON.stringify(update),
 			headers: {	"Content-Type": "application/json",},
 		};
 
 		disabled = true;
 		let res = await fetch("/veff_internal_api/update", options);
+		if (res.ok) {
+			dispatch("saved", update)
+		} else {
+			dispatch("error", {message: "something went bad" })
+		}
+
 		disabled = false;
 	}
 </script>

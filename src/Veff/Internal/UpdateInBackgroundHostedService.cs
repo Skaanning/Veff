@@ -5,11 +5,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Veff.Extensions;
+using Veff.Internal;
+using Veff.Internal.Extensions;
 
 namespace Veff
 {
-    public class UpdateInBackgroundHostedService : IHostedService, IDisposable
+    internal class UpdateInBackgroundHostedService : IHostedService, IDisposable
     {
         private readonly TimeSpan _updateTime;
         private readonly IVeffSqlConnectionFactory _sqlConnectionFactory;
