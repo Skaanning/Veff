@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -33,29 +34,59 @@ namespace Veff
             path = EnsureStartsWith(path, "/");
 
             var services = appBuilder.ApplicationServices;
+            var authorizers = services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[] ?? Array.Empty<IVeffDashboardAuthorizer>();
 
             var apiPath = "/veff_internal_api";
             appBuilder.Map($"{apiPath}/init", app => app.Run(async context =>
             {
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(await GetAll(services));
+                if (await IsAuthorized(authorizers, context))
+                {
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync(await GetAll(services));
+                }
             }));
             
             appBuilder.Map($"{apiPath}/update", app => app.Run(async context =>
             {
-                context.Response.ContentType = "text/plain";
-                context.Response.StatusCode = 201;
-                var update = await Update(services, context);
-                await context.Response.WriteAsync(update);
+                if (await IsAuthorized(authorizers, context))
+                {
+                    context.Response.ContentType = "text/plain";
+                    context.Response.StatusCode = 201;
+                    var update = await Update(services, context);
+                    await context.Response.WriteAsync(update);
+                }
             }));
 
             appBuilder.Map(path, app => app.Run(async context =>
             {
-                context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(Response);
+                if (await IsAuthorized(authorizers, context))
+                {
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync(Response);
+                }
             }));
 
             return appBuilder;
+        }
+
+        private static async Task<bool> IsAuthorized(
+            IVeffDashboardAuthorizer[] authorizers,
+            HttpContext context)
+        {
+            var authorized = true;
+            foreach (IVeffDashboardAuthorizer authorizer in authorizers)
+            {
+                authorized = authorized && await authorizer.IsAuthorized(context);
+            }
+
+            if (authorized)
+            {
+                return true;
+            }
+
+            context.Response.StatusCode = 401;
+            await context.Response.WriteAsync("unauthorized");
+            return false;
         }
 
         private static async Task<string> Update(IServiceProvider services, HttpContext httpContext)

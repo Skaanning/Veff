@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Veff;
@@ -21,12 +23,13 @@ namespace WebTest
             services.AddVeff(settings =>
             {
                 settings
-                    .UseSqlServer(@"Server=localhost,15789;Database=master;User=sa;Password=Your_password123")
+                    .UseSqlServer(@"Server=.\SQLExpress;Database=WebApi;Integrated Security=true;MultipleActiveResultSets=True")
                     .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
 
             services.AddSingleton<IMySuperService, MySuperService>();
+            services.AddSingleton<IVeffDashboardAuthorizer, Auth>();
 
             services.AddControllers();
         }
@@ -59,5 +62,13 @@ namespace WebTest
         public StringFlag Baz111 { get; set; }
         public StringFlag Baz333 { get; set; }
         public StringFlag Baz555 { get; set; }
+    }
+
+    public class Auth : IVeffDashboardAuthorizer
+    {
+        public Task<bool> IsAuthorized(HttpContext context)
+        {
+            return Task.FromResult(true); // context.Connection.RemoteIpAddress?.ToString() == "0.0.0.0";
+        }
     }
 }
