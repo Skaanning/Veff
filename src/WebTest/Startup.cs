@@ -44,14 +44,11 @@ namespace WebTest
         }
     }
 
-    public record FooBarFeatures(
-        BooleanFlag Foo,
-        PercentFlag Bar,
-        StringFlag Baz) : IFeatureContainer
+    public record FooBarFeatures : IFeatureContainer
     {
-        public FooBarFeatures() : this(null, null, null)
-        {
-        }
+        public BooleanFlag Foo {get; init; }
+        public PercentFlag Bar {get; init; }
+        public  StringFlag Baz {get; init; }
     }
 
     public class NewStuffFeatures : IFeatureContainer

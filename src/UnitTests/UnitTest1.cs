@@ -11,10 +11,14 @@ namespace UnitTests
 
         public MySuperServiceTest()
         {
-            _sut = new MySuperService(new FooBarFeatures(
-                new MockedBooleanFlag(true),
-                new MockedPercentFlag(true),
-                new MockedStringFlag("hello")));
+            var fooBarFeatures = new FooBarFeatures
+            {
+                Foo = new MockedBooleanFlag(true),
+                Bar = new MockedPercentFlag(true),
+                Baz = new MockedStringFlag("hello")
+            };
+
+            _sut = new MySuperService(fooBarFeatures);
         }
         
         [Fact]

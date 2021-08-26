@@ -68,6 +68,11 @@ StringFlag, PercentFlag and BooleanFlag.
         }
 ```
 
+#### Note
+
+The FeatureContainers does not care what data they are initialized with, it will also take whats stored in the db (meaning flags defaults to false until otherwise specified in the dashboard)
+
+
 ### Usage
 
 ```C#
@@ -102,9 +107,71 @@ StringFlag, PercentFlag and BooleanFlag.
 
 ### Dashboard.
 
-Will be automatically updated with values if you add additional "FeatureFlags" or new "FeatureFlags containers".
+Will be automatically updated with new fields if you add additional **FeatureFlags** or new tabs if you add addtional **Containers**.
+
+
 After you save, your changes will be live within the specified time configured in .UpdateInBackground()
 
 ![image](https://user-images.githubusercontent.com/4522165/129459776-629d2312-1829-40ae-b03c-bb855a0528de.png)
 
 
+
+### Testing
+
+How do you test class that injects a feature container - since it is not hidden behind an interface?  
+
+```C#
+
+    public interface IMySuperService
+    {
+        string DoStuff();
+    }
+
+
+    public class MySuperService : IMySuperService
+    {
+        private readonly FooBarFeatures _fooBarFeatures;
+
+        public MySuperService(FooBarFeatures fooBarFeatures)
+        {
+            _fooBarFeatures = fooBarFeatures;
+        }
+        
+        public string DoStuff()
+        {
+            return _fooBarFeatures.Bar.IsEnabled ? "Hello" : "goodbye";
+        }
+    }
+
+```
+
+Luckily you can easily test by initializing the FeatureContainer with **MockedFlags**
+
+```C#
+
+    public class MySuperServiceTest
+    {
+        private readonly MySuperService _sut;
+
+        public MySuperServiceTest()
+        {
+            var fooBarFeatures = new FooBarFeatures
+            {
+                Foo = new MockedBooleanFlag(true),
+                Bar = new MockedPercentFlag(true),
+                Baz = new MockedStringFlag("my@email.com")
+            };
+
+            _sut = new MySuperService(fooBarFeatures);
+        }
+        
+        [Fact]
+        public void Test1()
+        {
+            var doStuff = _sut.DoStuff();
+            Assert.Equal("Hello", doStuff);
+        }
+    }
+
+
+```
