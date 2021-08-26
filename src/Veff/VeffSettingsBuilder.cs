@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Veff.Flags;
 using Veff.Internal;
@@ -20,7 +21,7 @@ namespace Veff
             _serviceCollection = serviceCollection;
         }
         
-        public IFeatureFlagContainerBuilder UseSqlServer(string connectionString)
+        public IFeatureFlagContainerBuilder WithSqlServer(string connectionString)
         {
             _veffSqlConnectionFactory = new VeffSqlConnectionFactory(connectionString);
             _serviceCollection.AddTransient<IVeffSqlConnectionFactory>(x => _veffSqlConnectionFactory);
@@ -31,15 +32,15 @@ namespace Veff
         public IBackgroundBuilder AddFeatureFlagContainers(params IFeatureContainer[] containers)
         {
             var featureFlagNames = new List<(string,string)>();
-            foreach (var veffContainer in containers)
+            foreach (IFeatureContainer veffContainer in containers)
             {
-                var type = veffContainer.GetType();
-                var targetType = typeof(Flag);
+                Type type = veffContainer.GetType();
+                Type targetType = typeof(Flag);
 
                 type.GetProperties()
                     .Where(x => x.PropertyType.IsAssignableTo(targetType))
                     .Select(x => ($"{type.Name}.{x.Name}", x.PropertyType.ToString()))
-                    .ForEach(x => featureFlagNames.Add((x)));
+                    .ForEach(x => featureFlagNames.Add(x));
             }
 
             SyncFeatureFlagsInDb(featureFlagNames);
@@ -51,7 +52,7 @@ namespace Veff
             return this;
         }
         
-        public IBackgroundBuilder UpdateInBackground(TimeSpan updateTime)
+        public IBackgroundBuilder AddUpdateBackgroundService(TimeSpan updateTime)
         {
             _serviceCollection.AddHostedService(x => new UpdateInBackgroundHostedService(updateTime, x.GetService));
             return this;
@@ -59,18 +60,18 @@ namespace Veff
 
         private void SyncFeatureFlagsInDb(IEnumerable<(string Name, string Type)> featureFlagNames)
         {
-            using var conn = _veffSqlConnectionFactory.UseConnection();
+            using SqlConnection conn = _veffSqlConnectionFactory.UseConnection();
 
             using var existingFeatureFlags = new SqlCommand(@"SELECT Name FROM Veff_FeatureFlags", conn);
 
-            using var reader = existingFeatureFlags.ExecuteReader();
+            using SqlDataReader reader = existingFeatureFlags.ExecuteReader();
             var hashSet = new HashSet<string>();
             while (reader.Read())
                 hashSet.Add(reader.GetString(0));
             
             reader.Close();
             
-            var flagsMissingInDb = featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
+            (string Name, string Type)[] flagsMissingInDb = featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
 
             if (flagsMissingInDb.Length == 0)
             {
@@ -78,7 +79,7 @@ namespace Veff
             }
 
             var i = 0;
-            var values = string.Join(',', flagsMissingInDb.Select(x =>
+            string values = string.Join(',', flagsMissingInDb.Select(_ =>
             {
                 i++;
                 return $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)";
@@ -111,14 +112,14 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
         
         private void SyncValuesFromDb(IFeatureContainer[] veffContainers)
         {
-            using var conn = _veffSqlConnectionFactory.UseConnection();
+            using SqlConnection conn = _veffSqlConnectionFactory.UseConnection();
             
             using var allValuesCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 
 ", conn);
-            using var sqlDataReader = allValuesCommand.ExecuteReader();
+            using SqlDataReader sqlDataReader = allValuesCommand.ExecuteReader();
 
             var veff = new List<VeffDbModel>();
             while (sqlDataReader.Read())
@@ -133,25 +134,39 @@ FROM Veff_FeatureFlags
                 veff.Add(flag);   
             }
             
-            var lookup = veff.ToLookup(x => x.GetClassName());
-            var containerDictionary = veffContainers.ToDictionary(x => x.GetType().Name);
-            foreach (var ffClass in lookup)
+            ILookup<string, VeffDbModel> lookup = veff.ToLookup(x => x.GetClassName());
+            Dictionary<string, IFeatureContainer> containerDictionary = veffContainers.ToDictionary(x => x.GetType().Name);
+            foreach (IGrouping<string, VeffDbModel> ffClass in lookup)
             {
-                if (!containerDictionary.TryGetValue(ffClass.Key, out var container)) continue;
+                if (!containerDictionary.TryGetValue(ffClass.Key, out IFeatureContainer container)) continue;
 
                 ffClass.ForEach(property =>
                 {
-                    var p = container
+                    PropertyInfo p = container
                         .GetType()
                         .GetProperty(property.GetPropertyName());
-                    p?.SetValue(container, property.AsImpl());
+
+                    if (p is null) return;
+
+                    if (p.CanWrite!)
+                    {
+                        p.SetValue(container, property.AsImpl());
+                    }
+                    else
+                    {
+                        FieldInfo field = container
+                            .GetType()
+                            .GetField($"<{property.GetPropertyName()}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                        field?.SetValue(container, property.AsImpl());
+                    }
                 });
             }
         }
 
         private static void EnsureTableExists(IVeffSqlConnectionFactory connFactory)
         {
-            using var conn = connFactory.UseConnection();
+            using SqlConnection conn = connFactory.UseConnection();
             
             using var command = new SqlCommand(@"
 EXEC sp_tables 
@@ -160,7 +175,7 @@ EXEC sp_tables
     @fUsePattern = 1;
 ", conn);
 
-            var any = command.ExecuteScalar();
+            object any = command.ExecuteScalar();
 
             if (any is null)
             {
@@ -182,7 +197,7 @@ CREATE TABLE Veff_FeatureFlags(
 
     public interface IUseSqlServerBuilder
     {
-        IFeatureFlagContainerBuilder UseSqlServer(string connectionString);
+        IFeatureFlagContainerBuilder WithSqlServer(string connectionString);
     }
     
     public interface IFeatureFlagContainerBuilder
@@ -192,6 +207,6 @@ CREATE TABLE Veff_FeatureFlags(
 
     public interface IBackgroundBuilder
     {
-        IBackgroundBuilder UpdateInBackground(TimeSpan updateTime);
+        IBackgroundBuilder AddUpdateBackgroundService(TimeSpan updateTime);
     }
 }

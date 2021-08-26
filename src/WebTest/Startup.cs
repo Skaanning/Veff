@@ -23,13 +23,13 @@ namespace WebTest
             services.AddVeff(settings =>
             {
                 settings
-                    .UseSqlServer(@"Server=.\SQLExpress;Database=WebApi;Integrated Security=true;MultipleActiveResultSets=True")
+                    .WithSqlServer(@"Server=.\SQLExpress;Database=WebApi;Integrated Security=true;MultipleActiveResultSets=True")
                     .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
-                    .UpdateInBackground(TimeSpan.FromSeconds(30));
+                    .AddUpdateBackgroundService(TimeSpan.FromSeconds(30));
             });
 
             services.AddSingleton<IMySuperService, MySuperService>();
-            services.AddSingleton<IVeffDashboardAuthorizer, Auth>();
+            services.AddSingleton<IVeffDashboardAuthorizer, MyCustomAuthorizer>();
 
             services.AddControllers();
         }
@@ -43,28 +43,31 @@ namespace WebTest
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
-    
-    public class FooBarFeatures : IFeatureContainer
+
+    public record FooBarFeatures(
+        BooleanFlag Foo,
+        PercentFlag Bar,
+        StringFlag Baz) : IFeatureContainer
     {
-        public BooleanFlag Foo { get; set;}
-        public PercentFlag Bar { get; set; }
-        public StringFlag Baz { get; set; }
+        public FooBarFeatures() : this(null, null, null)
+        {
+        }
     }
-    
+
     public class NewStuffFeatures : IFeatureContainer
     {
-        public BooleanFlag Hello { get; set;}
-        public BooleanFlag CanUseEmails { get; set;}
-        public BooleanFlag CanUseSomethingElse { get; set;}
-        public PercentFlag Bar123 { get; set; }
-        public PercentFlag Bar333 { get; set; }
-        public PercentFlag Bar555 { get; set; }
-        public StringFlag Baz111 { get; set; }
+        public BooleanFlag Hello { get; }
+        public BooleanFlag CanUseEmails { get;}
+        public BooleanFlag CanUseSomethingElse { get;}
+        public PercentFlag Bar123 { get; }
+        public PercentFlag Bar333 { get; }
+        public PercentFlag Bar555 { get; }
+        public StringFlag Baz111 { get; }
         public StringFlag Baz333 { get; set; }
         public StringFlag Baz555 { get; set; }
     }
 
-    public class Auth : IVeffDashboardAuthorizer
+    public class MyCustomAuthorizer : IVeffDashboardAuthorizer
     {
         public Task<bool> IsAuthorized(HttpContext context)
         {

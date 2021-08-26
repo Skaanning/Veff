@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace WebTest.Controllers
 {
@@ -10,24 +7,24 @@ namespace WebTest.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly FooBarFeatures _features;
         private readonly IMySuperService _mySuperService;
+        private readonly NewStuffFeatures _newStuffFeatures;
 
         public WeatherForecastController(FooBarFeatures features,
-            IMySuperService mySuperService)
+            IMySuperService mySuperService, NewStuffFeatures newStuffFeatures)
         {
             _features = features;
             _mySuperService = mySuperService;
+            _newStuffFeatures = newStuffFeatures;
         }
 
         [HttpGet]
         public string Get()
         {
+            if (_newStuffFeatures.Bar123.IsEnabled)
+                throw new Exception("_newStuffFeatures.Bar123.IsEnabled");
+
             // string flag
             if (_features.Baz.EnabledFor("michael"))
                 throw new Exception("michael is not allowed");

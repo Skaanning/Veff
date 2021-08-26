@@ -8,11 +8,9 @@ Well it's easy if you use aspnet core :)
 Currently supports 3 types of feature flags. 
 StringFlag, PercentFlag and BooleanFlag.
 
-**Boolean** is a simple true/false
-
-**Percent** takes an int from 0 to 100 and returns true or false with that percentage. Could be useful for split testing     
-
-**String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
+- **Boolean** is a simple true/false
+- **Percent** takes an int from 0 to 100 and returns true that percentage of the time. Could be useful for split testing     
+- **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
 
 ### Setup
 
@@ -30,6 +28,10 @@ StringFlag, PercentFlag and BooleanFlag.
                     // background job runs every 30 sec, updates the singleton feature containers with values from db.
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
+
+            // Create a class implementing IVeffDashboardAuthorizer to add auth before you can acccess the dashboard
+            // you can create multiple IVeffDashboardAuthorizers, users will have to fulfil them all to access the dashboard.
+            services.AddSingleton<IVeffDashboardAuthorizer, MyCustomAuthorizer>();
 
             services.AddControllers();
         }
@@ -49,9 +51,20 @@ StringFlag, PercentFlag and BooleanFlag.
         // example of a feature flag container. 
         public class FooBarFeatures : IFeatureContainer
         {
-                public BooleanFlag Foo { get;  private set;}
-                public PercentFlag Bar { get; private set; }
-                public StringFlag Baz { get; private set; }
+                public BooleanFlag Foo { get; }
+                public PercentFlag Bar { get; }
+                public StringFlag Baz { get; }
+        }
+
+        public record SomeRecordFeature(StringFlag UseNewImpl, BooleanFlag UseEmails, BooleanFlag UseSms) : IFeatureContainer;
+
+        public class MyCustomAuthorizer : IVeffDashboardAuthorizer 
+        {
+            public Task<bool> IsAuthorized(HttpContext context)
+            {
+                // use the HttpContext to do your auth checks.  
+                return Task.FromResult(true); 
+            }
         }
 ```
 
@@ -62,17 +75,17 @@ StringFlag, PercentFlag and BooleanFlag.
 
         // works with normal di..
         // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
-        public WeatherForecastController(FooBarFeatures features)
+        public MyFancyController(FooBarFeatures features)
         {
             _features = features;
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IActionResult Get()
         {
             // string flag
             if (_features.Baz.EnabledFor("michael"))
-                throw new Exception("michael is not allowed");
+                return Ok("hello world");
 
             // Percent flag
             if (!_features.Bar.IsEnabled)

@@ -7,7 +7,7 @@ namespace Veff.Internal.Extensions
     {
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            foreach (var s in source)
+            foreach (T s in source)
             {
                 action(s);
             }

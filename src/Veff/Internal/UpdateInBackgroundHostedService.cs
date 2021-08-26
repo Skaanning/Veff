@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -33,14 +34,14 @@ namespace Veff.Internal
         private void DoWork(object state)
         {
             //todo this and SyncValuesFromDb are almost identical
-            using var sqlConnection = _sqlConnectionFactory.UseConnection();
+            using SqlConnection sqlConnection = _sqlConnectionFactory.UseConnection();
             
             using var allValuesCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 
 ", sqlConnection);
-            using var sqlDataReader = allValuesCommand.ExecuteReader();
+            using SqlDataReader sqlDataReader = allValuesCommand.ExecuteReader();
 
             var veff = new List<VeffDbModel>();
             while (sqlDataReader.Read())
@@ -55,18 +56,32 @@ FROM Veff_FeatureFlags
                 veff.Add(flag);   
             }
             
-            var lookup = veff.ToLookup(x => x.GetClassName());
-            var containerDictionary = _featureContainers.ToDictionary(x => x.GetType().Name);
-            foreach (var ffClass in lookup)
+            ILookup<string, VeffDbModel> lookup = veff.ToLookup(x => x.GetClassName());
+            Dictionary<string, IFeatureContainer> containerDictionary = _featureContainers.ToDictionary(x => x.GetType().Name);
+            foreach (IGrouping<string, VeffDbModel> ffClass in lookup)
             {
-                if (!containerDictionary.TryGetValue(ffClass.Key, out var container)) continue;
+                if (!containerDictionary.TryGetValue(ffClass.Key, out IFeatureContainer container)) continue;
 
                 ffClass.ForEach(property =>
                 {
-                    var p = container
+                    PropertyInfo p = container
                         .GetType()
                         .GetProperty(property.GetPropertyName());
-                    p?.SetValue(container, property.AsImpl());
+
+                    if (p is null) return;
+
+                    if (p.CanWrite!)
+                    {
+                        p.SetValue(container, property.AsImpl());
+                    }
+                    else
+                    {
+                        FieldInfo field = container
+                            .GetType()
+                            .GetField($"<{property.GetPropertyName()}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                        field?.SetValue(container, property.AsImpl());
+                    }
                 });
             }
         }

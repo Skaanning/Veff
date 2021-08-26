@@ -22,8 +22,8 @@ namespace Veff
 
         static ApplicationBuilderExtensions()
         {
-            var assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var textPath = Path.Combine(assemblyDirectory!, "Inlined.html");
+            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string textPath = Path.Combine(assemblyDirectory!, "Inlined.html");
 
             Response = File.ReadAllText(textPath);
         }
@@ -33,8 +33,9 @@ namespace Veff
         {
             path = EnsureStartsWith(path, "/");
 
-            var services = appBuilder.ApplicationServices;
-            var authorizers = services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[] ?? Array.Empty<IVeffDashboardAuthorizer>();
+            IServiceProvider services = appBuilder.ApplicationServices;
+            IVeffDashboardAuthorizer[] authorizers = services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[]
+                                                     ?? Array.Empty<IVeffDashboardAuthorizer>();
 
             var apiPath = "/veff_internal_api";
             appBuilder.Map($"{apiPath}/init", app => app.Run(async context =>
@@ -52,7 +53,7 @@ namespace Veff
                 {
                     context.Response.ContentType = "text/plain";
                     context.Response.StatusCode = 201;
-                    var update = await Update(services, context);
+                    string update = await Update(services, context);
                     await context.Response.WriteAsync(update);
                 }
             }));
@@ -92,7 +93,7 @@ namespace Veff
         private static async Task<string> Update(IServiceProvider services, HttpContext httpContext)
         {
             using var stream = new StreamReader(httpContext.Request.Body);
-            var body = await stream.ReadToEndAsync();
+            string body = await stream.ReadToEndAsync();
             var obj = JsonConvert.DeserializeObject<FeatureFlagUpdate>(body);
             SaveUpdate(obj, services);
             
@@ -102,7 +103,7 @@ namespace Veff
         private static void SaveUpdate(FeatureFlagUpdate featureFlagUpdate, IServiceProvider serviceProvider)
         {
             var veffSqlConnectionFactory = serviceProvider.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
-            using var conn = veffSqlConnectionFactory!.UseConnection();
+            using SqlConnection conn = veffSqlConnectionFactory!.UseConnection();
 
             var sqlCommand = new SqlCommand(@"
 UPDATE [dbo].[Veff_FeatureFlags]
@@ -115,7 +116,7 @@ UPDATE [dbo].[Veff_FeatureFlags]
 
             sqlCommand.Parameters.Add("@Description", SqlDbType.NVarChar).Value = featureFlagUpdate.Description ?? "";
             sqlCommand.Parameters.Add("@Percent", SqlDbType.Int).Value = featureFlagUpdate.Percent;
-            var strings = featureFlagUpdate.Strings.Replace('\n', ';');
+            string strings = featureFlagUpdate.Strings.Replace('\n', ';');
             sqlCommand.Parameters.Add("@Strings", SqlDbType.NVarChar).Value = strings ?? "";
             sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = featureFlagUpdate.Id;
 
@@ -125,13 +126,13 @@ UPDATE [dbo].[Veff_FeatureFlags]
         private static async Task<string> GetAll(IServiceProvider services)
         {
             var veffSqlConnectionFactory = services.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
-            using var conn = veffSqlConnectionFactory!.UseConnection();
+            using SqlConnection conn = veffSqlConnectionFactory!.UseConnection();
             
             var sqlCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 ", conn);
-            await using var sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+            await using SqlDataReader sqlDataReader = await sqlCommand.ExecuteReaderAsync();
 
             var veffDbModels = new List<VeffDbModel>();
             while (await sqlDataReader.ReadAsync())
@@ -145,7 +146,7 @@ FROM Veff_FeatureFlags
                     sqlDataReader.GetString(5)));
             }
 
-            var array = veffDbModels.Select(x => x.AsImpl())
+            FeatureFlagViewModel[] array = veffDbModels.Select(x => x.AsImpl())
                 .Select(x => new FeatureFlagViewModel(x))
                 .ToArray();
             
