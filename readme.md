@@ -12,6 +12,49 @@ StringFlag, PercentFlag and BooleanFlag.
 - **Percent** takes an int from 0 to 100 and returns true that percentage of the time. Could be useful for split testing     
 - **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
 
+
+### Usage
+
+```C#
+
+        // example of a feature flag container. 
+        public class FooBarFeatures : IFeatureContainer
+        {
+                public BooleanFlag Foo { get; }
+                public PercentFlag Bar { get; }
+                public StringFlag Baz { get; }
+        }
+```
+
+```C#
+        private readonly FooBarFeatures _features;
+
+        // works with normal di, just inject the concrete class.
+        // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
+        public MyFancyController(FooBarFeatures features)
+        {
+            _features = features;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            // string flag
+            if (_features.Baz.EnabledFor("michael"))
+                return Ok("hello world");
+
+            // Percent flag
+            if (!_features.Bar.IsEnabled)
+                throw new Exception("Bar not enabled");
+            
+            // boolean flag
+            if (!_features.Foo.IsEnabled)
+                throw new Exception("Foo not enabled");
+            
+            .....
+        }
+```
+
 ### Setup
 
 ```C#
@@ -74,38 +117,6 @@ StringFlag, PercentFlag and BooleanFlag.
 #### Note
 
 The FeatureContainers does not care what data they are initialized with, it will also take whats stored in the db (meaning flags defaults to false until otherwise specified in the dashboard)
-
-
-### Usage
-
-```C#
-        private readonly FooBarFeatures _features;
-
-        // works with normal di, just inject the concrete class.
-        // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
-        public MyFancyController(FooBarFeatures features)
-        {
-            _features = features;
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            // string flag
-            if (_features.Baz.EnabledFor("michael"))
-                return Ok("hello world");
-
-            // Percent flag
-            if (!_features.Bar.IsEnabled)
-                throw new Exception("Bar not enabled");
-            
-            // boolean flag
-            if (!_features.Foo.IsEnabled)
-                throw new Exception("Foo not enabled");
-            
-            .....
-        }
-```
 
 
 ### Dashboard.
