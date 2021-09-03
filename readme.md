@@ -17,7 +17,7 @@ StringFlag, PercentFlag and BooleanFlag.
 ```C#
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add veff to the project. Currently only works with sqlserver.    
+            // Add veff to the project.
             services.AddVeff(settings =>
             {
                 settings
@@ -25,7 +25,7 @@ StringFlag, PercentFlag and BooleanFlag.
                     .UseSqlServer(@"Server=localho.....") 
                     // add your feature flag containers here
                     .AddFeatureFlagContainers(new FooBarFeatures()) 
-                    // background job runs every 30 sec, updates the singleton feature containers with values from db.
+                    // background job runs every 30 sec, updates the feature containers with values from the db.
                     .UpdateInBackground(TimeSpan.FromSeconds(30));
             });
 
@@ -38,7 +38,7 @@ StringFlag, PercentFlag and BooleanFlag.
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // dashboard found on this url, auth to come..
+            // dashboard accessible on this url
             app.UseVeff("/veff");
             
             // all the normal stuff after this :)
@@ -56,7 +56,10 @@ StringFlag, PercentFlag and BooleanFlag.
                 public StringFlag Baz { get; }
         }
 
-        public record SomeRecordFeature(StringFlag UseNewImpl, BooleanFlag UseEmails, BooleanFlag UseSms) : IFeatureContainer;
+        public record SomeRecordFeature(
+                StringFlag UseNewImpl, 
+                BooleanFlag UseEmails, 
+                BooleanFlag UseSms) : IFeatureContainer;
 
         public class MyCustomAuthorizer : IVeffDashboardAuthorizer 
         {
@@ -78,7 +81,7 @@ The FeatureContainers does not care what data they are initialized with, it will
 ```C#
         private readonly FooBarFeatures _features;
 
-        // works with normal di..
+        // works with normal di, just inject the concrete class.
         // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
         public MyFancyController(FooBarFeatures features)
         {
@@ -119,6 +122,7 @@ After you save, your changes will be live within the specified time configured i
 ### Testing
 
 How do you test class that injects a feature container - since it is not hidden behind an interface?  
+Example:
 
 ```C#
 
