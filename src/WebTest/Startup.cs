@@ -28,7 +28,7 @@ namespace WebTest
                 settings
                     .WithSqlServer(Configuration.GetConnectionString("SqlDb"))
                     .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
-                    .AddCacheExpiryTime(10);
+                    .AddCacheExpiryTime(180);
             });
 
             services.AddSingleton<IMySuperService, MySuperService>();

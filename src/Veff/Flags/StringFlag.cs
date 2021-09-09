@@ -69,7 +69,7 @@ WHERE [Id] = @Id
 ", connection);
             cmd.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
             var percent = (string)cmd.ExecuteScalar();
-            return percent.Split(",", StringSplitOptions.RemoveEmptyEntries)
+            return percent.Split(";", StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.ToLower())
                 .ToHashSet();
         }

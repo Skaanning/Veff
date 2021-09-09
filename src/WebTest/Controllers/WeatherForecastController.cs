@@ -26,10 +26,6 @@ namespace WebTest.Controllers
             if (_features.Baz.EnabledFor("michael"))
                 throw new Exception("michael is not allowed");
 
-            // boolean flag
-            if (!_features.Foo.IsEnabled)
-                throw new Exception("Foo not enabled");
-            
             return _mySuperService.DoStuff();
         }
     }
@@ -45,7 +41,7 @@ namespace WebTest.Controllers
         
         public string DoStuff()
         {
-            return _fooBarFeatures.Foo.IsEnabled ? "Hello" : "goodbye";
+            return _fooBarFeatures.Baz.EnabledFor("1") ? "Hello" : "goodbye";
         }
     }
 

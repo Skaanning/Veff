@@ -162,12 +162,13 @@ FROM Veff_FeatureFlags
             return JsonConvert.SerializeObject(new FeatureContainerViewModel(array));
         }
 
-
         private static string EnsureStartsWith(
             string pathMatch,
             string s)
         {
-            return pathMatch.StartsWith(s) ? pathMatch : $"{s}{pathMatch}";
+            return pathMatch.StartsWith(s)
+                ? pathMatch
+                : $"{s}{pathMatch}";
         }
     }
 }
