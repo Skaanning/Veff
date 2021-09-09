@@ -5,6 +5,7 @@ namespace Veff
 {
     public interface IVeffDashboardAuthorizer
     {
-        Task<bool> IsAuthorized(HttpContext context);
+        Task<bool> IsAuthorized(
+            HttpContext context);
     }
 }

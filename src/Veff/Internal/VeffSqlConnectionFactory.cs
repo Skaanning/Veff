@@ -8,8 +8,11 @@ namespace Veff.Internal
         private readonly string _connectionString;
         private SqlConnection _connection;
 
-        public VeffSqlConnectionFactory(string connectionString)
+        public VeffSqlConnectionFactory(
+            string connectionString,
+            int cacheExpiryInSeconds = 60)
         {
+            CacheExpiryInSeconds = cacheExpiryInSeconds;
             _connectionString = connectionString;
         }
 
@@ -21,6 +24,8 @@ namespace Veff.Internal
 
             return _connection;
         }
+
+        public int CacheExpiryInSeconds { get; internal set; }
 
         public void Dispose()
         {

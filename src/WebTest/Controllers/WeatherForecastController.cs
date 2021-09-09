@@ -22,17 +22,10 @@ namespace WebTest.Controllers
         [HttpGet]
         public string Get()
         {
-            if (_newStuffFeatures.Bar123.IsEnabled)
-                throw new Exception("_newStuffFeatures.Bar123.IsEnabled");
-
             // string flag
             if (_features.Baz.EnabledFor("michael"))
                 throw new Exception("michael is not allowed");
 
-            // Percent flag
-            if (!_features.Bar.IsEnabled)
-                throw new Exception("Bar not enabled");
-            
             // boolean flag
             if (!_features.Foo.IsEnabled)
                 throw new Exception("Foo not enabled");
@@ -52,7 +45,7 @@ namespace WebTest.Controllers
         
         public string DoStuff()
         {
-            return _fooBarFeatures.Bar.IsEnabled ? "Hello" : "goodbye";
+            return _fooBarFeatures.Foo.IsEnabled ? "Hello" : "goodbye";
         }
     }
 

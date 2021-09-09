@@ -5,7 +5,8 @@ namespace Veff.Internal.Responses
 {
     public class FeatureFlagViewModel
     {
-        public FeatureFlagViewModel(Flag flag)
+        public FeatureFlagViewModel(
+            Flag flag)
         {
             if (flag is BooleanFlag b)
             {
@@ -16,6 +17,7 @@ namespace Veff.Internal.Responses
                 Description = b.Description;
                 Id = b.Id;
             }
+
             if (flag is StringFlag f)
             {
                 ContainerName = f.Name.Split('.')[0];
@@ -24,15 +26,6 @@ namespace Veff.Internal.Responses
                 Type = nameof(StringFlag);
                 Description = f.Description;
                 Id = f.Id;
-            }
-            if (flag is PercentFlag p)
-            {
-                ContainerName = p.Name.Split('.')[0];
-                Name = p.Name.Split('.')[1];
-                Percent = p.Percent;
-                Type = nameof(PercentFlag);
-                Description = p.Description;
-                Id = p.Id;
             }
         }
 

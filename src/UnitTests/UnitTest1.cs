@@ -14,7 +14,6 @@ namespace UnitTests
             var fooBarFeatures = new FooBarFeatures
             {
                 Foo = new MockedBooleanFlag(true),
-                Bar = new MockedPercentFlag(true),
                 Baz = new MockedStringFlag("hello")
             };
 

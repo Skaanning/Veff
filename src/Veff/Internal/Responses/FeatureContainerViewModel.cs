@@ -2,7 +2,8 @@
 {
     public class FeatureContainerViewModel
     {
-        public FeatureContainerViewModel(FeatureFlagViewModel[] flags)
+        public FeatureContainerViewModel(
+            FeatureFlagViewModel[] flags)
         {
             Flags = flags;
         }
