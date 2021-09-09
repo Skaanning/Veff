@@ -5,11 +5,10 @@
 
 Well it's easy if you use aspnet core :) 
 
-Currently supports 3 types of feature flags. 
-StringFlag, PercentFlag and BooleanFlag.
+Currently supports 2 types of feature flags. 
+StringFlag and BooleanFlag.
 
 - **Boolean** is a simple true/false
-- **Percent** takes an int from 0 to 100 and returns true that percentage of the time. Could be useful for split testing     
 - **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
 
 
@@ -21,7 +20,6 @@ StringFlag, PercentFlag and BooleanFlag.
         public class FooBarFeatures : IFeatureContainer
         {
                 public BooleanFlag Foo { get; }
-                public PercentFlag Bar { get; }
                 public StringFlag Baz { get; }
         }
 ```
@@ -43,10 +41,6 @@ StringFlag, PercentFlag and BooleanFlag.
             if (_features.Baz.EnabledFor("michael"))
                 return Ok("hello world");
 
-            // Percent flag
-            if (!_features.Bar.IsEnabled)
-                throw new Exception("Bar not enabled");
-            
             // boolean flag
             if (!_features.Foo.IsEnabled)
                 throw new Exception("Foo not enabled");
@@ -95,7 +89,6 @@ StringFlag, PercentFlag and BooleanFlag.
         public class FooBarFeatures : IFeatureContainer
         {
                 public BooleanFlag Foo { get; }
-                public PercentFlag Bar { get; }
                 public StringFlag Baz { get; }
         }
 
@@ -173,7 +166,6 @@ Luckily you can easily test by initializing the FeatureContainer with **MockedFl
             var fooBarFeatures = new FooBarFeatures
             {
                 Foo = new MockedBooleanFlag(true),
-                Bar = new MockedPercentFlag(true),
                 Baz = new MockedStringFlag("my@email.com")
             };
 
