@@ -62,8 +62,8 @@ StringFlag and BooleanFlag.
                     .UseSqlServer(@"Server=localho.....") 
                     // add your feature flag containers here
                     .AddFeatureFlagContainers(new FooBarFeatures()) 
-                    // background job runs every 30 sec, updates the feature containers with values from the db.
-                    .UpdateInBackground(TimeSpan.FromSeconds(30));
+                    // cache flag value for xxx seconds 
+                    .AddCacheExpiryTime(seconds: 30);
             });
 
             // Create a class implementing IVeffDashboardAuthorizer to add auth before you can acccess the dashboard
@@ -147,7 +147,7 @@ Example:
         
         public string DoStuff()
         {
-            return _fooBarFeatures.Bar.IsEnabled ? "Hello" : "goodbye";
+            return _fooBarFeatures.Foo.IsEnabled ? "Hello" : "goodbye";
         }
     }
 
