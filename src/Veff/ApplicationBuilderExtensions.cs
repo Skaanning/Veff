@@ -34,8 +34,7 @@ namespace Veff
             path = EnsureStartsWith(path, "/");
 
             IServiceProvider services = appBuilder.ApplicationServices;
-            IVeffDashboardAuthorizer[] authorizers
-                = services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[]
+            IVeffDashboardAuthorizer[] authorizers = services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[]
                   ?? Array.Empty<IVeffDashboardAuthorizer>();
 
             var apiPath = "/veff_internal_api";

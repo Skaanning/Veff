@@ -12,7 +12,7 @@
 
 	let flags = [];
 	let flagsForSelectedTab = [];
-	let tabs;
+	let tabs = [];
 	let active = undefined;
 	let savedSnackbar;
 	let errorSnackbar;
@@ -37,15 +37,12 @@
 	function handleSaved(savedEvent) {
 		savedSnackbar.open()
 		let update = savedEvent.detail
-		console.table(update);
 
 		let index = _.findIndex(flags, (x) => x.Id === update.Id)
 
 		let hll = flags[index]
-		console.log(update, hll)
 
 		let updatedModel =  {...hll, ...update};
-		console.log(updatedModel)
 
 		flags[index] = updatedModel
 	}
