@@ -21,8 +21,8 @@ namespace Veff
 
         static ApplicationBuilderExtensions()
         {
-            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string textPath = Path.Combine(assemblyDirectory!, "Inlined.html");
+            string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+            string textPath = Path.Combine(assemblyDirectory, "Inlined.html");
 
             Response = File.ReadAllText(textPath);
         }
@@ -103,11 +103,12 @@ namespace Veff
         }
 
         private static void SaveUpdate(
-            FeatureFlagUpdate featureFlagUpdate,
+            FeatureFlagUpdate? featureFlagUpdate,
             IServiceProvider serviceProvider)
         {
-            var veffSqlConnectionFactory
-                = serviceProvider.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
+            if (featureFlagUpdate is null) return;
+
+            var veffSqlConnectionFactory = serviceProvider.GetService(typeof(IVeffSqlConnectionFactory)) as IVeffSqlConnectionFactory;
             using SqlConnection conn = veffSqlConnectionFactory!.UseConnection();
 
             var sqlCommand = new SqlCommand(@"
@@ -119,10 +120,10 @@ UPDATE [dbo].[Veff_FeatureFlags]
     [Id] = @Id 
 ", conn);
 
-            sqlCommand.Parameters.Add("@Description", SqlDbType.NVarChar).Value = featureFlagUpdate.Description ?? "";
+            sqlCommand.Parameters.Add("@Description", SqlDbType.NVarChar).Value = featureFlagUpdate.Description;
             sqlCommand.Parameters.Add("@Percent", SqlDbType.Int).Value = featureFlagUpdate.Percent;
             string strings = featureFlagUpdate.Strings.Replace('\n', ';');
-            sqlCommand.Parameters.Add("@Strings", SqlDbType.NVarChar).Value = strings ?? "";
+            sqlCommand.Parameters.Add("@Strings", SqlDbType.NVarChar).Value = strings;
             sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = featureFlagUpdate.Id;
 
             sqlCommand.ExecuteNonQuery();

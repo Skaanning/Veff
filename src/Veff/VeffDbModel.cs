@@ -24,7 +24,7 @@ namespace Veff
             Description = description;
             Percent = percent;
             Type = type;
-            Strings = (strings ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
+            Strings = strings.Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
         }
 
         public string GetClassName()

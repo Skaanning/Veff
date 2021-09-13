@@ -30,12 +30,12 @@ namespace Veff.Internal.Responses
         }
 
         public int Id { get; }
-        public string ContainerName { get; }
-        public string Name { get; }
-        public string Description { get; }
-        public string Type { get; }
-        public int Percent { get; }
+        public string ContainerName { get; } = "";
+        public string Name { get; } = "";
+        public string Description { get; } = "";
+        public string Type { get; } = "";
+        // public int Percent { get; }
         public bool Enabled { get; }
-        public string Strings { get; }
+        public string Strings { get; } = "";
     }
 }

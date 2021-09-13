@@ -6,7 +6,7 @@ namespace Veff.Internal
     public class VeffSqlConnectionFactory : IVeffSqlConnectionFactory, IDisposable
     {
         private readonly string _connectionString;
-        private SqlConnection _connection;
+        private SqlConnection? _connection;
 
         public VeffSqlConnectionFactory(
             string connectionString,

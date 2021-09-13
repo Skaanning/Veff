@@ -6,6 +6,6 @@ namespace Veff.Internal.Extensions
     {
         public static bool IsAssignableTo(
             this Type t,
-            Type targetType) => targetType?.IsAssignableFrom(t) ?? false;
+            Type? targetType) => targetType?.IsAssignableFrom(t) ?? false;
     }
 }

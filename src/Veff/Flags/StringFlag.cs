@@ -23,7 +23,7 @@ namespace Veff.Flags
             Name = name;
             Description = description;
             _cachedValueExpiry = DateTimeOffset.UtcNow;
-            _cachedValue = (values ?? Array.Empty<string>())
+            _cachedValue = (values)
                 .Select(x => x.ToLower())
                 .ToHashSet();
         }
