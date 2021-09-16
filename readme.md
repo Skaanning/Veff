@@ -117,7 +117,7 @@ The FeatureContainers does not care what data they are initialized with, it will
 Will be automatically updated with new fields if you add additional **FeatureFlags** or new tabs if you add addtional **Containers**.
 
 
-After you save, your changes will be live within the specified time configured in .UpdateInBackground()
+After you save, your changes will be live within the specified cache time in AddCacheExpiryTime(seconds: 30).
 
 ![image](https://user-images.githubusercontent.com/4522165/129459776-629d2312-1829-40ae-b03c-bb855a0528de.png)
 
