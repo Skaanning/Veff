@@ -6,7 +6,7 @@
         <Authors>Michael Skaanning</Authors>
         <Description>Very easy feature flags</Description>
         <PackageTags>FeatureFlag</PackageTags>
-        <PackageVersion>0.9.0</PackageVersion>
+        <PackageVersion>1.0.0</PackageVersion>
         <Copyright></Copyright>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>9</LangVersion>
