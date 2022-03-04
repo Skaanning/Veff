@@ -52,7 +52,7 @@ namespace Veff.Flags
             using var connection = VeffSqlConnectionFactory.UseConnection();
             var newValue = GetValueFromDb(); // connection.
 
-            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffSqlConnectionFactory.CacheExpiryInSeconds);
+            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffSqlConnectionFactory.CacheExpiry.TotalSeconds);
             _cachedValue = newValue;
 
             return _cachedValue.Contains(value);
@@ -78,5 +78,17 @@ WHERE [Id] = @Id
         private HashSet<string> _cachedValue;
 
         public HashSet<string> Values => _cachedValue;
+
+        /// <summary>
+        /// Useful for initializing nullable reference types so compiler doesnt complain.
+        /// It will be overwritten with the actual value from db before it will ever be used.
+        /// <example> <code>
+        /// public class MyFeatures : IFeatureContainer
+        /// {
+        ///     public StringFlag MyFlag { get; } = StringFlag.Empty;
+        /// }
+        /// </code> </example>
+        /// </summary>
+        public static StringFlag Empty { get; } = new(-1, "", "", Array.Empty<string>(), null!);
     }
 }

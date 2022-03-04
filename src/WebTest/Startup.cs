@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,7 +29,7 @@ namespace WebTest
                 settings
                     .WithSqlServer(Configuration.GetConnectionString("SqlDb"))
                     .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
-                    .AddCacheExpiryTime(180);
+                    .AddCacheExpiryTime(TimeSpan.FromSeconds(30));
             });
 
             services.AddSingleton<IMySuperService, MySuperService>();
@@ -56,12 +57,12 @@ namespace WebTest
 
     public class NewStuffFeatures : IFeatureContainer
     {
-        public BooleanFlag Hello { get; }
-        public BooleanFlag CanUseEmails { get; }
-        public BooleanFlag CanUseSomethingElse { get; }
-        public StringFlag Baz111 { get; }
-        public StringFlag Baz333 { get; set; }
-        public StringFlag Baz555 { get; set; }
+        public BooleanFlag Hello { get; } = BooleanFlag.Empty;
+        public BooleanFlag CanUseEmails { get; } =  BooleanFlag.Empty;
+        public BooleanFlag CanUseSomethingElse { get; } =  BooleanFlag.Empty;
+        public StringFlag Baz111 { get; } =  StringFlag.Empty;
+        public StringFlag Baz333 { get; set; } =  StringFlag.Empty;
+        public StringFlag Baz555 { get; set; } =  StringFlag.Empty;
     }
 
     public class MyCustomAuthorizer : IVeffDashboardAuthorizer

@@ -1,15 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <Title>Veff</Title>
         <Authors>Michael Skaanning</Authors>
         <Description>Very easy feature flags</Description>
         <PackageTags>FeatureFlag</PackageTags>
         <PackageVersion>1.0.0</PackageVersion>
-        <Copyright></Copyright>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <LangVersion>9</LangVersion>
+        <LangVersion>10</LangVersion>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Skaanning/Veff</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

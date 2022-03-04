@@ -36,10 +36,10 @@ namespace Veff
             params IFeatureContainer[] containers)
         {
             var featureFlagNames = new List<(string, string)>();
-            foreach (IFeatureContainer veffContainer in containers)
+            foreach (var veffContainer in containers)
             {
-                Type type = veffContainer.GetType();
-                Type targetType = typeof(Flag);
+                var type = veffContainer.GetType();
+                var targetType = typeof(Flag);
 
                 type.GetProperties()
                     .Where(x => x.PropertyType.IsAssignableTo(targetType))
@@ -57,9 +57,9 @@ namespace Veff
         }
 
         public IBackgroundBuilder AddCacheExpiryTime(
-            int seconds)
+            TimeSpan cacheExpiry)
         {
-            _veffSqlConnectionFactory!.CacheExpiryInSeconds = seconds;
+            _veffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
             _serviceCollection.Replace(new ServiceDescriptor(typeof(IVeffSqlConnectionFactory), _ => _veffSqlConnectionFactory, ServiceLifetime.Transient));
             return this;
         }
@@ -67,18 +67,18 @@ namespace Veff
         private void SyncFeatureFlagsInDb(
             IEnumerable<(string Name, string Type)> featureFlagNames)
         {
-            using SqlConnection conn = _veffSqlConnectionFactory!.UseConnection();
+            using var conn = _veffSqlConnectionFactory!.UseConnection();
 
             using var existingFeatureFlags = new SqlCommand(@"SELECT Name FROM Veff_FeatureFlags", conn);
 
-            using SqlDataReader reader = existingFeatureFlags.ExecuteReader();
+            using var reader = existingFeatureFlags.ExecuteReader();
             var hashSet = new HashSet<string>();
             while (reader.Read())
                 hashSet.Add(reader.GetString(0));
 
             reader.Close();
 
-            (string Name, string Type)[] flagsMissingInDb =
+            var flagsMissingInDb =
                 featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
 
             if (flagsMissingInDb.Length == 0)
@@ -86,7 +86,7 @@ namespace Veff
                 return;
             }
 
-            string values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
+            var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
 
             using var addFeatureFlags = new SqlCommand(@$"
 INSERT INTO [dbo].[Veff_FeatureFlags]
@@ -104,7 +104,7 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
 
             for (var i = 0; i < flagsMissingInDb.Length; i++)
             {
-                (string name, string type) = flagsMissingInDb[i];
+                (var name, var type) = flagsMissingInDb[i];
                 addFeatureFlags.Parameters.Add($"@Name{i}", SqlDbType.NVarChar).Value = name;
                 addFeatureFlags.Parameters.Add($"@Type{i}", SqlDbType.NVarChar).Value = type;
             }
@@ -115,14 +115,14 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
         private void SyncValuesFromDb(
             IFeatureContainer[] veffContainers)
         {
-            using SqlConnection conn = _veffSqlConnectionFactory!.UseConnection();
+            using var conn = _veffSqlConnectionFactory!.UseConnection();
 
             using var allValuesCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 
 ", conn);
-            using SqlDataReader sqlDataReader = allValuesCommand.ExecuteReader();
+            using var sqlDataReader = allValuesCommand.ExecuteReader();
 
             var veff = new List<VeffDbModel>();
             while (sqlDataReader.Read())
@@ -137,17 +137,17 @@ FROM Veff_FeatureFlags
                 veff.Add(flag);
             }
 
-            ILookup<string, VeffDbModel> lookup = veff.ToLookup(x => x.GetClassName());
-            Dictionary<string, IFeatureContainer> containerDictionary =
+            var lookup = veff.ToLookup(x => x.GetClassName());
+            var containerDictionary =
                 veffContainers.ToDictionary(x => x.GetType().Name);
 
-            foreach (IGrouping<string, VeffDbModel> ffClass in lookup)
+            foreach (var ffClass in lookup)
             {
-                if (!containerDictionary.TryGetValue(ffClass.Key, out IFeatureContainer container)) continue;
+                if (!containerDictionary.TryGetValue(ffClass.Key, out var container)) continue;
 
                 ffClass.ForEach(property =>
                 {
-                    PropertyInfo? p = container
+                    var p = container
                         .GetType()
                         .GetProperty(property.GetPropertyName());
 
@@ -159,7 +159,7 @@ FROM Veff_FeatureFlags
                     }
                     else
                     {
-                        FieldInfo? field = container
+                        var field = container
                             .GetType()
                             .GetField($"<{property.GetPropertyName()}>k__BackingField",
                                 BindingFlags.Instance | BindingFlags.NonPublic);
@@ -173,7 +173,7 @@ FROM Veff_FeatureFlags
         private static void EnsureTableExists(
             IVeffSqlConnectionFactory connFactory)
         {
-            using SqlConnection conn = connFactory.UseConnection();
+            using var conn = connFactory.UseConnection();
 
             using var command = new SqlCommand(@"
 EXEC sp_tables 
@@ -182,7 +182,7 @@ EXEC sp_tables
     @fUsePattern = 1;
 ", conn);
 
-            object any = command.ExecuteScalar();
+            var any = command.ExecuteScalar();
 
             if (any is null)
             {
@@ -217,6 +217,6 @@ CREATE TABLE Veff_FeatureFlags(
     public interface IBackgroundBuilder
     {
         IBackgroundBuilder AddCacheExpiryTime(
-            int seconds);
+            TimeSpan cacheExpiry);
     }
 }

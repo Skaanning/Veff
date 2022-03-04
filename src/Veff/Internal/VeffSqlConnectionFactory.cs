@@ -10,9 +10,9 @@ namespace Veff.Internal
 
         public VeffSqlConnectionFactory(
             string connectionString,
-            int cacheExpiryInSeconds = 60)
+            TimeSpan? cacheExpiry = null)
         {
-            CacheExpiryInSeconds = cacheExpiryInSeconds;
+            CacheExpiry = cacheExpiry ?? TimeSpan.FromSeconds(60);
             _connectionString = connectionString;
         }
 
@@ -25,7 +25,7 @@ namespace Veff.Internal
             return _connection;
         }
 
-        public int CacheExpiryInSeconds { get; internal set; }
+        public TimeSpan CacheExpiry { get; internal set; }
 
         public void Dispose()
         {
