@@ -39895,53 +39895,53 @@ var app = (function () {
 
     // (44:2) <FormField>
     function create_default_slot_5$2(ctx) {
-    	let switch_1;
+    	let checkbox;
     	let updating_checked;
     	let current;
 
-    	function switch_1_checked_binding(value) {
-    		/*switch_1_checked_binding*/ ctx[6](value);
+    	function checkbox_checked_binding(value) {
+    		/*checkbox_checked_binding*/ ctx[6](value);
     	}
 
-    	let switch_1_props = {};
+    	let checkbox_props = {};
 
     	if (/*checked*/ ctx[0] !== void 0) {
-    		switch_1_props.checked = /*checked*/ ctx[0];
+    		checkbox_props.checked = /*checked*/ ctx[0];
     	}
 
-    	switch_1 = new Switch({ props: switch_1_props, $$inline: true });
-    	binding_callbacks.push(() => bind(switch_1, 'checked', switch_1_checked_binding));
+    	checkbox = new Checkbox({ props: checkbox_props, $$inline: true });
+    	binding_callbacks.push(() => bind(checkbox, 'checked', checkbox_checked_binding));
 
     	const block = {
     		c: function create() {
-    			create_component(switch_1.$$.fragment);
+    			create_component(checkbox.$$.fragment);
     		},
     		m: function mount(target, anchor) {
-    			mount_component(switch_1, target, anchor);
+    			mount_component(checkbox, target, anchor);
     			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			const switch_1_changes = {};
+    			const checkbox_changes = {};
 
     			if (!updating_checked && dirty & /*checked*/ 1) {
     				updating_checked = true;
-    				switch_1_changes.checked = /*checked*/ ctx[0];
+    				checkbox_changes.checked = /*checked*/ ctx[0];
     				add_flush_callback(() => updating_checked = false);
     			}
 
-    			switch_1.$set(switch_1_changes);
+    			checkbox.$set(checkbox_changes);
     		},
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(switch_1.$$.fragment, local);
+    			transition_in(checkbox.$$.fragment, local);
     			current = true;
     		},
     		o: function outro(local) {
-    			transition_out(switch_1.$$.fragment, local);
+    			transition_out(checkbox.$$.fragment, local);
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			destroy_component(switch_1, detaching);
+    			destroy_component(checkbox, detaching);
     		}
     	};
 
@@ -39963,8 +39963,9 @@ var app = (function () {
     	const block = {
     		c: function create() {
     			span = element("span");
+    			span.textContent = "Is enabled";
     			attr_dev(span, "slot", "label");
-    			add_location(span, file$4, 45, 3, 1152);
+    			add_location(span, file$4, 45, 3, 1186);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -39985,7 +39986,7 @@ var app = (function () {
     	return block;
     }
 
-    // (43:1) <Cell>
+    // (43:1) <Cell style="padding:1rem;">
     function create_default_slot_4$2(ctx) {
     	let formfield;
     	let current;
@@ -40036,14 +40037,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_4$2.name,
     		type: "slot",
-    		source: "(43:1) <Cell>",
+    		source: "(43:1) <Cell style=\\\"padding:1rem;\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (49:1) <Cell style="padding-top: 10px;">
+    // (49:1) <Cell>
     function create_default_slot_3$2(ctx) {
     	let textfield;
     	let updating_value;
@@ -40054,9 +40055,7 @@ var app = (function () {
     	}
 
     	let textfield_props = {
-    		input$rows: "1",
-    		input$cols: "30",
-    		textarea: true,
+    		input$resizable: false,
     		label: "description"
     	};
 
@@ -40104,14 +40103,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_3$2.name,
     		type: "slot",
-    		source: "(49:1) <Cell style=\\\"padding-top: 10px;\\\">",
+    		source: "(49:1) <Cell>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (59:2) <IconButton class="material-icons" {disabled} on:click={() => save()}>
+    // (57:2) <IconButton class="material-icons" {disabled} on:click={() => save()}>
     function create_default_slot_2$2(ctx) {
     	let t;
 
@@ -40131,14 +40130,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_2$2.name,
     		type: "slot",
-    		source: "(59:2) <IconButton class=\\\"material-icons\\\" {disabled} on:click={() => save()}>",
+    		source: "(57:2) <IconButton class=\\\"material-icons\\\" {disabled} on:click={() => save()}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (58:1) <Cell>
+    // (56:1) <Cell>
     function create_default_slot_1$2(ctx) {
     	let iconbutton;
     	let current;
@@ -40191,7 +40190,7 @@ var app = (function () {
     		block,
     		id: create_default_slot_1$2.name,
     		type: "slot",
-    		source: "(58:1) <Cell>",
+    		source: "(56:1) <Cell>",
     		ctx
     	});
 
@@ -40219,6 +40218,7 @@ var app = (function () {
 
     	cell1 = new Cell({
     			props: {
+    				style: "padding:1rem;",
     				$$slots: { default: [create_default_slot_4$2] },
     				$$scope: { ctx }
     			},
@@ -40227,7 +40227,6 @@ var app = (function () {
 
     	cell2 = new Cell({
     			props: {
-    				style: "padding-top: 10px;",
     				$$slots: { default: [create_default_slot_3$2] },
     				$$scope: { ctx }
     			},
@@ -40430,7 +40429,7 @@ var app = (function () {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<BooleanFlag> was created with unknown prop '${key}'`);
     	});
 
-    	function switch_1_checked_binding(value) {
+    	function checkbox_checked_binding(value) {
     		checked = value;
     		$$invalidate(0, checked);
     	}
@@ -40487,7 +40486,7 @@ var app = (function () {
     		disabled,
     		save,
     		id,
-    		switch_1_checked_binding,
+    		checkbox_checked_binding,
     		textfield_value_binding,
     		click_handler
     	];
@@ -41250,7 +41249,7 @@ var app = (function () {
     		c: function create() {
     			b = element("b");
     			t = text(/*name*/ ctx[2]);
-    			add_location(b, file$2, 39, 7, 1041);
+    			add_location(b, file$2, 39, 7, 1039);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, b, anchor);
@@ -41275,7 +41274,7 @@ var app = (function () {
     	return block;
     }
 
-    // (41:1) <Cell style='padding-top: 10px;'>
+    // (41:1) <Cell style="padding:1rem;">
     function create_default_slot_4$1(ctx) {
     	let textfield;
     	let updating_value;
@@ -41286,8 +41285,9 @@ var app = (function () {
     	}
 
     	let textfield_props = {
-    		input$rows: "1",
-    		input$cols: "60",
+    		style: "height:5rem;",
+    		input$cols: "80",
+    		input$resizable: false,
     		textarea: true,
     		label: "Strings to enable against. Use new line for each new string"
     	};
@@ -41336,14 +41336,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_4$1.name,
     		type: "slot",
-    		source: "(41:1) <Cell style='padding-top: 10px;'>",
+    		source: "(41:1) <Cell style=\\\"padding:1rem;\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (44:1) <Cell style='padding-top: 10px;'>
+    // (47:1) <Cell>
     function create_default_slot_3$1(ctx) {
     	let textfield;
     	let updating_value;
@@ -41354,9 +41354,7 @@ var app = (function () {
     	}
 
     	let textfield_props = {
-    		input$rows: "1",
-    		input$cols: "30",
-    		textarea: true,
+    		input$resizable: false,
     		label: "description"
     	};
 
@@ -41404,14 +41402,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_3$1.name,
     		type: "slot",
-    		source: "(44:1) <Cell style='padding-top: 10px;'>",
+    		source: "(47:1) <Cell>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (48:2) <IconButton class="material-icons" {disabled} on:click={() => save()}>
+    // (51:2) <IconButton class="material-icons" {disabled} on:click={() => save()}>
     function create_default_slot_2$1(ctx) {
     	let t;
 
@@ -41431,14 +41429,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_2$1.name,
     		type: "slot",
-    		source: "(48:2) <IconButton class=\\\"material-icons\\\" {disabled} on:click={() => save()}>",
+    		source: "(51:2) <IconButton class=\\\"material-icons\\\" {disabled} on:click={() => save()}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (47:1) <Cell>
+    // (50:1) <Cell>
     function create_default_slot_1$1(ctx) {
     	let iconbutton;
     	let current;
@@ -41491,7 +41489,7 @@ var app = (function () {
     		block,
     		id: create_default_slot_1$1.name,
     		type: "slot",
-    		source: "(47:1) <Cell>",
+    		source: "(50:1) <Cell>",
     		ctx
     	});
 
@@ -41519,7 +41517,7 @@ var app = (function () {
 
     	cell1 = new Cell({
     			props: {
-    				style: "padding-top: 10px;",
+    				style: "padding:1rem;",
     				$$slots: { default: [create_default_slot_4$1] },
     				$$scope: { ctx }
     			},
@@ -41528,7 +41526,6 @@ var app = (function () {
 
     	cell2 = new Cell({
     			props: {
-    				style: "padding-top: 10px;",
     				$$slots: { default: [create_default_slot_3$1] },
     				$$scope: { ctx }
     			},
@@ -42836,7 +42833,7 @@ var app = (function () {
     		c: function create() {
     			h1 = element("h1");
     			h1.textContent = "Something is very, very wrong..";
-    			add_location(h1, file, 98, 1, 2425);
+    			add_location(h1, file, 98, 1, 2563);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h1, anchor);
@@ -42899,8 +42896,7 @@ var app = (function () {
 
     	paper = new Paper({
     			props: {
-    				variant: "outlined",
-    				style: "width: 50%;margin-left: 25%;",
+    				style: "width:100%;background-color:rgb(157 113 113 / 10%);",
     				$$slots: { default: [create_default_slot_4] },
     				$$scope: { ctx }
     			},
@@ -43163,7 +43159,7 @@ var app = (function () {
     	return block;
     }
 
-    // (59:3) <Title>
+    // (59:3) <Title style="width:50%;margin-left: auto; margin-right:auto;">
     function create_default_slot_8(ctx) {
     	let t;
 
@@ -43186,7 +43182,7 @@ var app = (function () {
     		block,
     		id: create_default_slot_8.name,
     		type: "slot",
-    		source: "(59:3) <Title>",
+    		source: "(59:3) <Title style=\\\"width:50%;margin-left: auto; margin-right:auto;\\\">",
     		ctx
     	});
 
@@ -43504,7 +43500,7 @@ var app = (function () {
     	return block;
     }
 
-    // (62:4) <DataTable>
+    // (62:4) <DataTable style="padding:2rem;">
     function create_default_slot_6(ctx) {
     	let body;
     	let current;
@@ -43552,20 +43548,21 @@ var app = (function () {
     		block,
     		id: create_default_slot_6.name,
     		type: "slot",
-    		source: "(62:4) <DataTable>",
+    		source: "(62:4) <DataTable style=\\\"padding:2rem;\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (61:3) <Content>
+    // (61:3) <Content style="width:50%;margin-left: auto; margin-right:auto;">
     function create_default_slot_5(ctx) {
     	let datatable;
     	let current;
 
     	datatable = new DataTable({
     			props: {
+    				style: "padding:2rem;",
     				$$slots: { default: [create_default_slot_6] },
     				$$scope: { ctx }
     			},
@@ -43607,14 +43604,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_5.name,
     		type: "slot",
-    		source: "(61:3) <Content>",
+    		source: "(61:3) <Content style=\\\"width:50%;margin-left: auto; margin-right:auto;\\\">",
     		ctx
     	});
 
     	return block;
     }
 
-    // (58:2) <Paper variant="outlined" style="width: 50%;margin-left: 25%;">
+    // (58:2) <Paper style="width:100%;background-color:rgb(157 113 113 / 10%);">
     function create_default_slot_4(ctx) {
     	let title;
     	let t;
@@ -43623,6 +43620,7 @@ var app = (function () {
 
     	title = new Title({
     			props: {
+    				style: "width:50%;margin-left: auto; margin-right:auto;",
     				$$slots: { default: [create_default_slot_8] },
     				$$scope: { ctx }
     			},
@@ -43631,6 +43629,7 @@ var app = (function () {
 
     	content = new Content({
     			props: {
+    				style: "width:50%;margin-left: auto; margin-right:auto;",
     				$$slots: { default: [create_default_slot_5] },
     				$$scope: { ctx }
     			},
@@ -43687,7 +43686,7 @@ var app = (function () {
     		block,
     		id: create_default_slot_4.name,
     		type: "slot",
-    		source: "(58:2) <Paper variant=\\\"outlined\\\" style=\\\"width: 50%;margin-left: 25%;\\\">",
+    		source: "(58:2) <Paper style=\\\"width:100%;background-color:rgb(157 113 113 / 10%);\\\">",
     		ctx
     	});
 

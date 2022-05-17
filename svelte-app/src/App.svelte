@@ -55,11 +55,11 @@
 			</Tab>
 		</TabBar>
 
-		<Paper variant="outlined" style="width: 50%;margin-left: 25%;">
-			<Title>{active}</Title>
+		<Paper style="width:100%;background-color:rgb(157 113 113 / 10%);">
+			<Title style="width:50%;margin-left: auto; margin-right:auto;">{active}</Title>
 
-			<Content>
-				<DataTable>
+			<Content style="width:50%;margin-left: auto; margin-right:auto;">
+				<DataTable style="padding:2rem;">
 					<Body>
 						{#each flagsForSelectedTab as f}
 							{#if f.Type == "BooleanFlag"}

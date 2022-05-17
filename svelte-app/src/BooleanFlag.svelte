@@ -40,17 +40,15 @@
 
 <Row>
 	<Cell><b>{name}</b></Cell>
-	<Cell>
+	<Cell style="padding:1rem;">
 		<FormField>
-			<Switch bind:checked />
-			<span slot="label"></span>
+			<Checkbox bind:checked={checked} />
+			<span slot="label">Is enabled</span>
 		</FormField>
 	</Cell>
-	<Cell style="padding-top: 10px;">
+	<Cell>
 		<Textfield
-			input$rows="1"
-			input$cols="30"
-			textarea
+			input$resizable={false}
 			bind:value={description}
 			label="description"
 		/>

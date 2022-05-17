@@ -19,7 +19,7 @@
 		const options = {
 			method: "POST",
 			body: JSON.stringify(update),
-			headers: {	"Content-Type": "application/json",},
+			headers: {"Content-Type": "application/json"},
 		};
 
 		disabled = true;
@@ -38,11 +38,14 @@
 
 <Row>
 	<Cell><b>{name}</b></Cell>
-	<Cell style='padding-top: 10px;'>
-		<Textfield input$rows="1" input$cols="60"  textarea bind:value={strings} label="Strings to enable against. Use new line for each new string" />
+	<Cell style="padding:1rem;">
+		<Textfield style="height:5rem;"
+			input$cols="80" 
+			input$resizable={false}
+			textarea bind:value={strings} label="Strings to enable against. Use new line for each new string" />
 	</Cell>
-	<Cell style='padding-top: 10px;'>
-		<Textfield input$rows="1" input$cols="30" textarea bind:value={description} label="description" />
+	<Cell>
+		<Textfield input$resizable={false} bind:value={description} label="description" />
 	</Cell>
 	<Cell>
 		<IconButton class="material-icons" {disabled} on:click={() => save()}>save</IconButton>
