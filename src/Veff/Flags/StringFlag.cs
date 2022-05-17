@@ -89,6 +89,6 @@ WHERE [Id] = @Id
         /// }
         /// </code> </example>
         /// </summary>
-        public static StringFlag Empty { get; } = new(-1, "", "", Array.Empty<string>(), null!);
+        public static StringFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
     }
 }

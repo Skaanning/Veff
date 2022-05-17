@@ -5,15 +5,14 @@
 	import Paper, { Title, Content } from "@smui/paper";
 	import BooleanFlag from "./BooleanFlag.svelte";
 	import StringFlag from "./StringFlag.svelte";
-	import PercentFlag from "./PercentFlag.svelte";
 	import _ from "lodash";
 	import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
-	import Snackbar from '@smui/snackbar';
+	import Snackbar from "@smui/snackbar";
 
 	let flags = [];
 	let flagsForSelectedTab = [];
 	let tabs = [];
-	let active = undefined;
+	let active = "";
 	let savedSnackbar;
 	let errorSnackbar;
 
@@ -31,43 +30,36 @@
 	}
 
 	function handleError(err) {
-		errorSnackbar.open()
+		errorSnackbar.open();
 	}
-	
+
 	function handleSaved(savedEvent) {
-		savedSnackbar.open()
-		let update = savedEvent.detail
+		savedSnackbar.open();
+		let update = savedEvent.detail;
 
-		let index = _.findIndex(flags, (x) => x.Id === update.Id)
+		let index = _.findIndex(flags, (x) => x.Id === update.Id);
 
-		let hll = flags[index]
+		let hll = flags[index];
 
-		let updatedModel =  {...hll, ...update};
+		let updatedModel = { ...hll, ...update };
 
-		flags[index] = updatedModel
+		flags[index] = updatedModel;
 	}
 </script>
 
-{#if tabs}
+{#if active}
 	<div>
-		<!-- Note: tabs must be unique. (They cannot === each other.)-->
 		<TabBar {tabs} let:tab bind:active on:click={() => updateActive()}>
-			<!-- Note: the `tab` property is required! -->
-			<Tab {tab} minWidth>
+			<Tab {tab}>
 				<Label>{tab}</Label>
 			</Tab>
 		</TabBar>
-		<Paper elevation="10">
+
+		<Paper variant="outlined" style="width: 50%;margin-left: 25%;">
+			<Title>{active}</Title>
+
 			<Content>
-				<DataTable style="width: 70%;">
-					<Head>
-						<Row>
-							<Cell style="width: 10%;"><b>Feature Flag</b></Cell>
-							<Cell>Value</Cell>
-							<Cell>Description</Cell>
-							<Cell style="width: 5%;" />
-						</Row>
-					</Head>
+				<DataTable>
 					<Body>
 						{#each flagsForSelectedTab as f}
 							{#if f.Type == "BooleanFlag"}
@@ -84,15 +76,6 @@
 									name={f.Name}
 									id={f.Id}
 									strings={f.Strings}
-									description={f.Description}
-									on:error={handleError}
-									on:saved={handleSaved}
-								/>
-							{:else if f.Type == "PercentFlag"}
-								<PercentFlag
-									name={f.Name}
-									id={f.Id}
-									percent={f.Percent}
 									description={f.Description}
 									on:error={handleError}
 									on:saved={handleSaved}

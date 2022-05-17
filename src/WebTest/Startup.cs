@@ -42,6 +42,7 @@ namespace WebTest
             IWebHostEnvironment env)
         {
             app.UseHttpsRedirection();
+            app.UseCors(builder => builder.AllowAnyOrigin());
             app.UseVeff();
             app.UseRouting();
 

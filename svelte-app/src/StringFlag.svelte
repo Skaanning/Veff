@@ -4,6 +4,7 @@
 	import { Row, Cell } from "@smui/data-table";
 	import Textfield from "@smui/textfield";
 	import { createEventDispatcher } from 'svelte';
+	import Button from '@smui/button';
 
 	export let strings;
 	export let name;
@@ -38,10 +39,10 @@
 <Row>
 	<Cell><b>{name}</b></Cell>
 	<Cell style='padding-top: 10px;'>
-		<Textfield input$rows="5" input$cols="60" style="width: 100%;" textarea bind:value={strings} label="Strings to enable against. Use new line for each new string" />
+		<Textfield input$rows="1" input$cols="60"  textarea bind:value={strings} label="Strings to enable against. Use new line for each new string" />
 	</Cell>
 	<Cell style='padding-top: 10px;'>
-		<Textfield input$rows="2" input$cols="30" textarea bind:value={description} label="description" />
+		<Textfield input$rows="1" input$cols="30" textarea bind:value={description} label="description" />
 	</Cell>
 	<Cell>
 		<IconButton class="material-icons" {disabled} on:click={() => save()}>save</IconButton>

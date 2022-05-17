@@ -4,6 +4,8 @@
 	import IconButton from "@smui/icon-button";
 	import { Row, Cell } from "@smui/data-table";
 	import Textfield from "@smui/textfield";
+	import FormField from "@smui/form-field";
+	import Checkbox from "@smui/checkbox";
 	import { createEventDispatcher } from 'svelte';
 
 	export let checked;
@@ -39,11 +41,14 @@
 <Row>
 	<Cell><b>{name}</b></Cell>
 	<Cell>
-		<Switch bind:checked />
+		<FormField>
+			<Switch bind:checked />
+			<span slot="label"></span>
+		</FormField>
 	</Cell>
 	<Cell style="padding-top: 10px;">
 		<Textfield
-			input$rows="2"
+			input$rows="1"
 			input$cols="30"
 			textarea
 			bind:value={description}

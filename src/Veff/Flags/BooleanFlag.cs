@@ -69,7 +69,7 @@ WHERE [Id] = @Id
         /// }
         /// </code> </example>
         /// </summary>
-        public static BooleanFlag Empty { get; } = new(-1, "", "", false, null!);
+        public static BooleanFlag Empty { get; } = new(-1, "empty", "", false, null!);
 
     }
 }
