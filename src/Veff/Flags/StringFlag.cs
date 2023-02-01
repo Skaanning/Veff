@@ -14,7 +14,7 @@ namespace Veff.Flags
             string name,
             string description,
             string[] values,
-            IVeffSqlConnectionFactory connectionFactory) : base(connectionFactory)
+            IVeffDbConnectionFactory connectionFactory) : base(connectionFactory)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -49,10 +49,10 @@ namespace Veff.Flags
         {
             if (DateTimeOffset.UtcNow <= _cachedValueExpiry) return _cachedValue.Contains(value);
 
-            using var connection = VeffSqlConnectionFactory.UseConnection();
+            using var connection = VeffDbConnectionFactory.UseConnection();
             var newValue = GetValueFromDb(); // connection.
 
-            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffSqlConnectionFactory.CacheExpiry.TotalSeconds);
+            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
             _cachedValue = newValue;
 
             return _cachedValue.Contains(value);
@@ -60,18 +60,9 @@ namespace Veff.Flags
 
         private HashSet<string> GetValueFromDb()
         {
-            using var connection = VeffSqlConnectionFactory.UseConnection();
+            using var connection = VeffDbConnectionFactory.UseConnection();
 
-            using var cmd = new SqlCommand(@"
-SELECT [Strings]
-FROM Veff_FeatureFlags
-WHERE [Id] = @Id 
-", connection);
-            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
-            var percent = (string)cmd.ExecuteScalar();
-            return percent.Split(";", StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.ToLower())
-                .ToHashSet();
+            return connection.GetStringValueFromDb(Id);
         }
 
         private DateTimeOffset _cachedValueExpiry;

@@ -1,16 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <AssemblyName>WebTest</AssemblyName>
         <RootNamespace>WebTest</RootNamespace>
-        <LangVersion>10</LangVersion>
+        <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-        <PackageReference Include="Veff" Version="1.0.2" />
+        <PackageReference Include="Veff" Version="1.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+<!--      <ProjectReference Include="..\Veff\Veff.csproj" />-->
     </ItemGroup>
 
 </Project>

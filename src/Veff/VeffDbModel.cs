@@ -7,7 +7,7 @@ namespace Veff
 {
     internal class VeffDbModel
     {
-        private readonly IVeffSqlConnectionFactory _connectionFactory;
+        private readonly IVeffDbConnectionFactory _connectionFactory;
 
         internal VeffDbModel(
             int id,
@@ -16,7 +16,7 @@ namespace Veff
             int percent,
             string type,
             string strings,
-            IVeffSqlConnectionFactory connectionFactory)
+            IVeffDbConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
             Id = id;

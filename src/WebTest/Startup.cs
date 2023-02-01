@@ -50,13 +50,13 @@ namespace WebTest
         }
     }
 
-    public record FooBarFeatures : IFeatureContainer
+    public record FooBarFeatures : IFeatureFlagContainer
     {
-        public BooleanFlag Foo { get; init; }
-        public StringFlag Baz { get; init; }
+        public BooleanFlag Foo { get; init; } = default!;
+        public StringFlag Baz { get; init; } = default!;
     }
 
-    public class NewStuffFeatures : IFeatureContainer
+    public class NewStuffFeatures : IFeatureFlagContainer
     {
         public BooleanFlag Hello { get; } = BooleanFlag.Empty;
         public BooleanFlag CanUseEmails { get; } =  BooleanFlag.Empty;

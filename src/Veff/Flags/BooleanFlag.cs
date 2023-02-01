@@ -12,7 +12,7 @@ namespace Veff.Flags
             string name,
             string description,
             bool isEnabled,
-            IVeffSqlConnectionFactory connectionFactory) : base(connectionFactory)
+            IVeffDbConnectionFactory connectionFactory) : base(connectionFactory)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -36,7 +36,7 @@ namespace Veff.Flags
 
             var newValue = GetValueFromDb();
 
-            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffSqlConnectionFactory.CacheExpiry.TotalSeconds);
+            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
             _cachedValue = newValue;
 
             return _cachedValue;
@@ -44,16 +44,8 @@ namespace Veff.Flags
 
         private bool GetValueFromDb()
         {
-            using var connection = VeffSqlConnectionFactory.UseConnection();
-
-            using var cmd = new SqlCommand(@"
-SELECT [Percent]
-FROM Veff_FeatureFlags
-WHERE [Id] = @Id 
-", connection);
-            cmd.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
-            var percent = (int)cmd.ExecuteScalar();
-            return percent == 100;
+            using var connection = VeffDbConnectionFactory.UseConnection();
+            return connection.GetPercentValueFromDb(Id) == 100;
         }
 
         private DateTimeOffset _cachedValueExpiry;

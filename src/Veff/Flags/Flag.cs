@@ -4,12 +4,12 @@ namespace Veff.Flags
 {
     public abstract class Flag
     {
-        protected readonly IVeffSqlConnectionFactory VeffSqlConnectionFactory;
+        public readonly IVeffDbConnectionFactory VeffDbConnectionFactory;
 
         protected Flag(
-            IVeffSqlConnectionFactory veffSqlConnectionFactory)
+            IVeffDbConnectionFactory veffDbConnectionFactory)
         {
-            VeffSqlConnectionFactory = veffSqlConnectionFactory;
+            VeffDbConnectionFactory = veffDbConnectionFactory;
         }
     }
 }
