@@ -13,8 +13,9 @@
         <PackageReference Include="Veff" Version="1.0.3" />
     </ItemGroup>
 
-    <ItemGroup>
-<!--      <ProjectReference Include="..\Veff\Veff.csproj" />-->
+    <ItemGroup><!--      <ProjectReference Include="..\Veff\Veff.csproj" />-->
+    
+      <ProjectReference Include="..\Veff\Veff.csproj" />
     </ItemGroup>
 
 </Project>

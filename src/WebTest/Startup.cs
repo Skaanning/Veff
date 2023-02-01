@@ -27,7 +27,7 @@ namespace WebTest
             services.AddVeff(settings =>
             {
                 settings
-                    .WithSqlServer(Configuration.GetConnectionString("SqlDb"))
+                    .WithSqlServer(Configuration.GetConnectionString("SqlDb")!)
                     .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
                     .AddCacheExpiryTime(TimeSpan.FromSeconds(30));
             });

@@ -2,10 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://unpkg.com/htmx.org@1.8.5"></script>
+    <title>Veff dashboard</title>
+
+
+    <style>
+        .flag-table {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .flag-table td, .flag-table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .flag-table tr:nth-child(even){background-color: #f2f2f2;}
+
+        .flag-table tr:hover {background-color: #ddd;}
+
+        .flag-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <>
+
+<div id="main">
+</div>
+
+<script lang="js">
+
+    let init = async function() {
+        let res = await fetch("veff_internal_api/init")
+        let data = await res.json();
+        
+        let flags = data.Flags;
+        let main = document.getElementById("main");
+
+        let groups = groupBy(flags, "ContainerName");
+        console.log(groups);
+
+        for (const property in groups) {
+            console.table(groups[property]);
+            let nodeDiv = document.createElement("div");
+
+            createFlagTable(nodeDiv, groups[property]);
+            main.appendChild(nodeDiv);
+        }
+    }
+    
+    let groupBy = function(xs, key) {
+        return xs.reduce(function(rv, x) {
+            (rv[x[key]] = rv[x[key]] || []).push(x);
+            return rv;
+        }, {});
+    };
+
+    function createFlagTable(parrentElement, flags) {
+        const body = document.body;
+        let tbl = document.createElement('table');
+        tbl.className = 'flag-table';
+        let header = tbl.createTHead()
+        let headerRow = header.insertRow();
+        let firstIter = true;
+        
+        for (let x of flags) {       
+            if (firstIter) {
+
+                for (let prop in ) {
+                    let cell = headerRow.insertCell();
+                    
+                }
+                
+                firstIter = false;
+            }    
+            const tr = tbl.insertRow();
+            
+            for (let j = 0; j < 2; j++) {
+                const td = tr.insertCell();
+                td.appendChild(document.createTextNode(`Cell I${i}/J${j}`));
+            }
+        }
+        
+        body.appendChild(tbl);
+    }
+
+    init();
+    
+</script>
+
 </body>
 </html>
