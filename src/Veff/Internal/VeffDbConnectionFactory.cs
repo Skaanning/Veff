@@ -16,7 +16,7 @@ namespace Veff.Internal
     {
         private readonly DbConnection _connection;
         private readonly VeffDbConnectionFactory _veffDbConnectionFactory;
-        
+
         public VeffDbConnection(
             DbConnection connection,
             VeffDbConnectionFactory veffDbConnectionFactory)
@@ -25,7 +25,7 @@ namespace Veff.Internal
             _connection.Open();
             _veffDbConnectionFactory = veffDbConnectionFactory;
         }
-        
+
         public void SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
         {
             if (_connection is SqlConnection sqlConnection)
@@ -82,7 +82,7 @@ FROM Veff_FeatureFlags
 
             return null!;
         }
-        
+
         public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)
         {
             if (_connection is SqlConnection sqlConnection)
@@ -195,8 +195,8 @@ FROM Veff_FeatureFlags
             if (_connection is SqlConnection sqlConnection)
             {
                 using var command = new SqlCommand("""
-EXEC sp_tables 
-    @table_name = 'Veff_FeatureFlags',  
+EXEC sp_tables
+    @table_name = 'Veff_FeatureFlags',
     @table_owner = 'dbo',
     @fUsePattern = 1;
 """, sqlConnection);
@@ -221,8 +221,10 @@ CREATE TABLE Veff_FeatureFlags(
             }
         }
 
-        public HashSet<string> GetStringValueFromDb(int id)
+        public HashSet<string> GetStringValueFromDb(int id, bool ignoreCase)
         {
+            var stringComparer = ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+
             if (_connection is SqlConnection sqlConnection)
             {
                 using var cmd = new SqlCommand(@"
@@ -234,10 +236,10 @@ WHERE [Id] = @Id
                 var percent = (string)cmd.ExecuteScalar();
                 return percent.Split(";", StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.ToLower())
-                    .ToHashSet();        
+                    .ToHashSet(stringComparer);
             }
 
-            return new HashSet<string>();
+            return new HashSet<string>(stringComparer);
         }
 
         public int GetPercentValueFromDb(int id)
@@ -269,7 +271,7 @@ WHERE [Id] = @Id
         void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
         void SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers);
         void EnsureTablesExists();
-        HashSet<string> GetStringValueFromDb(int id);
+        HashSet<string> GetStringValueFromDb(int id, bool ignoreCase);
         int GetPercentValueFromDb(int id);
     }
 

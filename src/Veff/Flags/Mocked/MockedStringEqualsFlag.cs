@@ -1,8 +1,8 @@
 ﻿namespace Veff.Flags.Mocked
 {
-    public class MockedStringFlag : StringFlag
+    public class MockedStringEqualsFlag : StringEqualsFlag
     {
-        public MockedStringFlag(
+        public MockedStringEqualsFlag(
             params string[] values) : base(0, "mocked", "mocked", values, null!)
         {
         }

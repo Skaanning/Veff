@@ -44,8 +44,8 @@ namespace Veff
         {
             if (Type.Equals(typeof(BooleanFlag).FullName))
                 return new BooleanFlag(Id, Name, Description, Percent == 100, _connectionFactory);
-            if (Type.Equals(typeof(StringFlag).FullName))
-                return new StringFlag(Id, Name, Description, Strings, _connectionFactory);
+            if (Type.Equals(typeof(StringEqualsFlag).FullName))
+                return new StringEqualsFlag(Id, Name, Description, Strings, _connectionFactory);
 
             throw new Exception($"Unknown type: {Type}");
         }
