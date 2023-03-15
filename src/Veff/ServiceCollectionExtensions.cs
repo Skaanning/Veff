@@ -12,13 +12,5 @@ namespace Veff
             settings(new VeffSettingsBuilder(serviceCollection));
             return serviceCollection;
         }
-        
-        public static IServiceCollection AddVeff(
-            this IServiceCollection serviceCollection,
-            Action<IUseSqliteBuilder> settings)
-        {
-            settings(new VeffSettingsBuilder(serviceCollection));
-            return serviceCollection;
-        }
     }
 }

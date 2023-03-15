@@ -28,7 +28,7 @@ namespace WebTest
             {
                 settings
                     .WithSqlServer(Configuration.GetConnectionString("SqlDb")!)
-                    .AddFeatureFlagContainers(new FooBarFeatures(), new NewStuffFeatures())
+                    .AddFeatureFlagContainers(new NewStuffFeatures())
                     .AddCacheExpiryTime(TimeSpan.FromSeconds(30));
             });
 
@@ -50,20 +50,15 @@ namespace WebTest
         }
     }
 
-    public record FooBarFeatures : IFeatureFlagContainer
-    {
-        public BooleanFlag Foo { get; init; } = default!;
-        public StringEqualsFlag Baz { get; init; } = default!;
-    }
-
     public class NewStuffFeatures : IFeatureFlagContainer
     {
         public BooleanFlag Hello { get; } = BooleanFlag.Empty;
         public BooleanFlag CanUseEmails { get; } =  BooleanFlag.Empty;
-        public BooleanFlag CanUseSomethingElse { get; } =  BooleanFlag.Empty;
+        public PercentageFlag SometimesIWork { get; } =  PercentageFlag.Empty;
         public StringEqualsFlag Baz111 { get; } =  StringEqualsFlag.Empty;
-        public StringEqualsFlag Baz333 { get; set; } =  StringEqualsFlag.Empty;
-        public StringEqualsFlag Baz555 { get; set; } =  StringEqualsFlag.Empty;
+        public StringContainsFlag Baz333 { get; } =  StringContainsFlag.Empty;
+        public StringStartsWithFlag Baz555 { get; } =  StringStartsWithFlag.Empty;
+        public StringEndsWithFlag EndsWith { get; } =  StringEndsWithFlag.Empty;
     }
 
     public class MyCustomAuthorizer : IVeffDashboardAuthorizer

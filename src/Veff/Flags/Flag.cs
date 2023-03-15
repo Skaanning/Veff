@@ -1,4 +1,5 @@
 ﻿using Veff.Internal;
+using Veff.Internal.Responses;
 
 namespace Veff.Flags
 {
@@ -11,5 +12,7 @@ namespace Veff.Flags
         {
             VeffDbConnectionFactory = veffDbConnectionFactory;
         }
+
+        internal abstract FeatureFlagViewModel AsViewModel();
     }
 }

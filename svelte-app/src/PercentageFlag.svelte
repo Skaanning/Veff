@@ -1,27 +1,27 @@
 <script>
 	import _ from "lodash";
+	import Slider from '@smui/slider';
 	import IconButton from "@smui/icon-button";
 	import { Row, Cell } from "@smui/data-table";
 	import Textfield from "@smui/textfield";
+	import FormField from "@smui/form-field";
 	import { createEventDispatcher } from 'svelte';
-	import Button from '@smui/button';
-	import HelperText from '@smui/textfield/helper-text';
 
-	export let strings;
+	export let percentage;
 	export let name;
 	export let description;
 	export let id;
-	export let type;
 
-	let disabled = false;
 	const dispatch = createEventDispatcher();
 
+	let disabled = false;
+
 	async function save() {
-		let update = { "Id": id, "Description": description, "Type": type, "Percent": 0, "Strings": strings }
+		let update = { "Id": id, "Description": description, "Enabled": checked, "Type": "PercentageFlag", "Percent": percentage, "Strings": "" };
 		const options = {
 			method: "POST",
 			body: JSON.stringify(update),
-			headers: {"Content-Type": "application/json"},
+			headers: {	"Content-Type": "application/json",},
 		};
 
 		disabled = true;
@@ -31,32 +31,36 @@
 		} else {
 			dispatch("error", {message: "something went bad" })
 		}
-
+		
 		disabled = false;
-	}
-
-	function getTypeDescription() {
-		console.log(type);
-		var s = type.split(/(?=[A-Z])/);
-		if (s.length == 4) {
-			return s[1] + " " + s[2];
-		}
-		return s[1];
 	}
 
 </script>
 
 <Row>
-	<Cell><b>{name} ({getTypeDescription()})</b></Cell>
+	<Cell><b>{name}</b></Cell>
 	<Cell style="padding:1rem;">
-		<Textfield 
-			textarea bind:value={strings} label="">
-		</Textfield>
+		<FormField>
+			<Slider style="flex-grow: 1;" 
+			bind:percentage
+			min={0}
+			max={100}
+			step={1}
+			discrete
+			/>
+			<span slot="label">% enabled</span>
+		</FormField>
 	</Cell>
-	<Cell style="width:30%">
-		<Textfield style="width: 100%;" input$resizable={false} bind:value={description} label="description" />
+	<Cell>
+		<Textfield
+			input$resizable={false}
+			style="width: 100%;"
+			bind:value={description}
+			label="description"
+		/>
 	</Cell>
 	<Cell>
 		<IconButton class="material-icons" {disabled} on:click={() => save()}>save</IconButton>
 	</Cell>
 </Row>
+

@@ -5,6 +5,7 @@
 	import Paper, { Title, Content } from "@smui/paper";
 	import BooleanFlag from "./BooleanFlag.svelte";
 	import StringFlag from "./StringFlag.svelte";
+	import PercentageFlag from "./PercentageFlag.svelte";
 	import _ from "lodash";
 	import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
 	import Snackbar from "@smui/snackbar";
@@ -71,12 +72,22 @@
 									on:error={handleError}
 									on:saved={handleSaved}
 								/>
-							{:else if f.Type == "StringFlag"}
+							{:else if f.Type == "PercentageFlag"}
+								<PercentageFlag
+									name={f.Name}
+									id={f.Id}
+									percentage={f.Percentage}
+									description={f.Description}
+									on:error={handleError}
+									on:saved={handleSaved}
+								/>
+							{:else}
 								<StringFlag
 									name={f.Name}
 									id={f.Id}
 									strings={f.Strings}
 									description={f.Description}
+									type={f.Type}
 									on:error={handleError}
 									on:saved={handleSaved}
 								/>

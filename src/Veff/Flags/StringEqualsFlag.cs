@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Veff.Internal;
+using Veff.Internal.Responses;
 
 namespace Veff.Flags
 {
@@ -26,7 +27,6 @@ namespace Veff.Flags
                 .Select(x => x.ToLower())
                 .ToHashSet();
         }
-
 
         public int Id { get; }
         public string Name { get; }
@@ -82,5 +82,21 @@ namespace Veff.Flags
         /// </code> </example>
         /// </summary>
         public static StringEqualsFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
+
+        internal override FeatureFlagViewModel AsViewModel()
+        {
+            var split = Name.Split('.');
+            var containerName = split[0];
+            var name = split[1];
+
+            return new FeatureFlagViewModel(Id,
+                containerName,
+                name,
+                Description,
+                nameof(StringEqualsFlag),
+                0,
+                false,
+                string.Join("\n", Values.ToArray()));
+        }
     }
 }

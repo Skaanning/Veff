@@ -1,32 +1,23 @@
-﻿using System.Linq;
-using Veff.Flags;
-
-namespace Veff.Internal.Responses
+﻿namespace Veff.Internal.Responses
 {
     public class FeatureFlagViewModel
     {
-        public FeatureFlagViewModel(
-            Flag flag)
+        public FeatureFlagViewModel(int id, string containerName,
+            string name,
+            string description,
+            string type,
+            int percent,
+            bool enabled,
+            string strings)
         {
-            if (flag is BooleanFlag b)
-            {
-                ContainerName = b.Name.Split('.')[0];
-                Name = b.Name.Split('.')[1];
-                Enabled = b.IsEnabled;
-                Type = nameof(BooleanFlag);
-                Description = b.Description;
-                Id = b.Id;
-            }
-
-            if (flag is StringEqualsFlag f)
-            {
-                ContainerName = f.Name.Split('.')[0];
-                Name = f.Name.Split('.')[1];
-                Strings = string.Join("\n", f.Values.ToArray());
-                Type = nameof(StringEqualsFlag);
-                Description = f.Description;
-                Id = f.Id;
-            }
+            Id = id;
+            ContainerName = containerName;
+            Name = name;
+            Description = description;
+            Type = type;
+            Percent = percent;
+            Enabled = enabled;
+            Strings = strings;
         }
 
         public int Id { get; }
@@ -34,7 +25,7 @@ namespace Veff.Internal.Responses
         public string Name { get; } = "";
         public string Description { get; } = "";
         public string Type { get; } = "";
-        // public int Percent { get; }
+        public int Percent { get; }
         public bool Enabled { get; }
         public string Strings { get; } = "";
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Veff.Internal;
+using Veff.Internal.Responses;
 
 namespace Veff.Flags
 {
@@ -61,5 +62,20 @@ namespace Veff.Flags
         /// </summary>
         public static BooleanFlag Empty { get; } = new(-1, "empty", "", false, null!);
 
+        internal override FeatureFlagViewModel AsViewModel()
+        {
+            var split = Name.Split('.');
+            var containerName = split[0];
+            var name = split[1];
+
+            return new FeatureFlagViewModel(Id,
+                containerName,
+                name,
+                Description,
+                nameof(BooleanFlag),
+                0,
+                IsEnabled,
+                string.Empty);
+        }
     }
 }

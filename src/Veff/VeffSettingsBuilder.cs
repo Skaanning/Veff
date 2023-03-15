@@ -9,9 +9,9 @@ using Veff.Internal.Extensions;
 
 namespace Veff
 {
-    public class VeffSettingsBuilder : IUseSqlServerBuilder, IUseSqliteBuilder, IFeatureFlagContainerBuilder, IVeffCacheSettingsBuilder
+    public class VeffSettingsBuilder : IUseSqlServerBuilder, IFeatureFlagContainerBuilder, IVeffCacheSettingsBuilder
     {
-        private VeffDbConnectionFactory? _veffSqlConnectionFactory;
+        private VeffSqlServerDbConnectionFactory? _veffSqlConnectionFactory;
         private readonly IServiceCollection _serviceCollection;
 
         internal VeffSettingsBuilder(
@@ -23,19 +23,11 @@ namespace Veff
         public IFeatureFlagContainerBuilder WithSqlServer(
             string connectionString)
         {
-            _veffSqlConnectionFactory = new VeffDbConnectionFactory(connectionString);
+            _veffSqlConnectionFactory = new VeffSqlServerDbConnectionFactory(connectionString);
             _serviceCollection.AddTransient<IVeffDbConnectionFactory>(_ => _veffSqlConnectionFactory);
             EnsureTableExists(_veffSqlConnectionFactory);
             return this;
         }
-
-        public IFeatureFlagContainerBuilder WithSqlite(string connectionString)
-        {
-            _veffSqlConnectionFactory = new VeffDbConnectionFactory(connectionString);
-            _serviceCollection.AddTransient<IVeffDbConnectionFactory>(_ => _veffSqlConnectionFactory);
-            EnsureTableExists(_veffSqlConnectionFactory);
-            return this;
-        }        
 
         public IVeffCacheSettingsBuilder AddFeatureFlagContainers(
             params IFeatureFlagContainer[] containers)
@@ -91,7 +83,6 @@ namespace Veff
             using var conn = connFactory.UseConnection();
 
             conn.EnsureTablesExists();
-            
         }
     }
 }

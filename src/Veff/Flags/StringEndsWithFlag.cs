@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Veff.Internal;
+using Veff.Internal.Responses;
 
 namespace Veff.Flags;
 
@@ -40,4 +41,20 @@ public class StringEndsWithFlag : StringEqualsFlag
     /// </code> </example>
     /// </summary>
     public new static StringEndsWithFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
+    
+    internal override FeatureFlagViewModel AsViewModel()
+    {
+        var split = Name.Split('.');
+        var containerName = split[0];
+        var name = split[1];
+
+        return new FeatureFlagViewModel(Id,
+            containerName,
+            name,
+            Description,
+            nameof(StringEndsWithFlag),
+            0,
+            false,
+            string.Join("\n", Values.ToArray()));
+    }
 }

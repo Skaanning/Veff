@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace WebTest.Controllers
 {
@@ -7,14 +8,13 @@ namespace WebTest.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly FooBarFeatures _features;
         private readonly IMySuperService _mySuperService;
         private readonly NewStuffFeatures _newStuffFeatures;
 
-        public WeatherForecastController(FooBarFeatures features,
-            IMySuperService mySuperService, NewStuffFeatures newStuffFeatures)
+        public WeatherForecastController(
+            IMySuperService mySuperService, 
+            NewStuffFeatures newStuffFeatures)
         {
-            _features = features;
             _mySuperService = mySuperService;
             _newStuffFeatures = newStuffFeatures;
         }
@@ -22,26 +22,34 @@ namespace WebTest.Controllers
         [HttpGet]
         public string Get()
         {
-            // string flag
-            if (_features.Baz.EnabledFor("michael"))
-                throw new Exception("michael is not allowed");
+            var newGuid = Guid.NewGuid();
+            var s = new
+            {
+                SometimesIWork = $"{newGuid} = {_newStuffFeatures.SometimesIWork.EnabledFor(newGuid).ToString()}",
+                Baz111 = $"hello = {_newStuffFeatures.Baz111.EnabledFor("hello")}",
+                Bazz333 = $"hello = {_newStuffFeatures.Baz333.EnabledFor("hello")}",
+                Baz555 = $"hello = {_newStuffFeatures.Baz555.EnabledFor("hello")}",
+                EndsWith = $"hello = {_newStuffFeatures.EndsWith.EnabledFor("hello")}",
+                Hello = _newStuffFeatures.Hello.IsEnabled,
+                CanUseEmails = _newStuffFeatures.CanUseEmails.IsEnabled,
+            };
 
-            return _mySuperService.DoStuff();
+            return JsonConvert.SerializeObject(s);
         }
     }
 
     public class MySuperService : IMySuperService
     {
-        private readonly FooBarFeatures _fooBarFeatures;
+        private readonly NewStuffFeatures _fooBarFeatures;
 
-        public MySuperService(FooBarFeatures fooBarFeatures)
+        public MySuperService(NewStuffFeatures fooBarFeatures)
         {
             _fooBarFeatures = fooBarFeatures;
         }
         
         public string DoStuff()
         {
-            return _fooBarFeatures.Baz.EnabledFor("1") ? "Hello" : "goodbye";
+            return _fooBarFeatures.SometimesIWork.EnabledFor(50) ? "Hello" : "goodbye";
         }
     }
 

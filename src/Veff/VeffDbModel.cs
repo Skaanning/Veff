@@ -24,7 +24,7 @@ namespace Veff
             Description = description;
             Percent = percent;
             Type = type;
-            Strings = strings.Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
+            Strings = (strings ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
         }
 
         public string GetClassName()
@@ -44,6 +44,19 @@ namespace Veff
         {
             if (Type.Equals(typeof(BooleanFlag).FullName))
                 return new BooleanFlag(Id, Name, Description, Percent == 100, _connectionFactory);
+            
+            if (Type.Equals(typeof(PercentageFlag).FullName))
+                return new PercentageFlag(Id, Name, Description, Percent, _connectionFactory);
+
+            if (Type.Equals(typeof(StringContainsFlag).FullName))
+                return new StringContainsFlag(Id, Name, Description, Strings, _connectionFactory);
+
+            if (Type.Equals(typeof(StringEndsWithFlag).FullName))
+                return new StringEndsWithFlag(Id, Name, Description, Strings, _connectionFactory);
+            
+            if (Type.Equals(typeof(StringStartsWithFlag).FullName))
+                return new StringStartsWithFlag(Id, Name, Description, Strings, _connectionFactory);
+            
             if (Type.Equals(typeof(StringEqualsFlag).FullName))
                 return new StringEqualsFlag(Id, Name, Description, Strings, _connectionFactory);
 
