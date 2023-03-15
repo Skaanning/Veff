@@ -43,8 +43,8 @@ namespace Veff
                     context.Response.ContentType = "text/html";
 
                     var assembly = typeof(VeffDbModel).Assembly;
-                    var manifestResourceStream = assembly.GetManifestResourceStream("Veff.html.templates.dashboard.html")!;
-                    var reader = new StreamReader(manifestResourceStream);
+                    await using var manifestResourceStream = assembly.GetManifestResourceStream("Veff.html.templates.inlined.html")!;
+                    using var reader = new StreamReader(manifestResourceStream);
 
                     await context.Response.WriteAsync(await reader.ReadToEndAsync());
                 }

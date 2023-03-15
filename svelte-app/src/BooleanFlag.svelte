@@ -49,6 +49,7 @@
 	<Cell>
 		<Textfield
 			input$resizable={false}
+			style="width: 100%;"
 			bind:value={description}
 			label="description"
 		/>

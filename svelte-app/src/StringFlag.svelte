@@ -5,6 +5,7 @@
 	import Textfield from "@smui/textfield";
 	import { createEventDispatcher } from 'svelte';
 	import Button from '@smui/button';
+	import HelperText from '@smui/textfield/helper-text';
 
 	export let strings;
 	export let name;
@@ -23,8 +24,7 @@
 		};
 
 		disabled = true;
-		let res = await fetch("https://localhost:5555/veff_internal_api/update", options);
-		//let res = await fetch("/veff_internal_api/update", options);
+		let res = await fetch("/veff_internal_api/update", options);
 		if (res.ok) {
 			dispatch("saved", update)
 		} else {
@@ -39,13 +39,17 @@
 <Row>
 	<Cell><b>{name}</b></Cell>
 	<Cell style="padding:1rem;">
-		<Textfield style="height:5rem;"
-			input$cols="80" 
+		<Textfield 
+			style="width: 100%;height:5rem"
+			helperLine$style="width: 100%;"
+				input$cols="80" 
 			input$resizable={false}
-			textarea bind:value={strings} label="Strings to enable against. Use new line for each new string" />
+			textarea bind:value={strings} label="Values">
+				<HelperText slot="helper">Strings to enable against. Use new line for each new value</HelperText>
+		</Textfield>
 	</Cell>
-	<Cell>
-		<Textfield input$resizable={false} bind:value={description} label="description" />
+	<Cell style="width:30%">
+		<Textfield style="width: 100%;" input$resizable={false} bind:value={description} label="description" />
 	</Cell>
 	<Cell>
 		<IconButton class="material-icons" {disabled} on:click={() => save()}>save</IconButton>

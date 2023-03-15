@@ -6,7 +6,7 @@
         <Authors>Michael Skaanning</Authors>
         <Description>Very easy feature flags</Description>
         <PackageTags>FeatureFlag</PackageTags>
-        <PackageVersion>1.0.3</PackageVersion>
+        <PackageVersion>1.1.0</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>default</LangVersion>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
@@ -43,6 +43,10 @@
 
     <ItemGroup>
       <EmbeddedResource Include="html\templates\dashboard.html">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <None Remove="html\templates\inlined.html" />
+      <EmbeddedResource Include="html\templates\inlined.html">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
     </ItemGroup>
