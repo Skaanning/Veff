@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Data.SqlClient;
 using Veff.Internal;
 
 namespace Veff.Flags

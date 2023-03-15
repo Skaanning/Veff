@@ -18,12 +18,12 @@ namespace Veff.Internal.Responses
                 Id = b.Id;
             }
 
-            if (flag is StringFlag f)
+            if (flag is StringEqualsFlag f)
             {
                 ContainerName = f.Name.Split('.')[0];
                 Name = f.Name.Split('.')[1];
                 Strings = string.Join("\n", f.Values.ToArray());
-                Type = nameof(StringFlag);
+                Type = nameof(StringEqualsFlag);
                 Description = f.Description;
                 Id = f.Id;
             }

@@ -14,12 +14,12 @@ namespace UnitTests
             var fooBarFeatures = new FooBarFeatures
             {
                 Foo = new MockedBooleanFlag(true),
-                Baz = new MockedStringFlag("hello")
+                Baz = new MockedStringEqualsFlag("hello")
             };
 
             _sut = new MySuperService(fooBarFeatures);
         }
-        
+
         [Fact]
         public void Test1()
         {

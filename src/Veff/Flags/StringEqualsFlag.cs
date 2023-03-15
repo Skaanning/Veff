@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using Veff.Internal;
 
 namespace Veff.Flags
 {
-    public class StringFlag : Flag
+    public class StringEqualsFlag : Flag
     {
-        internal StringFlag(
+        internal StringEqualsFlag(
             int id,
             string name,
             string description,
@@ -22,53 +20,56 @@ namespace Veff.Flags
             Id = id;
             Name = name;
             Description = description;
-            _cachedValueExpiry = DateTimeOffset.UtcNow;
-            _cachedValue = (values)
+            CachedValueExpiry = DateTimeOffset.UtcNow;
+            IgnoreCase = true;
+            CachedValue = (values)
                 .Select(x => x.ToLower())
                 .ToHashSet();
         }
 
+
         public int Id { get; }
         public string Name { get; }
         public string Description { get; }
+        public bool IgnoreCase { get; }
 
         public bool EnabledFor(
-            string value) => InternalIsEnabled(value.ToLower());
+            string value) => InternalIsEnabled(value);
 
         public bool DisabledFor(
-            string value) => !EnabledFor(value.ToLower());
+            string value) => !EnabledFor(value);
 
         public bool EnabledForAny(
-            params string[] values) => values.Any(x => EnabledFor(x.ToLower()));
+            params string[] values) => values.Any(EnabledFor);
 
         public bool EnabledForAll(
-            params string[] values) => values.All(x => EnabledFor(x.ToLower()));
+            params string[] values) => values.All(EnabledFor);
 
-        private bool InternalIsEnabled(
+        protected virtual bool InternalIsEnabled(
             string value)
         {
-            if (DateTimeOffset.UtcNow <= _cachedValueExpiry) return _cachedValue.Contains(value);
+            if (DateTimeOffset.UtcNow <= CachedValueExpiry) return CachedValue.Contains(value);
 
             using var connection = VeffDbConnectionFactory.UseConnection();
             var newValue = GetValueFromDb(); // connection.
 
-            _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
-            _cachedValue = newValue;
+            CachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
+            CachedValue = newValue;
 
-            return _cachedValue.Contains(value);
+            return CachedValue.Contains(value);
         }
 
-        private HashSet<string> GetValueFromDb()
+        protected HashSet<string> GetValueFromDb()
         {
             using var connection = VeffDbConnectionFactory.UseConnection();
 
-            return connection.GetStringValueFromDb(Id);
+            return connection.GetStringValueFromDb(Id, IgnoreCase);
         }
 
-        private DateTimeOffset _cachedValueExpiry;
-        private HashSet<string> _cachedValue;
+        protected DateTimeOffset CachedValueExpiry;
+        protected HashSet<string> CachedValue;
 
-        public HashSet<string> Values => _cachedValue;
+        public HashSet<string> Values => CachedValue;
 
         /// <summary>
         /// Useful for initializing nullable reference types so compiler doesnt complain.
@@ -76,10 +77,10 @@ namespace Veff.Flags
         /// <example> <code>
         /// public class MyFeatures : IFeatureContainer
         /// {
-        ///     public StringFlag MyFlag { get; } = StringFlag.Empty;
+        ///     public StringEqualsFlag MyFlag { get; } = StringEqualsFlag.Empty;
         /// }
         /// </code> </example>
         /// </summary>
-        public static StringFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
+        public static StringEqualsFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
     }
 }

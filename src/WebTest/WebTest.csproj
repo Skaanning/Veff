@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
         <PackageReference Include="Veff" Version="1.0.3" />
     </ItemGroup>
 

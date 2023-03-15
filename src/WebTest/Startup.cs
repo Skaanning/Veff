@@ -53,7 +53,7 @@ namespace WebTest
     public record FooBarFeatures : IFeatureFlagContainer
     {
         public BooleanFlag Foo { get; init; } = default!;
-        public StringFlag Baz { get; init; } = default!;
+        public StringEqualsFlag Baz { get; init; } = default!;
     }
 
     public class NewStuffFeatures : IFeatureFlagContainer
@@ -61,9 +61,9 @@ namespace WebTest
         public BooleanFlag Hello { get; } = BooleanFlag.Empty;
         public BooleanFlag CanUseEmails { get; } =  BooleanFlag.Empty;
         public BooleanFlag CanUseSomethingElse { get; } =  BooleanFlag.Empty;
-        public StringFlag Baz111 { get; } =  StringFlag.Empty;
-        public StringFlag Baz333 { get; set; } =  StringFlag.Empty;
-        public StringFlag Baz555 { get; set; } =  StringFlag.Empty;
+        public StringEqualsFlag Baz111 { get; } =  StringEqualsFlag.Empty;
+        public StringEqualsFlag Baz333 { get; set; } =  StringEqualsFlag.Empty;
+        public StringEqualsFlag Baz555 { get; set; } =  StringEqualsFlag.Empty;
     }
 
     public class MyCustomAuthorizer : IVeffDashboardAuthorizer
