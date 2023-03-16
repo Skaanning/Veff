@@ -1,26 +1,24 @@
 ﻿using System.Data.SqlClient;
-using Veff.Internal;
 
-namespace Veff.SqlServer
+namespace Veff.SqlServer;
+
+internal class VeffSqlServerDbConnectionFactory : IVeffDbConnectionFactory
 {
-    internal class VeffSqlServerDbConnectionFactory : IVeffDbConnectionFactory
+    public TimeSpan CacheExpiry { get; set; }
+    private readonly string _connectionString;
+
+    public VeffSqlServerDbConnectionFactory(
+        string connectionString,
+        TimeSpan? cacheExpiry = null)
     {
-        public TimeSpan CacheExpiry { get; set; }
-        private readonly string _connectionString;
+        CacheExpiry = cacheExpiry ?? TimeSpan.FromSeconds(60);
+        _connectionString = connectionString;
+    }
 
-        public VeffSqlServerDbConnectionFactory(
-            string connectionString,
-            TimeSpan? cacheExpiry = null)
-        {
-            CacheExpiry = cacheExpiry ?? TimeSpan.FromSeconds(60);
-            _connectionString = connectionString;
-        }
+    public IVeffDbConnection UseConnection()
+    {
+        var connection = new VeffSqlServerConnection(new SqlConnection(_connectionString));
 
-        public IVeffDbConnection UseConnection()
-        {
-            var connection = new VeffSqlServerConnection(new SqlConnection(_connectionString));
-
-            return new VeffDbConnection(connection, this);
-        }
+        return new VeffDbConnection(connection, this);
     }
 }

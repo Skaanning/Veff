@@ -2,15 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>WebTest</AssemblyName>
-        <RootNamespace>WebTest</RootNamespace>
-        <LangVersion>default</LangVersion>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Veff.SqlServer\Veff.SqlServer.csproj" />

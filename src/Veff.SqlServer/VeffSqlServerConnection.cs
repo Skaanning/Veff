@@ -1,8 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using Veff.Internal;
-using Veff.Internal.Requests;
-using Veff.Internal.Responses;
+using Veff.Requests;
+using Veff.Responses;
 
 namespace Veff.SqlServer;
 

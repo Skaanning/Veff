@@ -6,7 +6,7 @@
         <Authors>Michael Skaanning</Authors>
         <Description>Very easy feature flags</Description>
         <PackageTags>FeatureFlag</PackageTags>
-        <PackageVersion>1.1.1</PackageVersion>
+        <PackageVersion>1.1.2</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>default</LangVersion>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
@@ -18,22 +18,21 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="contentFiles/**/*.*">
-            <Pack>true</Pack>
-            <PackagePath>contentFiles</PackagePath>
-            <IncludeInPackage>true</IncludeInPackage>
-            <CopyToOutput>true</CopyToOutput>
-            <BuildAction>Content</BuildAction>
-            <PackageCopyToOutput>true</PackageCopyToOutput>
-            <PackageFlatten>true</PackageFlatten>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
+<!--    <ItemGroup>-->
+<!--        <Content Include="contentFiles/**/*.*">-->
+<!--            <Pack>true</Pack>-->
+<!--            <PackagePath>contentFiles</PackagePath>-->
+<!--            <IncludeInPackage>true</IncludeInPackage>-->
+<!--            <CopyToOutput>true</CopyToOutput>-->
+<!--            <BuildAction>Content</BuildAction>-->
+<!--            <PackageCopyToOutput>true</PackageCopyToOutput>-->
+<!--            <PackageFlatten>true</PackageFlatten>-->
+<!--            <CopyToOutputDirectory>Always</CopyToOutputDirectory>-->
+<!--            <CopyToPublishDirectory>Always</CopyToPublishDirectory>-->
+<!--        </Content>-->
+<!--    </ItemGroup>-->
 
     <ItemGroup>
       <None Remove="html\templates\inlined.html" />

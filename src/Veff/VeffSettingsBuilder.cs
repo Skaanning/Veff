@@ -3,77 +3,75 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Veff.Extensions;
 using Veff.Flags;
-using Veff.Internal;
-using Veff.Internal.Extensions;
 
-namespace Veff
+namespace Veff;
+
+public class VeffSettingsBuilder : IVeffSettingsBuilder
 {
-    public class VeffSettingsBuilder : IFeatureFlagContainerBuilder, IVeffCacheSettingsBuilder
+    protected IVeffDbConnectionFactory? VeffSqlConnectionFactory;
+    protected readonly IServiceCollection ServiceCollection;
+
+    protected VeffSettingsBuilder(
+        IServiceCollection serviceCollection)
     {
-        protected IVeffDbConnectionFactory? VeffSqlConnectionFactory;
-        protected readonly IServiceCollection ServiceCollection;
+        ServiceCollection = serviceCollection;
+    }
 
-        protected internal VeffSettingsBuilder(
-            IServiceCollection serviceCollection)
+    public IVeffSettingsBuilder AddFeatureFlagContainers(
+        params IFeatureFlagContainer[] containers)
+    {
+        var featureFlagNames = new List<(string, string)>();
+        foreach (var veffContainer in containers)
         {
-            ServiceCollection = serviceCollection;
+            var type = veffContainer.GetType();
+            var targetType = typeof(Flag);
+
+            type.GetProperties()
+                .Where(x => x.PropertyType.IsAssignableTo(targetType))
+                .Select(x => ($"{type.Name}.{x.Name}", x.PropertyType.ToString()))
+                .ForEach(x => featureFlagNames.Add(x));
         }
 
-        public IVeffCacheSettingsBuilder AddFeatureFlagContainers(
-            params IFeatureFlagContainer[] containers)
-        {
-            var featureFlagNames = new List<(string, string)>();
-            foreach (var veffContainer in containers)
-            {
-                var type = veffContainer.GetType();
-                var targetType = typeof(Flag);
+        SyncFeatureFlagsInDb(featureFlagNames);
+        SyncValuesFromDb(containers);
 
-                type.GetProperties()
-                    .Where(x => x.PropertyType.IsAssignableTo(targetType))
-                    .Select(x => ($"{type.Name}.{x.Name}", x.PropertyType.ToString()))
-                    .ForEach(x => featureFlagNames.Add(x));
-            }
+        containers.ForEach(x => ServiceCollection.AddSingleton(x.GetType(), x));
+        containers.ForEach(x => ServiceCollection.AddSingleton(x));
 
-            SyncFeatureFlagsInDb(featureFlagNames);
-            SyncValuesFromDb(containers);
+        return this;
+    }
 
-            containers.ForEach(x => ServiceCollection.AddSingleton(x.GetType(), x));
-            containers.ForEach(x => ServiceCollection.AddSingleton(x));
+    public IVeffSettingsBuilder AddCacheExpiryTime(
+        TimeSpan cacheExpiry)
+    {
+        VeffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
+        ServiceCollection.Replace(new ServiceDescriptor(typeof(IVeffDbConnectionFactory), _ => VeffSqlConnectionFactory, ServiceLifetime.Transient));
+        return this;
+    }
 
-            return this;
-        }
+    private void SyncFeatureFlagsInDb(
+        IEnumerable<(string Name, string Type)> featureFlagNames)
+    {
+        using var conn = VeffSqlConnectionFactory!.UseConnection();
 
-        public IVeffCacheSettingsBuilder AddCacheExpiryTime(
-            TimeSpan cacheExpiry)
-        {
-            VeffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
-            ServiceCollection.Replace(new ServiceDescriptor(typeof(IVeffDbConnectionFactory), _ => VeffSqlConnectionFactory, ServiceLifetime.Transient));
-            return this;
-        }
+        conn.SyncFeatureFlags(featureFlagNames);
+    }
 
-        private void SyncFeatureFlagsInDb(
-            IEnumerable<(string Name, string Type)> featureFlagNames)
-        {
-            using var conn = VeffSqlConnectionFactory!.UseConnection();
+    private void SyncValuesFromDb(
+        IEnumerable<IFeatureFlagContainer> veffContainers)
+    {
+        using var conn = VeffSqlConnectionFactory!.UseConnection();
 
-            conn.SyncFeatureFlags(featureFlagNames);
-        }
+        conn.SyncValuesFromDb(veffContainers);
+    }
 
-        private void SyncValuesFromDb(
-            IEnumerable<IFeatureFlagContainer> veffContainers)
-        {
-            using var conn = VeffSqlConnectionFactory!.UseConnection();
+    protected static void EnsureTableExists(
+        IVeffDbConnectionFactory connFactory)
+    {
+        using var conn = connFactory.UseConnection();
 
-            conn.SyncValuesFromDb(veffContainers);
-        }
-
-        protected static void EnsureTableExists(
-            IVeffDbConnectionFactory connFactory)
-        {
-            using var conn = connFactory.UseConnection();
-
-            conn.EnsureTablesExists();
-        }
+        conn.EnsureTablesExists();
     }
 }

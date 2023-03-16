@@ -1,4 +1,3 @@
-﻿namespace Veff
-{
-    public interface IFeatureFlagContainer { }
-}
+﻿namespace Veff;
+
+public interface IFeatureFlagContainer { }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Veff.Internal.Requests;
-using Veff.Internal.Responses;
+using Veff.Requests;
+using Veff.Responses;
 
-namespace Veff.Internal;
+namespace Veff;
 
 public interface IVeffDbConnection : IDisposable
 {

@@ -24,8 +24,4 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\WebTest\WebTest.csproj" />
-    </ItemGroup>
-
 </Project>

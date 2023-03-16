@@ -1,29 +1,24 @@
-using Veff.Flags.Mocked;
-using WebTest;
-using WebTest.Controllers;
-using Xunit;
 
-namespace UnitTests
+namespace UnitTests;
+
+public class MySuperServiceTest
 {
-    public class MySuperServiceTest
-    {
-        // private readonly MySuperService _sut;
-        //
-        // public MySuperServiceTest()
-        // {
-        //     var fooBarFeatures = new NewStuffFeatures
-        //     {
-        //         EndsWith = new MockedStringEndsWithFlag("hello"),
-        //     };
-        //
-        //     _sut = new MySuperService(fooBarFeatures);
-        // }
-        //
-        // [Fact]
-        // public void Test1()
-        // {
-        //     var doStuff = _sut.DoStuff();
-        //     Assert.Equal("Hello", doStuff);
-        // }
-    }
+    // private readonly MySuperService _sut;
+    //
+    // public MySuperServiceTest()
+    // {
+    //     var fooBarFeatures = new NewStuffFeatures
+    //     {
+    //         EndsWith = new MockedStringEndsWithFlag("hello"),
+    //     };
+    //
+    //     _sut = new MySuperService(fooBarFeatures);
+    // }
+    //
+    // [Fact]
+    // public void Test1()
+    // {
+    //     var doStuff = _sut.DoStuff();
+    //     Assert.Equal("Hello", doStuff);
+    // }
 }

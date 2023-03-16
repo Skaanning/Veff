@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Veff.Internal.Extensions;
-using Veff.Internal.Requests;
-using Veff.Internal.Responses;
+using Veff.Extensions;
+using Veff.Requests;
+using Veff.Responses;
 
-namespace Veff.Internal;
+namespace Veff;
 
 public class VeffDbConnection : IVeffDbConnection
 {

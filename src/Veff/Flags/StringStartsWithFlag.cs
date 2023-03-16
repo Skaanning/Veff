@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
-using Veff.Internal;
-using Veff.Internal.Responses;
+using Veff.Responses;
 
 namespace Veff.Flags;
 
