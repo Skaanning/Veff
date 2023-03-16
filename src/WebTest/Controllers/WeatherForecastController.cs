@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace WebTest.Controllers
 {
@@ -34,7 +34,7 @@ namespace WebTest.Controllers
                 CanUseEmails = _newStuffFeatures.CanUseEmails.IsEnabled,
             };
 
-            return JsonConvert.SerializeObject(s);
+            return JsonSerializer.Serialize(s);
         }
     }
 

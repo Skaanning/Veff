@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using Veff.Internal;
 using Veff.Internal.Requests;
 
@@ -106,9 +107,7 @@ namespace Veff
             IServiceProvider services,
             HttpContext httpContext)
         {
-            using var stream = new StreamReader(httpContext.Request.Body);
-            var body = await stream.ReadToEndAsync();
-            var obj = JsonConvert.DeserializeObject<FeatureFlagUpdate>(body);
+            var obj = await JsonSerializer.DeserializeAsync<FeatureFlagUpdate>(httpContext.Request.Body);
             SaveUpdate(obj, services);
 
             return "ok";
@@ -133,7 +132,7 @@ namespace Veff
 
             var featureContainerViewModel = await conn.GetAll();
 
-            return JsonConvert.SerializeObject(featureContainerViewModel);
+            return JsonSerializer.Serialize(featureContainerViewModel);
         }
 
         private static string EnsureStartsWith(
