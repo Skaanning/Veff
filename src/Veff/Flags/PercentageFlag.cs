@@ -66,7 +66,7 @@ public class PercentageFlag : Flag
 
     public static PercentageFlag Empty { get; } = new(-1, "empty", "", 0, null!);
 
-    internal override FeatureFlagViewModel AsViewModel()
+    public override FeatureFlagViewModel AsViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

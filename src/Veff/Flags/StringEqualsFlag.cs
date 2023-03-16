@@ -83,7 +83,7 @@ namespace Veff.Flags
         /// </summary>
         public static StringEqualsFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
 
-        internal override FeatureFlagViewModel AsViewModel()
+        public override FeatureFlagViewModel AsViewModel()
         {
             var split = Name.Split('.');
             var containerName = split[0];

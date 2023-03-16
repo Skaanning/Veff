@@ -1,4 +1,4 @@
-﻿namespace Veff;
+﻿namespace Veff.SqlServer;
 
 public interface IUseSqlServerBuilder
 {

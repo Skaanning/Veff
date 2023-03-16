@@ -1,19 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>WebTest</AssemblyName>
-        <RootNamespace>WebTest</RootNamespace>
-        <LangVersion>default</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <ProjectReference Include="..\Veff.SqlServer\Veff.SqlServer.csproj" />
+      <ProjectReference Include="..\Veff\Veff.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
+using Veff.Internal;
 
-namespace Veff.Internal
+namespace Veff.SqlServer
 {
     internal class VeffSqlServerDbConnectionFactory : IVeffDbConnectionFactory
     {
-        public TimeSpan CacheExpiry { get; internal set; }
+        public TimeSpan CacheExpiry { get; set; }
         private readonly string _connectionString;
 
         public VeffSqlServerDbConnectionFactory(

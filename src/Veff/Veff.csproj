@@ -19,7 +19,6 @@
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,9 +36,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="html\templates\dashboard.html">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </EmbeddedResource>
       <None Remove="html\templates\inlined.html" />
       <EmbeddedResource Include="html\templates\inlined.html">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

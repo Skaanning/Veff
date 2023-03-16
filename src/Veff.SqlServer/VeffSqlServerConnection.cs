@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+using Veff.Internal;
 using Veff.Internal.Requests;
 using Veff.Internal.Responses;
 
-namespace Veff.Internal;
+namespace Veff.SqlServer;
 
 internal class VeffSqlServerConnection : IVeffConnection 
 {

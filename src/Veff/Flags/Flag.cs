@@ -13,6 +13,6 @@ namespace Veff.Flags
             VeffDbConnectionFactory = veffDbConnectionFactory;
         }
 
-        internal abstract FeatureFlagViewModel AsViewModel();
+        public abstract FeatureFlagViewModel AsViewModel();
     }
 }

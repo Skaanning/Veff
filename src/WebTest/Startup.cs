@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Veff;
 using Veff.Flags;
+using Veff.SqlServer;
 using WebTest.Controllers;
 
 namespace WebTest

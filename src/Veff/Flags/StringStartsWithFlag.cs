@@ -42,7 +42,7 @@ public class StringStartsWithFlag : StringEqualsFlag
     /// </summary>
     public new static StringStartsWithFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
     
-    internal override FeatureFlagViewModel AsViewModel()
+    public override FeatureFlagViewModel AsViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

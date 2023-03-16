@@ -6,7 +6,7 @@ using Veff.Internal.Responses;
 
 namespace Veff.Internal;
 
-internal interface IVeffConnection : IDisposable
+public interface IVeffConnection : IDisposable
 {
     void SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
     Task<FeatureContainerViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory);

@@ -9,24 +9,15 @@ using Veff.Internal.Extensions;
 
 namespace Veff
 {
-    public class VeffSettingsBuilder : IUseSqlServerBuilder, IFeatureFlagContainerBuilder, IVeffCacheSettingsBuilder
+    public class VeffSettingsBuilder : IFeatureFlagContainerBuilder, IVeffCacheSettingsBuilder
     {
-        private VeffSqlServerDbConnectionFactory? _veffSqlConnectionFactory;
-        private readonly IServiceCollection _serviceCollection;
+        protected IVeffDbConnectionFactory? VeffSqlConnectionFactory;
+        protected readonly IServiceCollection ServiceCollection;
 
-        internal VeffSettingsBuilder(
+        protected internal VeffSettingsBuilder(
             IServiceCollection serviceCollection)
         {
-            _serviceCollection = serviceCollection;
-        }
-
-        public IFeatureFlagContainerBuilder WithSqlServer(
-            string connectionString)
-        {
-            _veffSqlConnectionFactory = new VeffSqlServerDbConnectionFactory(connectionString);
-            _serviceCollection.AddTransient<IVeffDbConnectionFactory>(_ => _veffSqlConnectionFactory);
-            EnsureTableExists(_veffSqlConnectionFactory);
-            return this;
+            ServiceCollection = serviceCollection;
         }
 
         public IVeffCacheSettingsBuilder AddFeatureFlagContainers(
@@ -47,8 +38,8 @@ namespace Veff
             SyncFeatureFlagsInDb(featureFlagNames);
             SyncValuesFromDb(containers);
 
-            containers.ForEach(x => _serviceCollection.AddSingleton(x.GetType(), x));
-            containers.ForEach(x => _serviceCollection.AddSingleton(x));
+            containers.ForEach(x => ServiceCollection.AddSingleton(x.GetType(), x));
+            containers.ForEach(x => ServiceCollection.AddSingleton(x));
 
             return this;
         }
@@ -56,15 +47,15 @@ namespace Veff
         public IVeffCacheSettingsBuilder AddCacheExpiryTime(
             TimeSpan cacheExpiry)
         {
-            _veffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
-            _serviceCollection.Replace(new ServiceDescriptor(typeof(IVeffDbConnectionFactory), _ => _veffSqlConnectionFactory, ServiceLifetime.Transient));
+            VeffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
+            ServiceCollection.Replace(new ServiceDescriptor(typeof(IVeffDbConnectionFactory), _ => VeffSqlConnectionFactory, ServiceLifetime.Transient));
             return this;
         }
 
         private void SyncFeatureFlagsInDb(
             IEnumerable<(string Name, string Type)> featureFlagNames)
         {
-            using var conn = _veffSqlConnectionFactory!.UseConnection();
+            using var conn = VeffSqlConnectionFactory!.UseConnection();
 
             conn.SyncFeatureFlags(featureFlagNames);
         }
@@ -72,12 +63,12 @@ namespace Veff
         private void SyncValuesFromDb(
             IEnumerable<IFeatureFlagContainer> veffContainers)
         {
-            using var conn = _veffSqlConnectionFactory!.UseConnection();
+            using var conn = VeffSqlConnectionFactory!.UseConnection();
 
             conn.SyncValuesFromDb(veffContainers);
         }
 
-        private static void EnsureTableExists(
+        protected static void EnsureTableExists(
             IVeffDbConnectionFactory connFactory)
         {
             using var conn = connFactory.UseConnection();

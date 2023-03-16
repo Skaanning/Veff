@@ -8,28 +8,28 @@ using Veff.Internal.Responses;
 
 namespace Veff.Internal;
 
-internal class VeffDbConnection : IVeffDbConnection
+public class VeffDbConnection : IVeffDbConnection
 {
     private readonly IVeffConnection _connection;
-    private readonly VeffSqlServerDbConnectionFactory _veffSqlServerDbConnectionFactory;
+    private readonly IVeffDbConnectionFactory _veffDbConnectionFactory;
 
     public VeffDbConnection(
         IVeffConnection connection,
-        VeffSqlServerDbConnectionFactory veffSqlServerDbConnectionFactory)
+        IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         _connection = connection;
-        _veffSqlServerDbConnectionFactory = veffSqlServerDbConnectionFactory;
+        _veffDbConnectionFactory = veffDbConnectionFactory;
     }
 
     public void SaveUpdate(FeatureFlagUpdate featureFlagUpdate) => _connection.SaveUpdate(featureFlagUpdate);
 
-    public async Task<FeatureContainerViewModel> GetAll() => await _connection.GetAll(_veffSqlServerDbConnectionFactory);
+    public async Task<FeatureContainerViewModel> GetAll() => await _connection.GetAll(_veffDbConnectionFactory);
 
     public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames) => _connection.SyncFeatureFlags(featureFlagNames);
 
     public void SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers)
     {
-        var veff = _connection.GetAllValues(_veffSqlServerDbConnectionFactory);
+        var veff = _connection.GetAllValues(_veffDbConnectionFactory);
 
         var lookup = veff.ToLookup(x => x.GetClassName());
         var containerDictionary = veffContainers.ToDictionary(x => x.GetType().Name);

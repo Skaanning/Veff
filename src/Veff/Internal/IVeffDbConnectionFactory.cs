@@ -4,7 +4,7 @@ namespace Veff.Internal
 {
     public interface IVeffDbConnectionFactory
     {
-        TimeSpan CacheExpiry { get; }
+        TimeSpan CacheExpiry { get; set; }
 
         IVeffDbConnection UseConnection();
     }

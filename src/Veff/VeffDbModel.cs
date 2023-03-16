@@ -5,11 +5,11 @@ using Veff.Internal;
 
 namespace Veff
 {
-    internal class VeffDbModel
+    public class VeffDbModel
     {
         private readonly IVeffDbConnectionFactory _connectionFactory;
 
-        internal VeffDbModel(
+        public VeffDbModel(
             int id,
             string name,
             string description,

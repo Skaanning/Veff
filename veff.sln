@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff", "src\Veff\Veff.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "src\UnitTests\UnitTests.csproj", "{954E6B35-A465-475E-9E4F-04E45BD10924}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.SqlServer", "src\Veff.SqlServer\Veff.SqlServer.csproj", "{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{954E6B35-A465-475E-9E4F-04E45BD10924}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{954E6B35-A465-475E-9E4F-04E45BD10924}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{954E6B35-A465-475E-9E4F-04E45BD10924}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
