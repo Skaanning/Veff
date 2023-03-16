@@ -16,6 +16,12 @@ public static class VeffDashboardApplicationBuilder
     private const string ApiPath = "/veff_internal_api";
     private static string GetApiPath => $"{_path}{ApiPath}";
         
+    /// <summary>
+    /// Enables a dashboard where you can configure the registered flags
+    /// </summary>
+    /// <param name="appBuilder"></param>
+    /// <param name="path">Base path for the dashboard</param>
+    /// <returns></returns>
     public static IApplicationBuilder UseVeffDashboard(
         this IApplicationBuilder appBuilder,
         string path = "/veff-dashboard")

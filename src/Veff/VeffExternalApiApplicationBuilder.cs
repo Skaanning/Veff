@@ -8,7 +8,11 @@ public static class VeffExternalApiApplicationBuilder
 {
 
     /// <summary>
-    /// Creates a http api that exposes all the flags and their states. 
+    /// Creates an http api that exposes all the flags and the possibility of evaluating if enabled/disabled. <br/>
+    ///<br/>
+    /// GET {basePath} returns all available flags <br/>
+    /// GET {basePath/eval} with query params "containername", "name" and optionally "value" evaluates the
+    /// given flag against the value and returns the result
     /// </summary>
     /// <param name="appBuilder"></param>
     /// <param name="basePath">Base path for api</param>
