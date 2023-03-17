@@ -27,12 +27,9 @@ public class VeffExternalApiMiddleware
         IEnumerable<IFeatureFlagContainer> containers,
         IEnumerable<IVeffExternalApiAuthorizer> authorizers)
     {
-        var isAuthorized = await CheckAuthorized(context, authorizers);
-        if (!isAuthorized) 
-            return;
+        if (!await CheckAuthorized(context, authorizers)) return;
 
-        if (await HandleFeatureRequest(context, _basePath, containers)) 
-            return;
+        if (await HandleFeatureRequest(context, _basePath, containers)) return;
         
         await HandleGetAll(context, veffDbConnectionFactory);
     }
