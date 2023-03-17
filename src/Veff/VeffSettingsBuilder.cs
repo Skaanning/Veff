@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Veff.Extensions;
-using Veff.Flags;
 
 namespace Veff;
 
 public class VeffSettingsBuilder : IVeffSettingsBuilder
 {
-    protected IVeffDbConnectionFactory? VeffSqlConnectionFactory;
     protected readonly IServiceCollection ServiceCollection;
 
     protected VeffSettingsBuilder(
@@ -19,59 +16,74 @@ public class VeffSettingsBuilder : IVeffSettingsBuilder
         ServiceCollection = serviceCollection;
     }
 
-    public IVeffSettingsBuilder AddFeatureFlagContainers(
-        params IFeatureFlagContainer[] containers)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public IVeffSettingsBuilder AddFeatureFlagContainersFromAssembly(params Type[] assemblyMarkers)
     {
-        var featureFlagNames = new List<(string, string)>();
-        foreach (var veffContainer in containers)
-        {
-            var type = veffContainer.GetType();
-            var targetType = typeof(Flag);
+        var assemblies = GetAssembliesOrDefaultToEntryAssembly(assemblyMarkers);
 
-            type.GetProperties()
-                .Where(x => x.PropertyType.IsAssignableTo(targetType))
-                .Select(x => ($"{type.Name}.{x.Name}", x.PropertyType.ToString()))
-                .ForEach(x => featureFlagNames.Add(x));
+        var containers = assemblies
+            .Select(assembly => assembly.DefinedTypes
+                .Where(x => typeof(IFeatureFlagContainer).IsAssignableFrom(x) 
+                            && x is { IsInterface: false, IsAbstract: false }));
+
+        var featureFlagContainers = containers
+            .SelectMany(x => x)
+            .Select(Activator.CreateInstance)
+            .Cast<IFeatureFlagContainer>()
+            .ToArray();
+        
+        return AddFeatureFlagContainers(featureFlagContainers);
+    }
+
+    public IVeffSettingsBuilder AddDashboardAuthorizersFromAssembly(params Type[] assemblyMarkers)
+    {
+        var assemblies = GetAssembliesOrDefaultToEntryAssembly(assemblyMarkers);
+        var auths = assemblies
+            .Select(assembly => assembly.DefinedTypes
+                .Where(x => typeof(IVeffDashboardAuthorizer).IsAssignableFrom(x) 
+                            && x is { IsInterface: false, IsAbstract: false }));
+        
+        foreach (var typeInfos in auths)
+        {
+            
         }
 
-        SyncFeatureFlagsInDb(featureFlagNames);
-        SyncValuesFromDb(containers);
+        return this;
+    }
 
+    public IVeffSettingsBuilder AddExternalApiAuthorizersFromAssembly(params Type[] assemblyMarkers)
+    {
+        var assemblies = GetAssembliesOrDefaultToEntryAssembly(assemblyMarkers);
+        var auths = assemblies
+            .Select(assembly => assembly.DefinedTypes
+                .Where(x => typeof(IVeffExternalApiAuthorizer).IsAssignableFrom(x) 
+                            && x is { IsInterface: false, IsAbstract: false }));
+
+        return this;
+    }
+
+    private IVeffSettingsBuilder AddFeatureFlagContainers(
+        params IFeatureFlagContainer[] containers)
+    {
         containers.ForEach(x => ServiceCollection.AddSingleton(x.GetType(), x));
         containers.ForEach(x => ServiceCollection.AddSingleton(x));
 
         return this;
     }
-
-    public IVeffSettingsBuilder AddCacheExpiryTime(
-        TimeSpan cacheExpiry)
+    
+    private static Assembly[] GetAssembliesOrDefaultToEntryAssembly(Type[] assemblyMarkers)
     {
-        VeffSqlConnectionFactory!.CacheExpiry = cacheExpiry;
-        ServiceCollection.Replace(new ServiceDescriptor(typeof(IVeffDbConnectionFactory), _ => VeffSqlConnectionFactory, ServiceLifetime.Transient));
-        return this;
-    }
+        var assemblies = assemblyMarkers.SelectToArray(x => x.Assembly);
+        if (assemblyMarkers.Length != 0) return assemblies;
+        
+        var entryAssembly = Assembly.GetEntryAssembly();
+        assemblies = entryAssembly is null
+            ? assemblies
+            : new[] { entryAssembly };
 
-    private void SyncFeatureFlagsInDb(
-        IEnumerable<(string Name, string Type)> featureFlagNames)
-    {
-        using var conn = VeffSqlConnectionFactory!.UseConnection();
-
-        conn.SyncFeatureFlags(featureFlagNames);
-    }
-
-    private void SyncValuesFromDb(
-        IEnumerable<IFeatureFlagContainer> veffContainers)
-    {
-        using var conn = VeffSqlConnectionFactory!.UseConnection();
-
-        conn.SyncValuesFromDb(veffContainers);
-    }
-
-    protected static void EnsureTableExists(
-        IVeffDbConnectionFactory connFactory)
-    {
-        using var conn = connFactory.UseConnection();
-
-        conn.EnsureTablesExists();
+        return assemblies;
     }
 }

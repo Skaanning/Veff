@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Veff;
 using Veff.SqlServer;
 using WebTester;
@@ -9,16 +10,22 @@ builder.Services.AddVeff(veffBuilder =>
     var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
     
     veffBuilder
-        .WithSqlServer(connectionString)
-        .AddFeatureFlagContainers(new NewStuffFeatures())
-        .AddCacheExpiryTime(TimeSpan.FromMinutes(1));
+        .WithSqlServer(connectionString, TimeSpan.FromSeconds(30))
+        .AddFeatureFlagContainersFromAssembly()
+        .AddDashboardAuthorizersFromAssembly()
+        .AddExternalApiAuthorizersFromAssembly();
 });
 
 var app = builder.Build();
 
-app.UseVeffDashboard();
-app.UseVeffExternalApi();
 
-app.MapGet("/", () => "Hello World!");
+app.UseVeff(s =>
+{
+    s.UseVeffDashboard();
+    s.UseVeffExternalApi();
+});
+
+app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer) 
+    => $"{nameof(featureFlagContainer.CanUseEmails)}={featureFlagContainer.CanUseEmails.IsEnabled} Hello World!");
 
 app.Run();

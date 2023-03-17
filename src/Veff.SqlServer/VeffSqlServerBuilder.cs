@@ -9,11 +9,18 @@ public class VeffSqlServerBuilder : VeffSettingsBuilder
     }
     
     public IVeffSettingsBuilder WithSqlServer(
-        string connectionString)
+        string connectionString,
+        TimeSpan? cacheExpiry)
     {
-        VeffSqlConnectionFactory = new VeffSqlServerDbConnectionFactory(connectionString);
-        ServiceCollection.AddTransient<IVeffDbConnectionFactory>(_ => VeffSqlConnectionFactory);
-        EnsureTableExists(VeffSqlConnectionFactory);
+        ServiceCollection.AddTransient<IVeffDbConnectionFactory>(_ => NewConnectionFactory(connectionString, cacheExpiry));
         return this;
+    }
+
+    private static IVeffDbConnectionFactory NewConnectionFactory(string connectionString, TimeSpan? cacheExpiry)
+    {
+        return new VeffSqlServerDbConnectionFactory(connectionString)
+        {
+            CacheExpiry = cacheExpiry ?? TimeSpan.FromMinutes(1)
+        };
     }
 }

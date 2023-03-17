@@ -10,36 +10,64 @@ using Veff.Requests;
 
 namespace Veff;
 
-public static class VeffDashboardApplicationBuilder
+public class VeffConfigBuilder
 {
+    private readonly IApplicationBuilder _applicationBuilder;
+    private readonly IServiceProvider _serviceProvider;
     private static string _path = "";
     private const string ApiPath = "/veff_internal_api";
     private static string GetApiPath => $"{_path}{ApiPath}";
-        
+
+    internal VeffConfigBuilder(IApplicationBuilder applicationBuilder, IServiceProvider serviceProvider)
+    {
+        _applicationBuilder = applicationBuilder;
+        _serviceProvider = serviceProvider;
+    }
+
     /// <summary>
     /// Enables a dashboard where you can configure the registered flags
     /// </summary>
     /// <param name="appBuilder"></param>
     /// <param name="path">Base path for the dashboard</param>
     /// <returns></returns>
-    public static IApplicationBuilder UseVeffDashboard(
-        this IApplicationBuilder appBuilder,
+    public VeffConfigBuilder UseVeffDashboard(
         string path = "/veff-dashboard")
     {
         _path = path.EnsureStartsWith("/");
 
-        var services = appBuilder.ApplicationServices;
         var authorizers =
-            services.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[]
+            _serviceProvider.GetService(typeof(IEnumerable<IVeffDashboardAuthorizer>)) as IVeffDashboardAuthorizer[]
             ?? Array.Empty<IVeffDashboardAuthorizer>();
-            
-        MapVeffDashboardIndex(appBuilder, authorizers);
-        MapInit(appBuilder, authorizers, services);
-        MapUpdateCall(appBuilder, authorizers, services);
-            
-        return appBuilder;
-    }
 
+        MapVeffDashboardIndex(_applicationBuilder, authorizers);
+        MapInit(_applicationBuilder, authorizers, _serviceProvider);
+        MapUpdateCall(_applicationBuilder, authorizers, _serviceProvider);
+        
+        return this;
+    }
+    
+    /// <summary>
+    /// Creates an http api that exposes all the flags and the possibility of evaluating if enabled/disabled. <br/>
+    ///<br/>
+    /// GET {basePath} returns all available flags <br/>
+    /// GET {basePath/eval} with query params "containername", "name" and optionally "value" evaluates the
+    /// given flag against the value and returns the result
+    /// </summary>
+    /// <param name="appBuilder"></param>
+    /// <param name="basePath">Base path for api</param>
+    /// <returns></returns>
+    public VeffConfigBuilder UseVeffExternalApi(
+        string basePath = "/_api/veff")
+    {
+        basePath = basePath.EnsureStartsWith("/");
+
+        _applicationBuilder.MapWhen(
+            context => context.Request.Method.Equals("GET") && context.Request.Path.StartsWithSegments(basePath, StringComparison.OrdinalIgnoreCase), 
+            x => x.UseMiddleware<VeffExternalApiMiddleware>(basePath));
+        
+        return this;
+    }
+    
     private static void MapVeffDashboardIndex(
         IApplicationBuilder appBuilder,
         IEnumerable<IVeffDashboardAuthorizer> authorizers)
