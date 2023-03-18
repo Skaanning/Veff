@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Veff.Extensions;
 using Veff.External;
 using Veff.Flags;
 
@@ -23,27 +22,31 @@ public class VeffExternalApiMiddleware
     // ReSharper disable once UnusedMember.Global
     public async Task InvokeAsync(
         HttpContext context,
-        IVeffDbConnectionFactory veffDbConnectionFactory,
         IEnumerable<IFeatureFlagContainer> containers,
         IEnumerable<IVeffExternalApiAuthorizer> authorizers)
     {
         if (!await CheckAuthorized(context, authorizers)) return;
 
-        if (await HandleFeatureRequest(context, _basePath, containers)) return;
+        var featureFlagContainers = containers as IFeatureFlagContainer[] ?? containers.ToArray();
+        if (await HandleFeatureRequest(context, _basePath, featureFlagContainers)) return;
         
-        await HandleGetAll(context, veffDbConnectionFactory);
+        await HandleGetAll(context, featureFlagContainers);
     }
 
-    private static async Task<bool> HandleFeatureRequest(HttpContext context, string basePath, IEnumerable<IFeatureFlagContainer> containers)
+    private static async Task<bool> HandleFeatureRequest(
+        HttpContext context,
+        string basePath,
+        IFeatureFlagContainer[] containers)
     {
-        if (!context.Request.Path.StartsWithSegments($"{basePath}/eval", StringComparison.OrdinalIgnoreCase)) return false;
-        
+        if (!context.Request.Path.StartsWithSegments($"{basePath}/eval", StringComparison.OrdinalIgnoreCase))
+            return false;
+
         var req = Input.FromQueryCollection(context.Request.Query);
 
         if (req is null) 
             return await SetBadRequest(context);
         
-        var container = containers.FirstOrDefault(x => x.GetType().Name.Equals(req.ContainerName));
+        var container = containers.FirstOrDefault(x => x.GetType().Name.Equals(req.ContainerName, StringComparison.OrdinalIgnoreCase));
         if (container is null) 
             return await SetBadRequest(context, req);
 
@@ -110,11 +113,11 @@ public class VeffExternalApiMiddleware
         return true;
     }
 
-    private static async Task HandleGetAll(HttpContext context, IVeffDbConnectionFactory veffDbConnectionFactory)
+    private static async Task HandleGetAll(
+        HttpContext context,
+        IFeatureFlagContainer[] containers)
     {
-        var all = await veffDbConnectionFactory.UseConnection().GetAll();
-        var featureFlagVms = all.Flags?.SelectToArray(FeatureFlagVm.FromFeatureFlagViewModel);
-
+        var featureFlagVms = FeatureFlagVm.FromFeatureFlagContainers(containers);
         context.Response.StatusCode = 200;
         context.Response.ContentType = "application/json";
 

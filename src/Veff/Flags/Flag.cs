@@ -12,5 +12,9 @@ public abstract class Flag
         VeffDbConnectionFactory = veffDbConnectionFactory;
     }
 
+    public abstract int Id { get; }
+    public abstract string Name { get; }
+    public abstract string Description { get; }
+
     public abstract FeatureFlagViewModel AsViewModel();
 }

@@ -22,9 +22,9 @@ public class BooleanFlag : Flag
         _cachedValue = isEnabled;
     }
 
-    public int Id { get; }
-    internal string Name { get; }
-    public string Description { get; }
+    public override int Id { get; }
+    public override string Name { get; }
+    public override string Description { get; }
     public bool IsEnabled => InternalIsEnabled();
     public bool IsDisabled => !IsEnabled;
 

@@ -27,9 +27,9 @@ public class StringEqualsFlag : Flag
             .ToHashSet();
     }
 
-    public int Id { get; }
-    public string Name { get; }
-    public string Description { get; }
+    public override int Id { get; }
+    public override string Name { get; }
+    public override string Description { get; }
     public bool IgnoreCase { get; }
 
     public bool EnabledFor(

@@ -42,15 +42,15 @@ public class VeffConfigBuilder
         MapVeffDashboardIndex(_applicationBuilder, authorizers);
         MapInit(_applicationBuilder, authorizers, _serviceProvider);
         MapUpdateCall(_applicationBuilder, authorizers, _serviceProvider);
-        
+
         return this;
     }
-    
+
     /// <summary>
     /// Creates an http api that exposes all the flags and the possibility of evaluating if enabled/disabled. <br/>
     ///<br/>
-    /// GET {basePath} returns all available flags <br/>
-    /// GET {basePath/eval} with query params "containername", "name" and optionally "value" evaluates the
+    /// GET 'basePath' returns all available flags <br/>
+    /// GET 'basePath/eval' with query params "containername", "name" and optionally "value" evaluates the
     /// given flag against the value and returns the result
     /// </summary>
     /// <param name="appBuilder"></param>
@@ -62,12 +62,12 @@ public class VeffConfigBuilder
         basePath = basePath.EnsureStartsWith("/");
 
         _applicationBuilder.MapWhen(
-            context => context.Request.Method.Equals("GET") && context.Request.Path.StartsWithSegments(basePath, StringComparison.OrdinalIgnoreCase), 
+            context => context.Request.Method.Equals("GET") && context.Request.Path.StartsWithSegments(basePath, StringComparison.OrdinalIgnoreCase),
             x => x.UseMiddleware<VeffExternalApiMiddleware>(basePath));
-        
+
         return this;
     }
-    
+
     private static void MapVeffDashboardIndex(
         IApplicationBuilder appBuilder,
         IEnumerable<IVeffDashboardAuthorizer> authorizers)
@@ -86,7 +86,7 @@ public class VeffConfigBuilder
             }
         }));
     }
-        
+
     private static void MapInit(
         IApplicationBuilder appBuilder,
         IEnumerable<IVeffDashboardAuthorizer> authorizers,
@@ -144,7 +144,7 @@ public class VeffConfigBuilder
     private static async Task<string> GetAll(
         IServiceProvider services)
     {
-        var veffSqlConnectionFactory = (IVeffDbConnectionFactory) services.GetService(typeof(IVeffDbConnectionFactory))!;
+        var veffSqlConnectionFactory = (IVeffDbConnectionFactory)services.GetService(typeof(IVeffDbConnectionFactory))!;
         using var conn = veffSqlConnectionFactory.UseConnection();
 
         var featureContainerViewModel = await conn.GetAll();
