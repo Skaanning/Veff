@@ -16,7 +16,6 @@ public class VeffConfigBuilder
     private readonly IServiceProvider _serviceProvider;
     private static string _path = "";
     private const string ApiPath = "/veff_internal_api";
-    private static string GetApiPath => $"{_path}{ApiPath}";
 
     internal VeffConfigBuilder(IApplicationBuilder applicationBuilder, IServiceProvider serviceProvider)
     {
@@ -92,7 +91,7 @@ public class VeffConfigBuilder
         IEnumerable<IVeffDashboardAuthorizer> authorizers,
         IServiceProvider services)
     {
-        appBuilder.Map($"{GetApiPath}/init", app => app.Run(async context =>
+        appBuilder.Map($"{ApiPath}/init", app => app.Run(async context =>
         {
             if (await authorizers.IsAuthorized(context))
             {
@@ -107,7 +106,7 @@ public class VeffConfigBuilder
         IVeffDashboardAuthorizer[] authorizers,
         IServiceProvider services)
     {
-        appBuilder.Map($"{GetApiPath}/update", app => app.Run(async context =>
+        appBuilder.Map($"{ApiPath}/update", app => app.Run(async context =>
         {
             if (await authorizers.IsAuthorized(context))
             {
@@ -118,8 +117,7 @@ public class VeffConfigBuilder
             }
         }));
     }
-
-
+    
     private static async Task<string> Update(
         IServiceProvider services,
         HttpContext httpContext)
