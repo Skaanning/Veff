@@ -25,6 +25,6 @@ app.UseVeff(s =>
 });
 
 app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer, [FromServices] EmailFeatures ef) 
-    => $"{nameof(featureFlagContainer.CanUseEmails)}={featureFlagContainer.CanUseEmails.IsEnabled} Hello World! EmailFeatures.SendActualEmails.enabledfor('me') = {ef.SendActualEmails.EnabledFor("me")}");
+    => $"{featureFlagContainer.CanUseEmails.IsEnabled}\nEmailFeatures.SendActualEmails.enabledfor('me') = {ef.SendActualEmails.EnabledFor("me")}");
 
 app.Run();
