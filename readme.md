@@ -1,127 +1,83 @@
 ## Veff -> Very easy feature flags
 
-
-`dotnet add package Veff` 
-
 Well it's easy if you use aspnet core :) 
 
-Currently supports 2 types of feature flags. 
-StringFlag and BooleanFlag.
+Currently supports 3 types of feature flags. 
+BooleanFlag, StringFlag and PercentageFlag.
 
 - **Boolean** is a simple true/false
 - **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
+    - can be found in different versions - Equals, Contains, StartsWith and EndsWith.
+- **Percentage** set between 0-100%. Will take a Guid or int and give true back x% of the times. The results are repeatable, unless you set a new 'randomSeed' on the flag.  
 
+
+### Nuget
+nuget package `Veff` is the base package, but without any persistence layer.
+nuget package `Veff.Sql` references the `Veff` package, and enables using SqlServer as the db.
+
+Additional packages will be made as needed to support other dbs. (expected are Sqlite, Postgres and MySql) 
 
 ### Usage
 
 ```C#
 
-        // example of a feature flag container. 
-        public class FooBarFeatures : IFeatureContainer
-        {
-                public BooleanFlag Foo { get; }
-                public StringFlag Baz { get; }
-        }
+public class EmailFeatures : IFeatureFlagContainer
+{
+    public BooleanFlag SendSpamMails { get; } = BooleanFlag.Empty;
+    public PercentageFlag IncludeFunnyCatPictures { get; } = PercentageFlag.Empty;
+    public StringEqualsFlag SendActualEmails { get; } = StringEqualsFlag.Empty;
+}
+
 ```
 
-```C#
-        private readonly FooBarFeatures _features;
-
-        // works with normal di, just inject the concrete class.
-        // also posible to inject IEnumerable<IFeatureContainer> to get all your featureflag containers
-        public MyFancyController(FooBarFeatures features)
-        {
-            _features = features;
-        }
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            // string flag
-            if (_features.Baz.EnabledFor("michael"))
-                return Ok("hello world");
-
-            // boolean flag
-            if (!_features.Foo.IsEnabled)
-                throw new Exception("Foo not enabled");
-            
-            .....
-        }
-```
 
 ### Setup
 
 ```C#
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // Add veff to the project.
-            services.AddVeff(settings =>
-            {
-                settings
-                    // Saves the featureflags in table dbo.Veff_FeatureFlags. Will be auto created if not there.
-                    .UseSqlServer(@"Server=localho.....") 
-                    // add your feature flag containers here
-                    .AddFeatureFlagContainers(new FooBarFeatures()) 
-                    // cache flag value for xxx seconds 
-                    .AddCacheExpiryTime(seconds: 30);
-            });
 
-            // Create a class implementing IVeffDashboardAuthorizer to add auth before you can acccess the dashboard
-            // you can create multiple IVeffDashboardAuthorizers, users will have to fulfil them all to access the dashboard.
-            services.AddSingleton<IVeffDashboardAuthorizer, MyCustomAuthorizer>();
+var builder = WebApplication.CreateBuilder(args);
 
-            services.AddControllers();
-        }
+builder.Services.AddVeff(veffBuilder =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            // dashboard accessible on this url
-            app.UseVeff("/veff");
-            
-            // all the normal stuff after this :)
-            app.UseHttpsRedirection();            
-            app.UseRouting();
+    veffBuilder
+        .WithSqlServer(connectionString, TimeSpan.FromSeconds(30))
+        .AddFeatureFlagContainersFromAssembly() // Finds all IFeatureFlagContainer in scanned assemblies 
+        .AddDashboardAuthorizersFromAssembly() // Same as above but for IVeffDashboardAuthorizers (only needed if you want to use the dashboard, and hide it behind some authorization)
+        .AddExternalApiAuthorizersFromAssembly(); // Same as above but for IVeffExternalApiAuthorizers (only needed if you want to use the external api and hide it behind some auth)
+});
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-        }
-        
-        // example of a feature flag container. 
-        public class FooBarFeatures : IFeatureContainer
-        {
-                public BooleanFlag Foo { get; }
-                public StringFlag Baz { get; }
-        }
+var app = builder.Build();
 
-        public record SomeRecordFeature(
-                StringFlag UseNewImpl, 
-                BooleanFlag UseEmails, 
-                BooleanFlag UseSms) : IFeatureContainer;
+app.UseVeff(s =>
+{
+    s.UseVeffDashboard(); // setup dashboard where you can manage and edit your feature flags. 
+    s.UseVeffExternalApi(); // exposes a http api that allows external services to make use of the feature flags.
+});
 
-        public class MyCustomAuthorizer : IVeffDashboardAuthorizer 
-        {
-            public Task<bool> IsAuthorized(HttpContext context)
-            {
-                // use the HttpContext to do your auth checks.  
-                return Task.FromResult(true); 
-            }
-        }
+// just inject your feature flag containers as normal DI
+app.MapGet("/", ([FromServices] EmailFeatures ef) 
+    => $"{ef.SendSpamEmails.IsEnabled}\n{ef.SendActualEmails.EnabledFor("me")}");
+
+app.Run();
+
 ```
 
 #### Note
 
-The FeatureContainers does not care what data they are initialized with, it will also take whats stored in the db (meaning flags defaults to false until otherwise specified in the dashboard)
+The FeatureContainers does not care about the data they are initialized with, it will be overridden with whats stored in the db. This also means that flags defaults to false until otherwise specified in the dashboard.
 
 
-### Dashboard.
+### Dashboard
 
-Will be automatically updated with new fields if you add additional **FeatureFlags** or new tabs if you add addtional **Containers**.
+// TODO 
+Needs to be reworked a bit :)
 
+### External API
 
-After you save, your changes will be live within the specified cache time in AddCacheExpiryTime(seconds: 30).
-
-![image](https://user-images.githubusercontent.com/4522165/129459776-629d2312-1829-40ae-b03c-bb855a0528de.png)
-
-
+// TODO
+Useful for exposing the feature flags to external services.  
 
 ### Testing
 
@@ -134,7 +90,6 @@ Example:
     {
         string DoStuff();
     }
-
 
     public class MySuperService : IMySuperService
     {
