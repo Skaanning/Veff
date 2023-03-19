@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddVeff(veffBuilder =>
 {
     var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
-    
+
     veffBuilder
         .WithSqlServer(connectionString, TimeSpan.FromSeconds(30))
         .AddFeatureFlagContainersFromAssembly()
@@ -17,7 +17,6 @@ builder.Services.AddVeff(veffBuilder =>
 });
 
 var app = builder.Build();
-
 
 app.UseVeff(s =>
 {

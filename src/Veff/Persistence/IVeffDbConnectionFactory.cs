@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Veff;
+namespace Veff.Persistence;
 
 public interface IVeffDbConnectionFactory
 {

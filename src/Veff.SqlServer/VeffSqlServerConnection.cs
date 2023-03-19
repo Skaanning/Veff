@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using Veff.Requests;
-using Veff.Responses;
+using Veff.Dashboard;
+using Veff.Persistence;
 
 namespace Veff.SqlServer;
 
@@ -9,7 +9,7 @@ internal class VeffSqlServerConnection : IVeffConnection
 {
     private readonly SqlConnection _connection;
 
-    public VeffSqlServerConnection(SqlConnection connection)
+    internal VeffSqlServerConnection(SqlConnection connection)
     {
         _connection = connection;
         _connection.Open();
@@ -35,7 +35,7 @@ UPDATE [dbo].[Veff_FeatureFlags]
         sqlCommand.ExecuteNonQuery();
     }
 
-    public async Task<FeatureContainerViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory)
+    public async Task<VeffDashboardInitViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         var sqlCommand = new SqlCommand(@"
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
@@ -60,7 +60,7 @@ FROM Veff_FeatureFlags
             .Select(x => x.AsViewModel())
             .ToArray();
 
-        return new FeatureContainerViewModel(array);
+        return new VeffDashboardInitViewModel(array);
     }
 
     public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)

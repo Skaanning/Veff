@@ -2,18 +2,17 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Veff.Dashboard;
 using Veff.Extensions;
-using Veff.Requests;
-using Veff.Responses;
 
-namespace Veff;
+namespace Veff.Persistence;
 
-public class VeffDbConnection : IVeffDbConnection
+internal class VeffDbConnection : IVeffDbConnection
 {
     private readonly IVeffConnection _connection;
     private readonly IVeffDbConnectionFactory _veffDbConnectionFactory;
 
-    public VeffDbConnection(
+    internal VeffDbConnection(
         IVeffConnection connection,
         IVeffDbConnectionFactory veffDbConnectionFactory)
     {
@@ -23,7 +22,7 @@ public class VeffDbConnection : IVeffDbConnection
 
     public void SaveUpdate(FeatureFlagUpdate featureFlagUpdate) => _connection.SaveUpdate(featureFlagUpdate);
 
-    public async Task<FeatureContainerViewModel> GetAll() => await _connection.GetAll(_veffDbConnectionFactory);
+    public async Task<VeffDashboardInitViewModel> GetAll() => await _connection.GetAll(_veffDbConnectionFactory);
 
     public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames) => _connection.SyncFeatureFlags(featureFlagNames);
 
@@ -46,7 +45,7 @@ public class VeffDbConnection : IVeffDbConnection
 
                 if (p is null) return;
 
-                if (p.CanWrite!)
+                if (p.CanWrite)
                 {
                     p.SetValue(container, property.AsImpl());
                 }

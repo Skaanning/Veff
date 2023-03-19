@@ -1,4 +1,4 @@
-﻿namespace Veff.Requests;
+﻿namespace Veff.Dashboard;
 
 public class FeatureFlagUpdate
 {

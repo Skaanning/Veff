@@ -2,27 +2,16 @@
 using System.Linq;
 using Veff.Extensions;
 using Veff.Flags;
-using Veff.Responses;
 
-namespace Veff.External;
+namespace Veff.ExternalApi;
 
-public class FeatureFlagVm
+internal class FeatureFlagVm
 {
     public string ContainerName { get; init; } = "";
     public string Name { get; init; } = "";
     public string Description { get; init; } = "";
     public string Type { get; init; } = "";
 
-    public static FeatureFlagVm FromFeatureFlagViewModel(FeatureFlagViewModel viewModel)
-    {
-        return new FeatureFlagVm
-        {
-            ContainerName = viewModel.ContainerName,
-            Name = viewModel.Name,
-            Description = viewModel.Description,
-            Type = viewModel.Type
-        };
-    }
     public static FeatureFlagVm[] FromFeatureFlagContainers(params IFeatureFlagContainer[] container)
     {
         return container

@@ -1,8 +1,8 @@
-﻿namespace Veff.Responses;
+﻿namespace Veff.Dashboard;
 
-public class FeatureFlagViewModel
+public class VeffFeatureFlagViewModel
 {
-    public FeatureFlagViewModel(int id, string containerName,
+    public VeffFeatureFlagViewModel(int id, string containerName,
         string name,
         string description,
         string type,

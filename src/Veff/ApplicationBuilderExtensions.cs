@@ -4,14 +4,21 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Veff.Extensions;
 using Veff.Flags;
+using Veff.Persistence;
 
 namespace Veff;
 
 public static class ApplicationBuilderExtensions
 { 
+    /// <summary>
+    /// Syncs the database table with the feature flag containers, and setups the flag containers to be ready to go. 
+    /// </summary>
+    /// <param name="appBuilder"></param>
+    /// <param name="configBuilder">Use the config builder to additional veff components, like enabling the dashboard or external api</param>
+    /// <returns></returns>
     public static IApplicationBuilder UseVeff(
         this IApplicationBuilder appBuilder,
-        Action<VeffConfigBuilder> build)
+        Action<VeffConfigBuilder> configBuilder)
     {
         var services = appBuilder.ApplicationServices;
 
@@ -24,12 +31,11 @@ public static class ApplicationBuilderExtensions
         SyncFeatureFlagsInDb(connectionFactory, containers);
         SyncValuesFromDb(connectionFactory, containers);
         
-        var veffConfigBuilder = new VeffConfigBuilder(appBuilder, services);
+        var veffConfigBuilder = new VeffConfigBuilder(appBuilder);
 
-        build(veffConfigBuilder);
+        configBuilder(veffConfigBuilder);
         return appBuilder;
     }
-
 
     private static void SyncFeatureFlagsInDb(
         IVeffDbConnectionFactory connectionFactory,

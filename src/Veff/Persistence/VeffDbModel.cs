@@ -2,9 +2,9 @@
 using System.Linq;
 using Veff.Flags;
 
-namespace Veff;
+namespace Veff.Persistence;
 
-public class VeffDbModel
+internal class VeffDbModel
 {
     private readonly IVeffDbConnectionFactory _connectionFactory;
 

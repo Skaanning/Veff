@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Veff.Requests;
-using Veff.Responses;
+using Veff.Dashboard;
 
-namespace Veff;
+namespace Veff.Persistence;
 
 public interface IVeffDbConnection : IDisposable
 {
     void SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
-    Task<FeatureContainerViewModel> GetAll();
+    Task<VeffDashboardInitViewModel> GetAll();
     void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
     void SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers);
     void EnsureTablesExists();

@@ -4,13 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Veff.Extensions;
 
-namespace Veff;
-
-public interface IVeffExternalApiAuthorizer
-{
-    Task<bool> IsAuthorized(
-        HttpContext context);
-}
+namespace Veff.ExternalApi;
 
 public static class VeffExternalApiAuthorizerExtensions
 {

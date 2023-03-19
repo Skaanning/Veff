@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Veff.Persistence;
 
 namespace Veff.SqlServer;
 

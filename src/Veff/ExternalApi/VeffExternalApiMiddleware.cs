@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Veff.External;
 using Veff.Flags;
 
-namespace Veff;
+namespace Veff.ExternalApi;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class VeffExternalApiMiddleware
+internal class VeffExternalApiMiddleware
 {
     private readonly string _basePath;
 

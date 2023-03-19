@@ -1,5 +1,6 @@
 ﻿using System;
-using Veff.Responses;
+using Veff.Dashboard;
+using Veff.Persistence;
 
 namespace Veff.Flags;
 
@@ -65,13 +66,13 @@ public class PercentageFlag : Flag
 
     public static PercentageFlag Empty { get; } = new(-1, "empty", "", 0, null!);
 
-    public override FeatureFlagViewModel AsViewModel()
+    internal override VeffFeatureFlagViewModel AsViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];
         var name = split[1];
 
-        return new FeatureFlagViewModel(Id,
+        return new VeffFeatureFlagViewModel(Id,
             containerName,
             name,
             Description,

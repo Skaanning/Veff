@@ -1,12 +1,12 @@
-﻿using Veff.Responses;
+﻿using Veff.Dashboard;
+using Veff.Persistence;
 
 namespace Veff.Flags;
 
 public abstract class Flag
 {
-    public readonly IVeffDbConnectionFactory VeffDbConnectionFactory;
-
-    protected Flag(
+    internal readonly IVeffDbConnectionFactory VeffDbConnectionFactory;
+    internal Flag(
         IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         VeffDbConnectionFactory = veffDbConnectionFactory;
@@ -16,5 +16,5 @@ public abstract class Flag
     public abstract string Name { get; }
     public abstract string Description { get; }
 
-    public abstract FeatureFlagViewModel AsViewModel();
+    internal abstract VeffFeatureFlagViewModel AsViewModel();
 }
