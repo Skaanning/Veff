@@ -11,6 +11,7 @@ public class PercentageFlag : Flag
         string name,
         string description,
         int percentageEnabled,
+        string randomSeed,
         IVeffDbConnectionFactory veffDbConnectionFactory) : base(veffDbConnectionFactory)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -21,13 +22,15 @@ public class PercentageFlag : Flag
         Name = name;
         Description = description;
         PercentageEnabled = percentageEnabled;
+        RandomSeed = randomSeed;
     }
     
     public override int Id { get; }
     public override string Name { get; }
     public override string Description { get; }
     public int PercentageEnabled { get; }
-    
+    public string RandomSeed { get;  }
+
     private DateTimeOffset _cachedValueExpiry;
     private int _cachedValue;
 
@@ -36,14 +39,21 @@ public class PercentageFlag : Flag
 
     private bool InternalIsEnabled(int value)
     {
-        var val = Math.Abs(value) % 100;
+        var val = Math.Abs(value + GetRandomSeed()) % 100;
         return val < GetPercentageValue();
     }
 
     private bool InternalIsEnabled(Guid guid)
     {
-        var guidValue = Math.Abs(guid.GetHashCode()) % 100;
+        var guidValue = Math.Abs(guid.GetHashCode() + GetRandomSeed()) % 100;
         return guidValue < GetPercentageValue();
+    }
+
+    private int GetRandomSeed()
+    {
+        return RandomSeed.Length == 0 
+            ? 0 
+            : RandomSeed.GetHashCode();
     }
 
     private int GetPercentageValue()
@@ -64,7 +74,7 @@ public class PercentageFlag : Flag
         return connection.GetPercentValueFromDb(Id);
     }
 
-    public static PercentageFlag Empty { get; } = new(-1, "empty", "", 0, null!);
+    public static PercentageFlag Empty { get; } = new(-1, "empty", "", 0,  "", null!);
 
     internal override VeffFeatureFlagViewModel AsViewModel()
     {
@@ -79,6 +89,6 @@ public class PercentageFlag : Flag
             nameof(PercentageFlag),
             PercentageEnabled,
             false,
-            string.Empty);
+            RandomSeed);
     }
 }

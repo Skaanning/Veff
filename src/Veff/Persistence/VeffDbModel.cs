@@ -7,6 +7,7 @@ namespace Veff.Persistence;
 internal class VeffDbModel
 {
     private readonly IVeffDbConnectionFactory _connectionFactory;
+    private readonly string _randomSeed;
 
     public VeffDbModel(
         int id,
@@ -24,6 +25,7 @@ internal class VeffDbModel
         Percent = percent;
         Type = type;
         Strings = (strings ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        _randomSeed = strings ?? "";
     }
 
     public string GetClassName()
@@ -45,7 +47,7 @@ internal class VeffDbModel
             return new BooleanFlag(Id, Name, Description, Percent == 100, _connectionFactory);
             
         if (Type.Equals(typeof(PercentageFlag).FullName))
-            return new PercentageFlag(Id, Name, Description, Percent, _connectionFactory);
+            return new PercentageFlag(Id, Name, Description, Percent, _randomSeed, _connectionFactory);
 
         if (Type.Equals(typeof(StringContainsFlag).FullName))
             return new StringContainsFlag(Id, Name, Description, Strings, _connectionFactory);

@@ -6,7 +6,7 @@ namespace Veff.Flags;
 public abstract class Flag
 {
     internal readonly IVeffDbConnectionFactory VeffDbConnectionFactory;
-    internal Flag(
+    protected internal Flag(
         IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         VeffDbConnectionFactory = veffDbConnectionFactory;
