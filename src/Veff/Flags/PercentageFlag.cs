@@ -34,20 +34,22 @@ public class PercentageFlag : Flag
     private DateTimeOffset _cachedValueExpiry;
     private int _cachedValue;
 
-    public bool EnabledFor(Guid guid) => InternalIsEnabled(guid);
-    public bool EnabledFor(int value) => InternalIsEnabled(value);
+    public bool EnabledFor(Guid guid) => InternalIsEnabled(guid, GetRandomSeed(), GetPercentageValue());
+    public bool EnabledFor(int value) => InternalIsEnabled(value, GetRandomSeed(), GetPercentageValue());
 
-    private bool InternalIsEnabled(int value)
+    internal static bool InternalIsEnabled(int value, int randomSeed ,int percentageValue)
     {
-        var val = Math.Abs(value + GetRandomSeed()) % 100;
-        return val < GetPercentageValue();
+        var val = CalculateValue(value, randomSeed);
+        return val < percentageValue;
     }
 
-    private bool InternalIsEnabled(Guid guid)
+    internal static bool InternalIsEnabled(Guid guid, int randomSeed, int percentageValue)
     {
-        var guidValue = Math.Abs(guid.GetHashCode() + GetRandomSeed()) % 100;
-        return guidValue < GetPercentageValue();
+        var guidValue = CalculateValue(guid.GetHashCode(), randomSeed);
+        return guidValue < percentageValue;
     }
+
+    internal static int CalculateValue(int value, int randomSeed) => Math.Abs(value + randomSeed) % 100;
 
     private int GetRandomSeed()
     {

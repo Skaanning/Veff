@@ -12,6 +12,6 @@ public interface IVeffDbConnection : IDisposable
     void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
     void SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers);
     void EnsureTablesExists();
-    HashSet<string> GetStringValueFromDb(int id, bool ignoreCase);
+    HashSet<string> GetStringValueFromDb(int id);
     int GetPercentValueFromDb(int id);
 }

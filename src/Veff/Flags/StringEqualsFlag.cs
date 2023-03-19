@@ -22,7 +22,6 @@ public class StringEqualsFlag : Flag
         Name = name;
         Description = description;
         CachedValueExpiry = DateTimeOffset.UtcNow;
-        IgnoreCase = true;
         CachedValue = (values)
             .Select(x => x.ToLower())
             .ToHashSet();
@@ -31,10 +30,13 @@ public class StringEqualsFlag : Flag
     public override int Id { get; }
     public override string Name { get; }
     public override string Description { get; }
-    public bool IgnoreCase { get; }
-
+    
     public bool EnabledFor(
-        string value) => InternalIsEnabled(value);
+        string value)
+    {
+        var valueFromDb = GetValueFromDb();
+        return InternalIsEnabled(value, valueFromDb);
+    }
 
     public bool DisabledFor(
         string value) => !EnabledFor(value);
@@ -45,25 +47,24 @@ public class StringEqualsFlag : Flag
     public bool EnabledForAll(
         params string[] values) => values.All(EnabledFor);
 
-    protected virtual bool InternalIsEnabled(
-        string value)
+    protected internal virtual bool InternalIsEnabled(
+        string value, HashSet<string> cachedValues)
     {
-        if (DateTimeOffset.UtcNow <= CachedValueExpiry) return CachedValue.Contains(value);
-
-        using var connection = VeffDbConnectionFactory.UseConnection();
-        var newValue = GetValueFromDb(); // connection.
-
-        CachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
-        CachedValue = newValue;
-
-        return CachedValue.Contains(value);
+        return cachedValues.Contains(value);
     }
 
-    protected HashSet<string> GetValueFromDb()
+    private HashSet<string> GetValueFromDb()
     {
+        if (DateTimeOffset.UtcNow <= CachedValueExpiry) 
+            return CachedValue;
+        
         using var connection = VeffDbConnectionFactory.UseConnection();
 
-        return connection.GetStringValueFromDb(Id, IgnoreCase);
+        CachedValue = connection.GetStringValueFromDb(Id);
+        
+        CachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
+        
+        return CachedValue;
     }
 
     protected DateTimeOffset CachedValueExpiry;

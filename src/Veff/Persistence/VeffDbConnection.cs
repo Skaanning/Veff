@@ -64,7 +64,7 @@ internal class VeffDbConnection : IVeffDbConnection
 
     public void EnsureTablesExists() => _connection.EnsureTablesExists();
 
-    public HashSet<string> GetStringValueFromDb(int id, bool ignoreCase) => _connection.GetStringValueFromDb(id, ignoreCase);
+    public HashSet<string> GetStringValueFromDb(int id) => _connection.GetStringValueFromDb(id, true);
 
     public int GetPercentValueFromDb(int id) => _connection.GetPercentValueFromDb(id);
     

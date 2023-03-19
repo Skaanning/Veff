@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Veff.Dashboard;
 using Veff.Persistence;
@@ -16,20 +17,10 @@ public class StringContainsFlag : StringEqualsFlag
     {
     }
 
-    protected override bool InternalIsEnabled(
-        string value)
-    {
-        if (DateTimeOffset.UtcNow <= CachedValueExpiry) return CachedValue.Any(x => x.Contains(value));
-
-        using var connection = VeffDbConnectionFactory.UseConnection();
-        var newValue = GetValueFromDb(); // connection.
-
-        CachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
-        CachedValue = newValue;
-
-        return CachedValue.Any(x => x.Contains(value));
-    }
-
+    protected internal override bool InternalIsEnabled(
+        string value, 
+        HashSet<string> cachedValues) => cachedValues.Any(x => x.Contains(value, StringComparison.OrdinalIgnoreCase));
+    
     /// <summary>
     /// Useful for initializing nullable reference types so compiler doesnt complain.
     /// It will be overwritten with the actual value from db before it will ever be used.

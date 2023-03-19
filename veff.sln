@@ -2,11 +2,15 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff", "src\Veff\Veff.csproj", "{83E18702-E862-44BF-A5D8-1FF7FE042B35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "src\UnitTests\UnitTests.csproj", "{954E6B35-A465-475E-9E4F-04E45BD10924}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.UnitTests", "src\Veff.UnitTests\Veff.UnitTests.csproj", "{954E6B35-A465-475E-9E4F-04E45BD10924}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.SqlServer", "src\Veff.SqlServer\Veff.SqlServer.csproj", "{E4397C22-EC7A-4009-8D8E-CBCD638CAA71}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebTester", "src\WebTester\WebTester.csproj", "{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebTestProj", "WebTestProj", "{999C4320-7557-49D7-9BD9-7C4F87149515}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{FA80C8E3-4066-468A-AD2E-264DAF706A8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +34,9 @@ Global
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F} = {999C4320-7557-49D7-9BD9-7C4F87149515}
+		{954E6B35-A465-475E-9E4F-04E45BD10924} = {FA80C8E3-4066-468A-AD2E-264DAF706A8A}
 	EndGlobalSection
 EndGlobal
