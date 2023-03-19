@@ -7,17 +7,22 @@ BooleanFlag, StringFlag and PercentageFlag.
 
 - **Boolean** is a simple true/false
 - **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
-    - can be found in different versions - Equals, Contains, StartsWith and EndsWith.
+    - can be found in different versions - StringEquals, Contains, StartsWith and EndsWith.
 - **Percentage** set between 0-100%. Will take a Guid or int and give true back x% of the times. The results are repeatable, unless you set a new 'randomSeed' on the flag.  
 
 
 ### Nuget
-nuget package `Veff` is the base package, but without any persistence layer.
-nuget package `Veff.Sql` references the `Veff` package, and enables using SqlServer as the db.
+nuget package `Veff` is the base package, without any persistence layer.  
+nuget package `Veff.SqlServer` references the `Veff` package, and enables using SqlServer as the db.
 
-Additional packages will be made as needed to support other dbs. (expected are Sqlite, Postgres and MySql) 
+Additional packages will be made as needed to support other dbs. (expect Sqlite, Postgres and MySql) 
 
 ### Usage
+
+Create a normal c# class or record, and add the Flags you want as normal get-only properties.
+Remember to 'implement' the empty marker interface `IFeatureFlagContainer`.   
+
+You do not have to set the Flags to anything (i.e. BooleanFlag.Empty as I do below). Only really useful for calming the roslyn analyzer if you have nullable reference types enabled.
 
 ```C#
 
@@ -56,7 +61,7 @@ app.UseVeff(s =>
     s.UseVeffExternalApi(); // exposes a http api that allows external services to make use of the feature flags.
 });
 
-// just inject your feature flag containers as normal DI
+// Just inject your FeatureFlagContainers via normal DI
 app.MapGet("/", ([FromServices] EmailFeatures ef) 
     => $"{ef.SendSpamEmails.IsEnabled}\n{ef.SendActualEmails.EnabledFor("me")}");
 
@@ -71,12 +76,12 @@ The FeatureContainers does not care about the data they are initialized with, it
 
 ### Dashboard
 
-// TODO 
+// TODO  
 Needs to be reworked a bit :)
 
 ### External API
 
-// TODO
+// TODO  
 Useful for exposing the feature flags to external services.  
 
 ### Testing
