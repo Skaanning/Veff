@@ -6,9 +6,10 @@ Currently supports 3 types of feature flags.
 BooleanFlag, StringFlag and PercentageFlag.
 
 - **Boolean** is a simple true/false
-- **String** can be assigned multiple strings. Checks if string is present. Case insensitive. Could be useful for emails, auth-roles etc.   
+- **String** can be assigned multiple strings. Case insensitive. Could be useful for emails, auth-roles etc.   
     - can be found in different versions - StringEquals, Contains, StartsWith and EndsWith.
-- **Percentage** set between 0-100%. Will take a Guid or int and give true back x% of the times. The results are repeatable, unless you set a new 'randomSeed' on the flag.  
+- **Percentage** set between 0-100%. Will take a Guid or int and give back true/false x% of the time. The results are repeatable,  
+so i.e. a Guid will always evaluate to true for a given percentage, unless you set a new 'randomSeed' on the flag.  
 
 
 ### Nuget
