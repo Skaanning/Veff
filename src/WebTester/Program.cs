@@ -10,7 +10,7 @@ builder.Services.AddVeff(veffBuilder =>
     var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
 
     veffBuilder
-        .WithSqlServer(connectionString, TimeSpan.FromSeconds(30))
+        .WithSqlServer(connectionString, TimeSpan.FromSeconds(1))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();
