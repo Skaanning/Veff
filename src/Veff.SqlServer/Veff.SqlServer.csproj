@@ -1,9 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <LangVersion>default</LangVersion>
+        <Title>Veff.SqlServer</Title>
+        <Authors>Michael Skaanning</Authors>
+        <Description>Very easy feature flags</Description>
+        <PackageTags>FeatureFlag</PackageTags>
+        <PackageVersion>1.5.0</PackageVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Skaanning/Veff</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
