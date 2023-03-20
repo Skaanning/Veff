@@ -28,7 +28,7 @@
 		disabled = true;
 		let res = await fetch("/veff_internal_api/update", options);
 		if (res.ok) {
-			dispatch("saved", update)
+			dispatch("saved", {req: update, msg: `updated flag ${name} to value ${checked}`})
 		} else {
 			dispatch("error", {message: "something went bad" })
 		}

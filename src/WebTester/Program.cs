@@ -16,7 +16,11 @@ builder.Services.AddVeff(veffBuilder =>
         .AddExternalApiAuthorizersFromAssembly();
 });
 
+// builder.Services.AddCors();
+
 var app = builder.Build();
+
+// app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.UseVeff(s =>
 {

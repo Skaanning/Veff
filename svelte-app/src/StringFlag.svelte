@@ -27,7 +27,7 @@
 		disabled = true;
 		let res = await fetch("/veff_internal_api/update", options);
 		if (res.ok) {
-			dispatch("saved", update)
+			dispatch("saved", {req: update, msg: `updated flag ${name} with values ${strings}`})
 		} else {
 			dispatch("error", {message: "something went bad" })
 		}
@@ -50,7 +50,7 @@
 	<Cell><b>{name} ({getTypeDescription()})</b></Cell>
 	<Cell style="padding:1rem;">
 		<Textfield 
-			textarea bind:value={strings} label="">
+			textarea bind:value={strings} label="string values">
 		</Textfield>
 	</Cell>
 	<Cell style="width:30%">

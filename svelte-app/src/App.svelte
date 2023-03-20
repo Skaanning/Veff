@@ -16,6 +16,8 @@
 	let active = "";
 	let savedSnackbar;
 	let errorSnackbar;
+	let randomSeedSnackbar;
+	let savedMsg = "";
 
 	onMount(async () => {
 		const res = await fetch(`/veff_internal_api/init`);
@@ -34,10 +36,14 @@
 		errorSnackbar.open();
 	}
 
+	function handleUpdateRandom(err) {
+		randomSeedSnackbar.open();
+	}
+
 	function handleSaved(savedEvent) {
 		savedSnackbar.open();
-		let update = savedEvent.detail;
-
+		let update = savedEvent.detail.req;
+		savedMsg = savedEvent.detail.msg ?? "";
 		let index = _.findIndex(flags, (x) => x.Id === update.Id);
 
 		let hll = flags[index];
@@ -76,10 +82,12 @@
 								<PercentageFlag
 									name={f.Name}
 									id={f.Id}
-									percentage={f.Percentage}
+									percentage={f.Percent}
 									description={f.Description}
+									strings={f.strings}
 									on:error={handleError}
 									on:saved={handleSaved}
+									on:updaterandom={handleUpdateRandom}
 								/>
 							{:else}
 								<StringFlag
@@ -99,11 +107,15 @@
 		</Paper>
 
 		<Snackbar bind:this={savedSnackbar}>
-			<Label>Saved!</Label>
+			<Label>{savedMsg}</Label>
 		</Snackbar>
 
 		<Snackbar bind:this={errorSnackbar}>
 			<Label>Error!</Label>
+		</Snackbar>
+
+		<Snackbar bind:this={randomSeedSnackbar}>
+			<Label>Updated random seed, not yet saved</Label>
 		</Snackbar>
 	</div>
 {:else}
