@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Veff.Dashboard;
 using Veff.Persistence;
 
@@ -28,11 +29,10 @@ public class PercentageFlag : Flag
     public override int Id { get; }
     public override string Name { get; }
     public override string Description { get; }
-    public int PercentageEnabled { get; }
-    public string RandomSeed { get;  }
+    public int PercentageEnabled { get; private set; }
+    public string RandomSeed { get; private set; }
 
     private DateTimeOffset _cachedValueExpiry;
-    private int _cachedValue;
 
     public bool EnabledFor(Guid guid) => InternalIsEnabled(guid, GetRandomSeed(), GetPercentageValue());
     public bool EnabledFor(int value) => InternalIsEnabled(value, GetRandomSeed(), GetPercentageValue());
@@ -60,19 +60,19 @@ public class PercentageFlag : Flag
 
     private int GetPercentageValue()
     {
-        if (DateTimeOffset.UtcNow <= _cachedValueExpiry) return _cachedValue;
-
-        var newValue = GetValueFromDb();
+        if (DateTimeOffset.UtcNow <= _cachedValueExpiry) return PercentageEnabled;
 
         _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
-        _cachedValue = newValue;
-
-        return _cachedValue;
+        PercentageEnabled = GetValueFromDb();
+        
+        return PercentageEnabled;
     }
 
     private int GetValueFromDb()
     {
         using var connection = VeffDbConnectionFactory.UseConnection();
+        var stringValueFromDb = connection.GetStringValueFromDb(Id);
+        RandomSeed = string.Join(",", stringValueFromDb);
         return connection.GetPercentValueFromDb(Id);
     }
 
