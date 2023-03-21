@@ -10,7 +10,7 @@
         <Description>SqlServer persistence for Veff 
 (Very easy feature flags)</Description>
         <PackageTags>FeatureFlag</PackageTags>
-        <PackageVersion>2.0.2</PackageVersion>
+        <PackageVersion>2.0.3</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Skaanning/Veff</RepositoryUrl>

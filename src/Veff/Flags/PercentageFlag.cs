@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Veff.Dashboard;
+using Veff.Extensions;
 using Veff.Persistence;
 
 namespace Veff.Flags;
@@ -57,7 +58,7 @@ public class PercentageFlag : Flag
     internal static int CalculateValue(string value, string randomSeed)
     {
         var mixed = Interweave(value, randomSeed);
-        return Math.Abs(mixed.GetHashCode()) % 100;  
+        return Math.Abs(mixed.GetStableHashCode()) % 100;  
     }
 
     private static string Interweave(string s1, string s2)
