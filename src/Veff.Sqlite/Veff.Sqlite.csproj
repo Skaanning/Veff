@@ -10,11 +10,12 @@
         <Description>Sqlite persistence for Veff 
 (Very easy feature flags)</Description>
         <PackageTags>FeatureFlag Sqlite</PackageTags>
-        <PackageVersion>2.0.0</PackageVersion>
+        <PackageVersion>2.0.2</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Skaanning/Veff</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
