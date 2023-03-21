@@ -11,19 +11,22 @@ BooleanFlag, StringFlag and PercentageFlag.
 - **Percentage** set between 0-100%. Will take a Guid or int and give back true/false x% of the time. The results are repeatable,  
 so i.e. a Guid will always evaluate to true for a given percentage, unless you set a new 'randomSeed' on the flag.  
 
+In addition you can enable a management dashboard where you can see and control your flags.  
+If you need to access the flags from another service or website, you can add a simple external api where external services can ask for the flags and what they would give back for a given value.
 
 ### Nuget
 nuget package `Veff` is the base package, without any persistence layer.  
-nuget package `Veff.SqlServer` references the `Veff` package, and enables using SqlServer as the db.
+nuget package `Veff.SqlServer` references the `Veff` package, and enables using SqlServer as the db.  
+nuget package `Veff.Sqlite` references the `Veff` package, and enables using Sqlite as the db.
 
-Additional packages will be made as needed to support other dbs. (expect Sqlite, Postgres and MySql) 
+Additional packages will be made as needed to support other dbs. (expected Postgres and MySql) 
 
 ### Usage
 
 Create a normal c# class or record, and add the Flags you want as normal get-only properties.
 Remember to 'implement' the empty marker interface `IFeatureFlagContainer`.   
 
-You do not have to set the Flags to anything (i.e. BooleanFlag.Empty as I do below). Only really useful for calming the roslyn analyzer if you have nullable reference types enabled.
+You do not have to set the Flags to anything (e.g. BooleanFlag.Empty as I do below). It is only really useful for calming the roslyn analyzer if you have nullable reference types enabled.
 
 ```C#
 
@@ -39,7 +42,12 @@ public class EmailFeatures : IFeatureFlagContainer
 
 ### Setup
 
-```C#
+Super simple example of an aspnetcore website with Veff added and configured.
+
+`dotnet add package Veff.SqlServer`
+
+then in Program.cs
+```C# 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,8 +70,7 @@ app.UseVeff(s =>
     s.UseVeffExternalApi(); // exposes a http api that allows external services to make use of the feature flags.
 });
 
-// Just inject your FeatureFlagContainers via normal DI
-app.MapGet("/", ([FromServices] EmailFeatures ef) 
+app.MapGet("/", ([FromServices] EmailFeatures ef)  // Just inject your FeatureFlagContainers via normal DI
     => $"{ef.SendSpamEmails.IsEnabled}\n{ef.SendActualEmails.EnabledFor("me")}");
 
 app.Run();
@@ -77,13 +84,29 @@ The FeatureContainers does not care about the data they are initialized with, it
 
 ### Dashboard
 
-// TODO  
-Needs to be reworked a bit :)
+Can be enabled with the call to `UseVeffDashboard()` option in the veff config builder.
+Provide a url path or use the default of veff-dashboard.  
+This allows you to manage the flags you added.
+
+As an example see what the previously shown `EmailFeatures : IFeatureFlagContainer` looks like in the dashboard.
+
+![dashboard.png](dashboard.png)
+
+(help needed to make this dashboard less of an eye sore)
+
 
 ### External API
 
-// TODO  
-Useful for exposing the feature flags to external services.  
+Can be added with the `UseVeffExternalApi()` option in the veff config builder. Here you can also set the `baseApiPath`
+
+Send GET REQUESTs to `{baseApiPath}/eval` with params  
+- containername
+- name
+- value (optional, depending on the flag requested)
+
+
+Container name and name can be found via if you send a GET request to the `{baseApiPath}`. This returns a list of all Flags and their types, container names and flag names. 
+The value provided is what you want to evaluate the flag against. So it doesn't make sense for a Boolean flag, but is needed for i.e. a string flag. 
 
 ### Testing
 
