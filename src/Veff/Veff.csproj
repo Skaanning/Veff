@@ -6,7 +6,7 @@
         <Authors>Michael Skaanning</Authors>
         <Description>Very easy feature flags</Description>
         <PackageTags>FeatureFlag</PackageTags>
-        <PackageVersion>1.5.0</PackageVersion>
+        <PackageVersion>2.0.0</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <LangVersion>default</LangVersion>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
@@ -23,6 +23,9 @@
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>Veff.SqlServer</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Veff.Sqlite</_Parameter1>
         </AssemblyAttribute>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>Veff.UnitTests</_Parameter1>

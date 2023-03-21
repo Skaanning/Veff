@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Text;
 using Veff.Dashboard;
 using Veff.Persistence;
 
@@ -37,36 +37,49 @@ public class PercentageFlag : Flag
     public bool EnabledFor(Guid guid)
     {
         var percentageValue = GetPercentageValue();
-        var randomSeed = GetRandomSeed();
-        return InternalIsEnabled(guid, randomSeed, percentageValue);
+        
+        return InternalIsEnabled(guid.ToString(), RandomSeed, percentageValue);
     }
 
     public bool EnabledFor(int value)
     {
         var percentageValue = GetPercentageValue();
-        var randomSeed = GetRandomSeed();
-        return InternalIsEnabled(value, randomSeed, percentageValue);
+        
+        return InternalIsEnabled(value.ToString(), RandomSeed, percentageValue);
     }
 
-    internal static bool InternalIsEnabled(int value, int randomSeed ,int percentageValue)
+    internal static bool InternalIsEnabled(string value, string randomSeed, int percentageValue)
     {
-        var val = CalculateValue(value, randomSeed);
-        return val < percentageValue;
-    }
-
-    internal static bool InternalIsEnabled(Guid guid, int randomSeed, int percentageValue)
-    {
-        var guidValue = CalculateValue(guid.GetHashCode(), randomSeed);
+        var guidValue = CalculateValue(value, randomSeed);
         return guidValue < percentageValue;
     }
 
-    internal static int CalculateValue(int value, int randomSeed) => Math.Abs(value + randomSeed) % 100;
-
-    private int GetRandomSeed()
+    internal static int CalculateValue(string value, string randomSeed)
     {
-        return RandomSeed.Length == 0 
-            ? 0 
-            : RandomSeed.GetHashCode();
+        var mixed = Interweave(value, randomSeed);
+        return Math.Abs(mixed.GetHashCode()) % 100;  
+    }
+
+    private static string Interweave(string s1, string s2)
+    {
+        if (s1.Length < s2.Length)
+        {
+            (s1, s2) = (s2, s1);
+        }
+
+        if (s2.Length == 0)
+            return s1;
+
+        var stringBuilder = new StringBuilder(s1.Length + s2.Length);
+        for (var i = 0; i < s1.Length; i++)
+        {
+            stringBuilder.Append(s1[i]);
+
+            if (i < s2.Length)
+                stringBuilder.Append(s2[i]);
+        }
+        
+        return stringBuilder.ToString();
     }
 
     private int GetPercentageValue()

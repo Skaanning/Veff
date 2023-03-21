@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebTestProj", "WebTestProj"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{FA80C8E3-4066-468A-AD2E-264DAF706A8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Sqlite", "src\Veff.Sqlite\Veff.Sqlite.csproj", "{296045FC-054D-42F4-8DEA-3DB193964B26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{296045FC-054D-42F4-8DEA-3DB193964B26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{296045FC-054D-42F4-8DEA-3DB193964B26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{296045FC-054D-42F4-8DEA-3DB193964B26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{296045FC-054D-42F4-8DEA-3DB193964B26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F} = {999C4320-7557-49D7-9BD9-7C4F87149515}

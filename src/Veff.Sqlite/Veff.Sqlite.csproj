@@ -5,11 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
-        <Title>Veff.SqlServer</Title>
+        <Title>Veff.Sqlite</Title>
         <Authors>Michael Skaanning</Authors>
-        <Description>SqlServer persistence for Veff 
+        <Description>Sqlite persistence for Veff 
 (Very easy feature flags)</Description>
-        <PackageTags>FeatureFlag</PackageTags>
+        <PackageTags>FeatureFlag Sqlite</PackageTags>
         <PackageVersion>2.0.0</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageProjectUrl>https://github.com/Skaanning/Veff</PackageProjectUrl>
@@ -18,11 +18,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-    </ItemGroup>
-    
-    <ItemGroup>
       <ProjectReference Include="..\Veff\Veff.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
     </ItemGroup>
 
 </Project>

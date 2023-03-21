@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Veff.SqlServer\Veff.SqlServer.csproj" />
+      <ProjectReference Include="..\Veff.Sqlite\Veff.Sqlite.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Veff;
-using Veff.SqlServer;
+using Veff.Sqlite;
+
 using WebTester;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddVeff(veffBuilder =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
+    var connectionString = builder.Configuration.GetConnectionString("sqliteConnection")!;
 
     veffBuilder
-        .WithSqlServer(connectionString, TimeSpan.FromSeconds(1))
+        .WithSqlite(connectionString, TimeSpan.FromSeconds(1))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();
