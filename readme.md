@@ -1,5 +1,10 @@
 ## Veff -> Very easy feature flags
 
+![shield](https://img.shields.io/nuget/v/Veff?label=Veff&style=flat-square)
+![shield](https://img.shields.io/nuget/v/Veff.SqlServer?label=Veff.SqlServer&style=flat-square)
+![shield](https://img.shields.io/nuget/v/Veff.Sqlite?label=Veff.Sqlite&style=flat-square)
+
+
 Well it's easy if you use aspnet core :) 
 
 Currently supports 3 types of feature flags. 
@@ -13,13 +18,6 @@ so i.e. a Guid will always evaluate to true for a given percentage, unless you s
 
 In addition you can enable a management dashboard where you can see and control your flags.  
 If you need to access the flags from another service or website, you can add a simple external api where external services can ask for the flags and what they would give back for a given value.
-
-### Nuget
-nuget package `Veff` is the base package, without any persistence layer.  
-nuget package `Veff.SqlServer` references the `Veff` package, and enables using SqlServer as the db.  
-nuget package `Veff.Sqlite` references the `Veff` package, and enables using Sqlite as the db.
-
-Additional packages will be made as needed to support other dbs. (expected Postgres and MySql) 
 
 ### Usage
 
