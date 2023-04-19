@@ -5,14 +5,12 @@ using Veff.Dashboard;
 
 namespace Veff.Persistence;
 
-internal interface IVeffConnection : IDisposable
+public interface IVeffConnection : IDisposable
 {
-    void SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
-    Task<VeffDashboardInitViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory);
-    void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
-    VeffDbModel[] GetAllValues(IVeffDbConnectionFactory veffDbConnectionFactory);
-    void EnsureTablesExists();
+    Task EnsureTablesExists();
+    Task<IEnumerable<IVeffFlag>> GetAllValues();
+    Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
+    Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb);
     HashSet<string> GetStringValueFromDb(int id, bool ignoreCase);
     int GetPercentValueFromDb(int id);
-    
 }

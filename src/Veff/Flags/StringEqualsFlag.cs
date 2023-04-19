@@ -21,8 +21,8 @@ public class StringEqualsFlag : Flag
         Id = id;
         Name = name;
         Description = description;
-        CachedValueExpiry = DateTimeOffset.UtcNow;
-        CachedValue = (values)
+        _cachedValueExpiry = DateTimeOffset.UtcNow;
+        _cachedValue = (values)
             .Select(x => x.ToLower())
             .ToHashSet();
     }
@@ -55,22 +55,22 @@ public class StringEqualsFlag : Flag
 
     private HashSet<string> GetValueFromDb()
     {
-        if (DateTimeOffset.UtcNow <= CachedValueExpiry) 
-            return CachedValue;
+        if (DateTimeOffset.UtcNow <= _cachedValueExpiry) 
+            return _cachedValue;
         
         using var connection = VeffDbConnectionFactory.UseConnection();
 
-        CachedValue = connection.GetStringValueFromDb(Id);
+        _cachedValue = connection.GetStringValueFromDb(Id);
         
-        CachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
+        _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
         
-        return CachedValue;
+        return _cachedValue;
     }
 
-    protected DateTimeOffset CachedValueExpiry;
-    protected HashSet<string> CachedValue;
+    private DateTimeOffset _cachedValueExpiry;
+    private HashSet<string> _cachedValue;
 
-    public HashSet<string> Values => CachedValue;
+    protected HashSet<string> Values => _cachedValue;
 
     /// <summary>
     /// Useful for initializing nullable reference types so compiler doesnt complain.
@@ -84,7 +84,7 @@ public class StringEqualsFlag : Flag
     /// </summary>
     public static StringEqualsFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
 
-    internal override VeffFeatureFlagViewModel AsViewModel()
+    public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

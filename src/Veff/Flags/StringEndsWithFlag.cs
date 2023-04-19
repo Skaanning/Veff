@@ -33,8 +33,8 @@ public class StringEndsWithFlag : StringEqualsFlag
     /// </code> </example>
     /// </summary>
     public new static StringEndsWithFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
-    
-    internal override VeffFeatureFlagViewModel AsViewModel()
+
+    public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

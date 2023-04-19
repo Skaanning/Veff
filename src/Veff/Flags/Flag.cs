@@ -15,6 +15,5 @@ public abstract class Flag
     public abstract int Id { get; }
     public abstract string Name { get; }
     public abstract string Description { get; }
-
-    internal abstract VeffFeatureFlagViewModel AsViewModel();
+    public abstract VeffFeatureFlagViewModel AsDashboardViewModel();
 }

@@ -62,7 +62,7 @@ public class BooleanFlag : Flag
     /// </summary>
     public static BooleanFlag Empty { get; } = new(-1, "empty", "", false, null!);
 
-    internal override VeffFeatureFlagViewModel AsViewModel()
+    public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

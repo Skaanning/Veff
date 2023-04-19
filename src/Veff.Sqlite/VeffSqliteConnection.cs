@@ -4,7 +4,7 @@ using Veff.Persistence;
 
 namespace Veff.Sqlite;
 
-internal class VeffSqliteConnection : IVeffConnection 
+internal class VeffSqliteConnection : IVeffConnection
 {
     private readonly SQLiteConnection _connection;
 
@@ -14,7 +14,7 @@ internal class VeffSqliteConnection : IVeffConnection
         _connection.Open();
     }
 
-    public void SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
+    public async Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
     {
         var sqlCommand = new SQLiteCommand(@"
 UPDATE [Veff_FeatureFlags]
@@ -31,60 +31,14 @@ UPDATE [Veff_FeatureFlags]
         sqlCommand.Parameters.Add(new SQLiteParameter("@Strings", value: strings));
         sqlCommand.Parameters.Add(new SQLiteParameter("@Id", value: featureFlagUpdate.Id));
 
-        sqlCommand.ExecuteNonQuery();
+        await sqlCommand.ExecuteNonQueryAsync();
     }
 
-    public async Task<VeffDashboardInitViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory)
+    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
     {
-        var sqlCommand = new SQLiteCommand(@"
-SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
-FROM Veff_FeatureFlags
-", _connection);
-        await using var sqlDataReader = await sqlCommand.ExecuteReaderAsync();
+        var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
 
-        var veffDbModels = new List<VeffDbModel>();
-        while (await sqlDataReader.ReadAsync())
-        {
-            veffDbModels.Add(new VeffDbModel(
-                sqlDataReader.GetInt32(0),
-                sqlDataReader.GetString(1),
-                sqlDataReader.GetString(2),
-                sqlDataReader.GetInt32(3),
-                sqlDataReader.GetString(4),
-                sqlDataReader.GetString(5),
-                veffDbConnectionFactory));
-        }
-
-        var array = veffDbModels.Select(x => x.AsImpl())
-            .Select(x => x.AsViewModel())
-            .ToArray();
-
-        return new VeffDashboardInitViewModel(array);
-    }
-
-    public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)
-    {
-        using var existingFeatureFlags = new SQLiteCommand(@"SELECT Name FROM Veff_FeatureFlags", _connection);
-
-        using var reader = existingFeatureFlags.ExecuteReader();
-        var hashSet = new HashSet<string>();
-        while (reader.Read())
-            hashSet.Add(reader.GetString(0));
-
-        reader.Close();
-
-        var flagsMissingInDb =
-            featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
-
-        if (flagsMissingInDb.Length == 0)
-        {
-            return;
-        }
-
-        var values = string.Join(',',
-            flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
-
-        using var addFeatureFlags = new SQLiteCommand($"""
+        await using var addFeatureFlags = new SQLiteCommand($"""
 INSERT INTO [Veff_FeatureFlags]
            ([Name]
            ,[Description]
@@ -106,19 +60,19 @@ INSERT INTO [Veff_FeatureFlags]
             addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Type{i}", value: type));
         }
 
-        addFeatureFlags.ExecuteNonQuery();
+        await addFeatureFlags.ExecuteNonQueryAsync();
     }
 
-    public VeffDbModel[] GetAllValues(IVeffDbConnectionFactory veffDbConnectionFactory)
+    public async Task<IEnumerable<IVeffFlag>> GetAllValues()
     {
         using var allValuesCommand = new SQLiteCommand("""
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 """, _connection);
-        using var sqlDataReader = allValuesCommand.ExecuteReader();
+        await using var sqlDataReader = await allValuesCommand.ExecuteReaderAsync();
 
-        var veff = new List<VeffDbModel>();
-        while (sqlDataReader.Read())
+        var veff = new List<IVeffFlag>();
+        while (await sqlDataReader.ReadAsync())
         {
             var flag = new VeffDbModel(
                 sqlDataReader.GetInt32(0),
@@ -126,16 +80,16 @@ FROM Veff_FeatureFlags
                 sqlDataReader.GetString(2),
                 sqlDataReader.GetInt32(3),
                 sqlDataReader.GetString(4),
-                sqlDataReader.GetString(5), veffDbConnectionFactory);
+                sqlDataReader.GetString(5));
             veff.Add(flag);
         }
 
         return veff.ToArray();
     }
 
-    public void EnsureTablesExists()
+    public async Task EnsureTablesExists()
     {
-        using var createTableCmd = new SQLiteCommand("""
+        await using var createTableCmd = new SQLiteCommand("""
 CREATE TABLE IF NOT EXISTS Veff_FeatureFlags (
             Id INTEGER PRIMARY KEY,
             Name TEXT NOT NULL,
@@ -144,8 +98,8 @@ CREATE TABLE IF NOT EXISTS Veff_FeatureFlags (
             Type TEXT NOT NULL,
             Strings TEXT NULL);
 """, _connection);
-        
-        createTableCmd.ExecuteNonQuery();
+
+        await createTableCmd.ExecuteNonQueryAsync();
     }
 
     public HashSet<string> GetStringValueFromDb(int id, bool ignoreCase)
@@ -158,8 +112,8 @@ WHERE [Id] = @Id
 ", _connection);
 
         cmd.Parameters.Add(new SQLiteParameter("@Id", value: id));
-        var percent = (string)cmd.ExecuteScalar();
-        return percent.Split(";", StringSplitOptions.RemoveEmptyEntries)
+        var strings = (string)cmd.ExecuteScalar();
+        return strings.Split(";", StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.ToLower())
             .ToHashSet(stringComparer);
     }

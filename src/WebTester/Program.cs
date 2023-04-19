@@ -1,17 +1,21 @@
+using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Veff;
-using Veff.Sqlite;
-
+using Weasel.Core;
 using WebTester;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMarten(opt =>
+{
+    opt.Connection(builder.Configuration.GetConnectionString("martenConnectionString")!);
+    opt.AutoCreateSchemaObjects = AutoCreate.All;
+});
+
 builder.Services.AddVeff(veffBuilder =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("sqliteConnection")!;
-
     veffBuilder
-        .WithSqlite(connectionString, TimeSpan.FromSeconds(1))
+        .AddPersistence(serviceProvider => new MartenVeffConnection(serviceProvider.GetService<IDocumentStore>()!))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();
@@ -23,13 +27,16 @@ var app = builder.Build();
 
 // app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-app.UseVeff(s =>
+await app.UseVeff(s =>
 {
     s.UseVeffDashboard();
     s.UseVeffExternalApi();
 });
 
-app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer, [FromServices] EmailFeatures ef) 
-    => $"{featureFlagContainer.CanUseEmails.IsEnabled}\nEmailFeatures.SendActualEmails.enabledfor('me') = {ef.SendActualEmails.EnabledFor("me")}");
+app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer, [FromServices] EmailFeatures ef) => 
+$"""
+featureFlagContainer.CanUseEmails.IsEnabled = {featureFlagContainer.CanUseEmails.IsEnabled}
+EmailFeatures.SendActualEmails.EnabledFor("me") = {ef.SendActualEmails.EnabledFor("me")}
+""");
 
 app.Run();

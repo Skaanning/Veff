@@ -32,8 +32,8 @@ public class StringStartsWithFlag : StringEqualsFlag
     /// </code> </example>
     /// </summary>
     public new static StringStartsWithFlag Empty { get; } = new(-1, "empty", "", Array.Empty<string>(), null!);
-    
-    internal override VeffFeatureFlagViewModel AsViewModel()
+
+    public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

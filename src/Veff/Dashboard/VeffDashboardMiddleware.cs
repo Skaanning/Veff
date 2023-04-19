@@ -96,19 +96,19 @@ public class VeffDashboardMiddleware
         HttpContext httpContext)
     {
         var obj = await JsonSerializer.DeserializeAsync<FeatureFlagUpdate>(httpContext.Request.Body);
-        SaveUpdate(obj, veffDbConnectionFactory);
+        await SaveUpdate(obj, veffDbConnectionFactory);
 
         return "ok";
     }
 
-    private static void SaveUpdate(
+    private static async Task SaveUpdate(
         FeatureFlagUpdate? featureFlagUpdate,
         IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         if (featureFlagUpdate is null) return;
 
         using var conn = veffDbConnectionFactory.UseConnection();
-        conn.SaveUpdate(featureFlagUpdate);
+        await conn.SaveUpdate(featureFlagUpdate);
     }
 
     private static async Task<string> GetAll(

@@ -103,7 +103,7 @@ public class PercentageFlag : Flag
 
     public static PercentageFlag Empty { get; } = new(-1, "empty", "", 0,  "", null!);
 
-    internal override VeffFeatureFlagViewModel AsViewModel()
+    public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {
         var split = Name.Split('.');
         var containerName = split[0];

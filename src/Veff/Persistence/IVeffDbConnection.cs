@@ -7,11 +7,11 @@ namespace Veff.Persistence;
 
 public interface IVeffDbConnection : IDisposable
 {
-    void SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
+    Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate);
     Task<VeffDashboardInitViewModel> GetAll();
-    void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
-    void SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers);
-    void EnsureTablesExists();
+    Task SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames);
+    Task SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers);
+    Task EnsureTablesExists();
     HashSet<string> GetStringValueFromDb(int id);
     int GetPercentValueFromDb(int id);
 }

@@ -15,7 +15,7 @@ internal class VeffSqlServerConnection : IVeffConnection
         _connection.Open();
     }
 
-    public void SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
+    public async Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
     {
         var sqlCommand = new SqlCommand(@"
 UPDATE [dbo].[Veff_FeatureFlags]
@@ -32,56 +32,11 @@ UPDATE [dbo].[Veff_FeatureFlags]
         sqlCommand.Parameters.Add("@Strings", SqlDbType.NVarChar).Value = strings;
         sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = featureFlagUpdate.Id;
 
-        sqlCommand.ExecuteNonQuery();
+        await sqlCommand.ExecuteNonQueryAsync();
     }
-
-    public async Task<VeffDashboardInitViewModel> GetAll(IVeffDbConnectionFactory veffDbConnectionFactory)
+    
+    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
     {
-        var sqlCommand = new SqlCommand(@"
-SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
-FROM Veff_FeatureFlags
-", _connection);
-        await using var sqlDataReader = await sqlCommand.ExecuteReaderAsync();
-
-        var veffDbModels = new List<VeffDbModel>();
-        while (await sqlDataReader.ReadAsync())
-        {
-            veffDbModels.Add(new VeffDbModel(
-                sqlDataReader.GetInt32(0),
-                sqlDataReader.GetString(1),
-                sqlDataReader.GetString(2),
-                sqlDataReader.GetInt32(3),
-                sqlDataReader.GetString(4),
-                sqlDataReader.GetString(5),
-                veffDbConnectionFactory));
-        }
-
-        var array = veffDbModels.Select(x => x.AsImpl())
-            .Select(x => x.AsViewModel())
-            .ToArray();
-
-        return new VeffDashboardInitViewModel(array);
-    }
-
-    public void SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)
-    {
-        using var existingFeatureFlags = new SqlCommand(@"SELECT Name FROM Veff_FeatureFlags", _connection);
-
-        using var reader = existingFeatureFlags.ExecuteReader();
-        var hashSet = new HashSet<string>();
-        while (reader.Read())
-            hashSet.Add(reader.GetString(0));
-
-        reader.Close();
-
-        var flagsMissingInDb =
-            featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
-
-        if (flagsMissingInDb.Length == 0)
-        {
-            return;
-        }
-
         var values = string.Join(',',
             flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
 
@@ -107,19 +62,19 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
             addFeatureFlags.Parameters.Add($"@Type{i}", SqlDbType.NVarChar).Value = type;
         }
 
-        addFeatureFlags.ExecuteNonQuery();
+        await addFeatureFlags.ExecuteNonQueryAsync();
     }
 
-    public VeffDbModel[] GetAllValues(IVeffDbConnectionFactory veffDbConnectionFactory)
+    public async Task<IEnumerable<IVeffFlag>> GetAllValues()
     {
         using var allValuesCommand = new SqlCommand("""
 SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
 FROM Veff_FeatureFlags
 """, _connection);
-        using var sqlDataReader = allValuesCommand.ExecuteReader();
+        await using var sqlDataReader = await allValuesCommand.ExecuteReaderAsync();
 
-        var veff = new List<VeffDbModel>();
-        while (sqlDataReader.Read())
+        var veff = new List<IVeffFlag>();
+        while (await sqlDataReader.ReadAsync())
         {
             var flag = new VeffDbModel(
                 sqlDataReader.GetInt32(0),
@@ -127,14 +82,14 @@ FROM Veff_FeatureFlags
                 sqlDataReader.GetString(2),
                 sqlDataReader.GetInt32(3),
                 sqlDataReader.GetString(4),
-                sqlDataReader.GetString(5), veffDbConnectionFactory);
+                sqlDataReader.GetString(5));
             veff.Add(flag);
         }
 
         return veff.ToArray();
     }
 
-    public void EnsureTablesExists()
+    public async Task EnsureTablesExists()
     {
         using var command = new SqlCommand("""
 EXEC sp_tables
@@ -143,7 +98,7 @@ EXEC sp_tables
     @fUsePattern = 1;
 """, _connection);
 
-        var any = command.ExecuteScalar();
+        var any = await command.ExecuteScalarAsync();
 
         if (any is null)
         {
@@ -158,7 +113,7 @@ CREATE TABLE Veff_FeatureFlags(
 )
 """, _connection);
 
-            createTableCmd.ExecuteNonQuery();
+            await createTableCmd.ExecuteNonQueryAsync();
         }
     }
 
@@ -172,8 +127,8 @@ WHERE [Id] = @Id
 ", _connection);
 
         cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
-        var percent = (string)cmd.ExecuteScalar();
-        return percent.Split(";", StringSplitOptions.RemoveEmptyEntries)
+        var strings = (string)cmd.ExecuteScalar();
+        return strings.Split(";", StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.ToLower())
             .ToHashSet(stringComparer);
     }

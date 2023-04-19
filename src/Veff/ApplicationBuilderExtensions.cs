@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Veff.Extensions;
 using Veff.Flags;
@@ -16,7 +17,7 @@ public static class ApplicationBuilderExtensions
     /// <param name="appBuilder"></param>
     /// <param name="configBuilder">Use the config builder to additional veff components, like enabling the dashboard or external api</param>
     /// <returns></returns>
-    public static IApplicationBuilder UseVeff(
+    public static async Task<IApplicationBuilder> UseVeff(
         this IApplicationBuilder appBuilder,
         Action<VeffConfigBuilder> configBuilder)
     {
@@ -27,9 +28,9 @@ public static class ApplicationBuilderExtensions
                 .GetService(typeof(IEnumerable<IFeatureFlagContainer>))!)
             .ToArray();
 
-        EnsureTableExists(connectionFactory);
-        SyncFeatureFlagsInDb(connectionFactory, containers);
-        SyncValuesFromDb(connectionFactory, containers);
+        await EnsureTableExists(connectionFactory);
+        await SyncFeatureFlagsInDb(connectionFactory, containers);
+        await SyncValuesFromDb(connectionFactory, containers);
         
         var veffConfigBuilder = new VeffConfigBuilder(appBuilder);
 
@@ -37,7 +38,7 @@ public static class ApplicationBuilderExtensions
         return appBuilder;
     }
 
-    private static void SyncFeatureFlagsInDb(
+    private static async Task SyncFeatureFlagsInDb(
         IVeffDbConnectionFactory connectionFactory,
         IEnumerable<IFeatureFlagContainer> containers)
     {
@@ -55,23 +56,23 @@ public static class ApplicationBuilderExtensions
 
         using var conn = connectionFactory.UseConnection();
 
-        conn.SyncFeatureFlags(featureFlagNames);
+        await conn.SyncFeatureFlags(featureFlagNames);
     }
 
-    private static void SyncValuesFromDb(
+    private static async Task SyncValuesFromDb(
         IVeffDbConnectionFactory connectionFactory,
         IEnumerable<IFeatureFlagContainer> veffContainers)
     {
         using var conn = connectionFactory.UseConnection();
 
-        conn.SyncValuesFromDb(veffContainers);
+        await conn.SyncValuesFromDb(veffContainers);
     }
 
-    private static void EnsureTableExists(
+    private static async Task EnsureTableExists(
         IVeffDbConnectionFactory connFactory)
     {
         using var conn = connFactory.UseConnection();
 
-        conn.EnsureTablesExists();
+        await conn.EnsureTablesExists();
     }
 }
