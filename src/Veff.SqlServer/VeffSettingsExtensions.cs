@@ -3,13 +3,10 @@ using Veff.Persistence;
 
 namespace Veff.SqlServer;
 
-public class VeffSqlServerBuilder : VeffSettingsBuilder
+public static class VeffSettingsExtensions
 {
-    protected internal VeffSqlServerBuilder(IServiceCollection serviceCollection) : base(serviceCollection)
-    {
-    }
-    
-    public IVeffSettingsBuilder WithSqlServer(
+    public static VeffSettingsBuilder AddSqlServer(
+        this VeffSettingsBuilder builder,
         string connectionString,
         TimeSpan? cacheExpiry)
     {
@@ -17,7 +14,7 @@ public class VeffSqlServerBuilder : VeffSettingsBuilder
         {
             CacheExpiry = cacheExpiry ?? TimeSpan.FromMinutes(1)
         };
-        ServiceCollection.AddSingleton<IVeffDbConnectionFactory>(factory);
-        return this;
+        builder.ServiceCollection.AddSingleton<IVeffDbConnectionFactory>(factory);
+        return builder;
     }
 }

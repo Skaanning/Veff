@@ -1,7 +1,8 @@
+using JasperFx;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Veff;
-using Weasel.Core;
+using Veff.Marten;
 using WebTester;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +16,7 @@ builder.Services.AddMarten(opt =>
 builder.Services.AddVeff(veffBuilder =>
 {
     veffBuilder
-        .AddPersistence(serviceProvider => new MartenVeffConnection(serviceProvider.GetService<IDocumentStore>()!))
+        .AddMarten(TimeSpan.FromSeconds(5))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();

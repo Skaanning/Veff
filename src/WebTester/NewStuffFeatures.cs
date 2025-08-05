@@ -5,11 +5,11 @@ namespace WebTester;
 
 public class NewStuffFeatures : IFeatureFlagContainer
 {
-    public BooleanFlag Hello { get; } = BooleanFlag.Empty;
-    public BooleanFlag CanUseEmails { get; } = BooleanFlag.Empty;
-    public PercentageFlag SometimesIWork { get; } = PercentageFlag.Empty;
-    public StringEqualsFlag Baz111 { get; } = StringEqualsFlag.Empty;
-    public StringContainsFlag Baz333 { get; } = StringContainsFlag.Empty;
-    public StringStartsWithFlag Baz555 { get; } = StringStartsWithFlag.Empty;
-    public StringEndsWithFlag EndsWith { get; } = StringEndsWithFlag.Empty;
+    public required BooleanFlag Hello { get; init; }
+    public required BooleanFlag CanUseEmails { get; init; }
+    public required PercentageFlag SometimesIWork { get; init; }
+    public required StringEqualsFlag Baz111 { get; init; } 
+    public required StringContainsFlag Baz333 { get; init; } 
+    public required StringStartsWithFlag Baz555 { get; init; } 
+    public required StringEndsWithFlag EndsWith { get; init; }
 }

@@ -8,9 +8,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddVeff(
         this IServiceCollection serviceCollection,
-        Action<VeffPersistenceBuilder> settings)
+        Action<VeffSettingsBuilder> settings)
     {
-        settings(new VeffPersistenceBuilder(serviceCollection));
+        settings(new VeffSettingsBuilder(serviceCollection));
         return serviceCollection;
     }
 }
