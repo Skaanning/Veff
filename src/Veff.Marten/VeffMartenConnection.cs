@@ -33,6 +33,9 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
 
     public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
     {
+        if (flagsMissingInDb.Length == 0)
+            return;
+        
         await using var session = documentStore.LightweightSession();
 
         var myVeffDbModels = flagsMissingInDb.Select(x => new MyVeffDbModel 
@@ -43,6 +46,7 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
             Type = x.Type, 
             Strings = []
         });
+        
         session.StoreObjects(myVeffDbModels);
         await session.SaveChangesAsync();
     }

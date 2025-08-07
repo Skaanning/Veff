@@ -2,7 +2,8 @@ using JasperFx;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Veff;
-using Veff.Marten;
+// using Veff.Marten;
+using Veff.Sqlite;
 using WebTester;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,8 @@ builder.Services.AddMarten(opt =>
 builder.Services.AddVeff(veffBuilder =>
 {
     veffBuilder
-        .AddMarten(TimeSpan.FromSeconds(5))
+        // .AddMarten(TimeSpan.FromSeconds(5))
+        .AddSqlite("Data Source=veff.db;", TimeSpan.FromSeconds(15))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();

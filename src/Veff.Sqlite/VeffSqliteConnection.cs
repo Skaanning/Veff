@@ -37,7 +37,9 @@ UPDATE [Veff_FeatureFlags]
     public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
     {
         var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
-
+        if (values.Length == 0)
+            return;
+            
         await using var addFeatureFlags = new SQLiteCommand($"""
 INSERT INTO [Veff_FeatureFlags]
            ([Name]

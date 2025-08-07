@@ -40,6 +40,9 @@ UPDATE [dbo].[Veff_FeatureFlags]
         var values = string.Join(',',
             flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
 
+        if (values.Length == 0)
+            return;
+        
         using var addFeatureFlags = new SqlCommand($"""
 INSERT INTO [dbo].[Veff_FeatureFlags]
            ([Name]

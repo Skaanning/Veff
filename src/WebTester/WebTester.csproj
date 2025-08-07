@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Veff.Marten\Veff.Marten.csproj" />
+      <ProjectReference Include="..\Veff.Sqlite\Veff.Sqlite.csproj" />
       <ProjectReference Include="..\Veff\Veff.csproj" />
     </ItemGroup>
 
