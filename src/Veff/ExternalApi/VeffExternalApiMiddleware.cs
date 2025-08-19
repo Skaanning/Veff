@@ -73,6 +73,7 @@ internal class VeffExternalApiMiddleware
                             "Value for PercentageFlag should be either a Guid or an int"),
                 BooleanFlag b => b.IsEnabled,
                 StringEqualsFlag f => f.EnabledFor(req.Value),
+                DateFlag f => f.IsEnabledAfter(DateTime.Parse(req.Value)),
                 _ => throw new ArgumentOutOfRangeException("untypedFlag", $"unknown flagtype {untypedFlag?.GetType()}")
             };
 
