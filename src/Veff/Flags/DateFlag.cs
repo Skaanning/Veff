@@ -6,12 +6,12 @@ namespace Veff.Flags;
 
 public class DateFlag : Flag
 {
-    private readonly DateTime _date;
+    private readonly DateTime? _date;
 
     internal DateFlag(int id,
         string name,
         string description,
-        DateTime date,
+        DateTime? date,
         IVeffDbConnectionFactory veffDbConnectionFactory) : base(veffDbConnectionFactory)
     {
         Id = id;
@@ -30,6 +30,9 @@ public class DateFlag : Flag
     
     private bool InternalIsEnabled(DateTime? date = null)
     {
+        if (_date == null)
+            return false;
+        
         return _date >= (date ?? DateTime.UtcNow);
     }
 
@@ -46,6 +49,6 @@ public class DateFlag : Flag
             nameof(DateFlag),
             0,
             false,
-            _date.ToString("u"));
+            _date?.ToString("yyyy/MM/dd") ?? "");
     }
 }

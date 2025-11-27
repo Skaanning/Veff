@@ -6,6 +6,7 @@
 	import BooleanFlag from "./BooleanFlag.svelte";
 	import StringFlag from "./StringFlag.svelte";
 	import PercentageFlag from "./PercentageFlag.svelte";
+	import DateFlag from "./DateFlag.svelte";
 	import _ from "lodash";
 	import DataTable, { Head, Body, Row, Cell } from "@smui/data-table";
 	import Snackbar from "@smui/snackbar";
@@ -88,6 +89,15 @@
 									on:error={handleError}
 									on:saved={handleSaved}
 									on:updaterandom={handleUpdateRandom}
+								/>
+							{:else if f.Type == "DateFlag"}
+								<DateFlag
+									name={f.Name}
+									id={f.Id}
+									value={f.strings}
+									description={f.Description}
+									on:error={handleError}
+									on:saved={handleSaved}
 								/>
 							{:else}
 								<StringFlag

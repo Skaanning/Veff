@@ -5,6 +5,7 @@ namespace WebTester;
 
 public class EmailFeatures : IFeatureFlagContainer
 {
+    public DateFlag SendEmailsAfter { get; }
     public BooleanFlag SendSpamMails { get; } = BooleanFlag.Empty;
     public PercentageFlag IncludeFunnyCatPictures { get; } = PercentageFlag.Empty;
     public StringEqualsFlag SendActualEmails { get; } = StringEqualsFlag.Empty;
