@@ -18,7 +18,7 @@ builder.Services.AddVeff(veffBuilder =>
 {
     veffBuilder
         // .AddMarten(TimeSpan.FromSeconds(5))
-        .AddSqlite("Data Source=veff.db;", TimeSpan.FromSeconds(15))
+        .AddSqlite("Data Source=veff.db;", TimeSpan.FromSeconds(5))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();
@@ -36,10 +36,11 @@ await app.UseVeff(s =>
     s.UseVeffExternalApi();
 });
 
-app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer, [FromServices] EmailFeatures ef) => 
+app.MapGet("/", ([FromServices]EmailFeatures emailFeatures, [FromServices] EmailFeatures ef, [FromServices] NewStuffFeatures newStuffFeatures) => 
 $"""
-featureFlagContainer.CanUseEmails.IsEnabled = {featureFlagContainer.CanUseEmails.IsEnabled}
-EmailFeatures.SendActualEmails.EnabledFor("me") = {ef.SendActualEmails.EnabledFor("me")}
+{emailFeatures.SendSpamMails.Name} = {emailFeatures.SendSpamMails.IsEnabled}
+{emailFeatures.SendActualEmails.Name}.IsEnabledFor("Bobby") = {emailFeatures.SendActualEmails.EnabledFor("Bobby")}
+{newStuffFeatures.Hello.Name}.IsEnabled = {newStuffFeatures.Hello.IsEnabled}
 """);
 
 app.Run();

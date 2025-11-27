@@ -1,12 +1,17 @@
 ﻿using Veff;
 using Veff.Flags;
+using Veff.Flags.Attributes;
 
 namespace WebTester;
 
 public class EmailFeatures : IFeatureFlagContainer
 {
-    public DateFlag SendEmailsAfter { get; }
-    public BooleanFlag SendSpamMails { get; } = BooleanFlag.Empty;
-    public PercentageFlag IncludeFunnyCatPictures { get; } = PercentageFlag.Empty;
-    public StringEqualsFlag SendActualEmails { get; } = StringEqualsFlag.Empty;
+    [InitialFlagValue(true)]
+    [FlagName("SendSomeEmails", ContainerName = "test")]
+    public required BooleanFlag SendSpamMails { get; set; }
+//     public PercentageFlag IncludeFunnyCatPictures { get; } 
+
+    [InitialFlagValue("Bobby")]
+    public required StringEqualsFlag SendActualEmails { get; set; } 
+//     public DateFlag SendEmailsAfter { get; }
 }
