@@ -8,7 +8,7 @@ public class DateFlag : Flag
 {
     private readonly DateTime _date;
 
-    internal DateFlag( int id,
+    internal DateFlag(int id,
         string name,
         string description,
         DateTime date,

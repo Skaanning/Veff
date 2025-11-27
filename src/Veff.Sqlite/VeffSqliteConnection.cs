@@ -133,6 +133,20 @@ WHERE [Id] = @Id
         return Convert.ToInt32(executeScalar);
     }
 
+    public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
+    {
+        var paramNames = allFlags.Select((_, i) => $"@Name{i}").ToArray();
+        var sql = $"DELETE FROM Veff_FeatureFlags WHERE [Name] NOT IN ({string.Join(", ", paramNames)})";
+
+        await using var cmd = new SQLiteCommand(sql, _connection);
+        var i = 0;
+        foreach (var name in allFlags)
+        {
+            cmd.Parameters.Add(new SQLiteParameter(paramNames[i++], value: name));
+        }
+
+        await cmd.ExecuteNonQueryAsync();    }
+
     public void Dispose()
     {
         _connection.Dispose();

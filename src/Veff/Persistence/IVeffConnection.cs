@@ -13,4 +13,5 @@ public interface IVeffConnection : IDisposable
     Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb);
     HashSet<string> GetStringValueFromDb(int id, bool ignoreCase);
     int GetPercentValueFromDb(int id);
+    Task RemoveFlagsNoLongerInCode(string[] allFlags);
 }

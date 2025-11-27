@@ -13,13 +13,13 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
 
     public async Task<IEnumerable<IVeffFlag>> GetAllValues()
     {
-        await using var session = documentStore.QuerySession();
+        using var session = documentStore.QuerySession();
         return await session.Query<MyVeffDbModel>().ToListAsync();
     }
 
     public async Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
     {
-        await using var session = documentStore.LightweightSession();
+        using var session = documentStore.LightweightSession();
         var flag = await session.Query<MyVeffDbModel>().FirstAsync(x => x.Id == featureFlagUpdate.Id);
 
         flag.Strings = featureFlagUpdate.Strings.Split('\n', StringSplitOptions.RemoveEmptyEntries);
@@ -36,7 +36,7 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
         if (flagsMissingInDb.Length == 0)
             return;
         
-        await using var session = documentStore.LightweightSession();
+        using var session = documentStore.LightweightSession();
 
         var myVeffDbModels = flagsMissingInDb.Select(x => new MyVeffDbModel 
         {
@@ -64,7 +64,14 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
         var percent = session.Query<MyVeffDbModel>().First(x => x.Id == id).Percent;
         return percent;
     }
-    
+
+    public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
+    {
+        using var session = documentStore.DirtyTrackedSession();
+        session.DeleteWhere<MyVeffDbModel>(x => !allFlags.Contains(x.Name));
+        await session.SaveChangesAsync();
+    }
+
     public void Dispose()
     {
         documentStore.Dispose();

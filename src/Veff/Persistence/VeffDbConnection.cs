@@ -32,10 +32,12 @@ internal class VeffDbConnection : IVeffDbConnection
     public async Task SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)
     {
         var allValues = await _connection.GetAllValues();
+        var flagsInCode = featureFlagNames.ToArray();
         
-        var hashSet = allValues.Select(x => x.Name).ToHashSet();
-        var flagsMissingInDb = featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
+        var allFlags = allValues.Select(x => x.Name).ToHashSet();
+        var flagsMissingInDb = flagsInCode.Where(x => !allFlags.Contains(x.Name)).ToArray();
 
+        await _connection.RemoveFlagsNoLongerInCode(flagsInCode.Select(x => x.Name).ToArray());
         await _connection.AddFlagsMissingInDb(flagsMissingInDb);
     }
 
