@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Veff.Extensions;
@@ -43,7 +44,7 @@ public static class ApplicationBuilderExtensions
         IVeffDbConnectionFactory connectionFactory,
         IEnumerable<IFeatureFlagContainer> containers)
     {
-        var featureFlagNames = new List<(string, string, string)>();
+        var featureFlagNames = new List<(PropertyInfo, string, string, string)>();
         foreach (var veffContainer in containers)
         {
             var type = veffContainer.GetType();
@@ -61,7 +62,7 @@ public static class ApplicationBuilderExtensions
                     var containerName = attr?.ContainerName ?? type.Name;
                     var attrName = attr != null ? $"{containerName}.{attr.Name}" : propName;
 
-                    return (propName, attrName, x.PropertyType.ToString());
+                    return (x, propName, attrName, x.PropertyType.ToString());
                 })
                 .ForEach(x =>
                 {

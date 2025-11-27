@@ -1,8 +1,10 @@
 ﻿using System;
+using Microsoft.Extensions.Hosting;
 using Veff.Persistence;
 
 namespace Veff.Flags.Attributes;
 
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class FlagNameAttribute(string name) : Attribute
 {
     public string Name { get; } = name;
@@ -20,27 +22,4 @@ public class FlagNameAttribute(string name) : Attribute
         var propertyName = flag.GetPropertyName();
         return $"{className}.{propertyName}";
     }
-}
-
-public class InitialFlagValue : Attribute
-{
-    public InitialFlagValue(int? percentage)
-    {
-        Percentage = percentage;
-    }
-
-    public InitialFlagValue(string? value)
-    {
-        Value = value;
-    }
-
-    public InitialFlagValue(bool isEnabled)
-    {
-        IsEnabled = isEnabled;
-    }
-
-    // public DateTime 
-    public int? Percentage { get; }
-    public string? Value { get; }
-    public bool? IsEnabled { get; } 
 }

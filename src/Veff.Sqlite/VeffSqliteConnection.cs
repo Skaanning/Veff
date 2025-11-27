@@ -1,5 +1,7 @@
 ﻿using System.Data.SQLite;
 using Veff.Dashboard;
+using Veff.Exceptions;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff.Sqlite;
@@ -34,9 +36,9 @@ UPDATE [Veff_FeatureFlags]
         await sqlCommand.ExecuteNonQueryAsync();
     }
 
-    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
+    public async Task AddFlagsMissingInDb((string AttrName, string Type, InitialFlagValue? initialValueFlag)[] flagsMissingInDb)
     {
-        var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
+        var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent{i}, @Type{i}, @Strings{i})"));
         if (values.Length == 0)
             return;
             
@@ -51,13 +53,17 @@ INSERT INTO [Veff_FeatureFlags]
            {values}
 """, _connection);
 
-        addFeatureFlags.Parameters.Add(new SQLiteParameter("@Percent", value: 0));
-        addFeatureFlags.Parameters.Add(new SQLiteParameter("@Strings", value: ""));
         addFeatureFlags.Parameters.Add(new SQLiteParameter("@Description", value: ""));
 
         for (var i = 0; i < flagsMissingInDb.Length; i++)
         {
-            var (name, type) = flagsMissingInDb[i];
+            var (name, type, attribute) = flagsMissingInDb[i];
+
+            if (attribute is not null && !attribute.IsValidFor(type))
+                throw new VeffConfigurationException($"The InitialFlagValue attribute is not valid for the flag {name} of type {type}");
+            
+            addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Percent{i}", value: attribute?.Percentage ?? 0));
+            addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Strings{i}", value: attribute?.Value ?? ""));
             addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Name{i}", value: name));
             addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Type{i}", value: type));
         }

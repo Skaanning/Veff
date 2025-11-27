@@ -33,16 +33,25 @@ internal class VeffDbConnection : IVeffDbConnection
         return new VeffDashboardInitViewModel(veffFeatureFlagViewModels);
     }
 
-    public async Task SyncFeatureFlags(IEnumerable<(string Name, string AttrName, string Type)> featureFlagNames)
+    public async Task SyncFeatureFlags(IEnumerable<(PropertyInfo PropInfo, string Name, string AttrName, string Type)> featureFlagNames)
     {
         var allValues = await _connection.GetAllValues();
         var flagsInCode = featureFlagNames.ToArray();
         
         var allFlags = allValues.Select(x => x.Name).ToHashSet();
-        var flagsMissingInDb = flagsInCode.Where(x => !allFlags.Contains(x.AttrName)).ToArray();
 
         await _connection.RemoveFlagsNoLongerInCode(flagsInCode.Select(x => x.AttrName).ToArray());
-        await _connection.AddFlagsMissingInDb(flagsMissingInDb.Select(x => (x.AttrName, x.Type)).ToArray());
+        
+        var flagsMissingInDb = flagsInCode.Where(x => !allFlags.Contains(x.AttrName)).ToArray();
+        if (flagsMissingInDb.Length == 0) 
+            return;
+
+        var missingInDb = flagsMissingInDb.Select(x =>
+        {
+            var initialFlagValue = x.PropInfo.GetCustomAttributes<InitialFlagValue>().FirstOrDefault();
+            return (x.AttrName, x.Type, initialFlagValue);
+        }).ToArray();
+        await _connection.AddFlagsMissingInDb(missingInDb);
     }
 
     public async Task SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers)
