@@ -24,18 +24,25 @@
 			: [value, null];
 
 	function toInputDate(d) {
-		if (!d && d !== 0) return '';
-		if (d instanceof Date) return d.toISOString().slice(0, 10);
-		if (typeof d === 'number') return new Date(d).toISOString().slice(0, 10);
-		if (typeof d === 'string') {
-			// try parsing an ISO string or accept already "YYYY-MM-DD"
-			const parsed = new Date(d);
-			if (!isNaN(parsed)) return parsed.toISOString().slice(0, 10);
-			// fallback: assume it's already "YYYY-MM-DD"
-			return d;
-		}
-		return '';
+		let date = new Date(d);
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+		const day = String(date.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
 	}
+		// if (!d && d !== 0) return '';
+		// if (d instanceof Date) return d.toISOString().slice(0, 10);
+		// if (typeof d === 'number') return new Date(d).toISOString().slice(0, 10);
+		// if (typeof d === 'string') {
+		// 	// try parsing an ISO string or accept already "YYYY-MM-DD"
+		// 	const parsed = new Date(d);
+		// 	if (!isNaN(parsed)) return parsed.toISOString().slice(0, 10);
+		// 	// fallback: assume it's already "YYYY-MM-DD"
+		// 	return d;
+		// }
+		// return '';
+	// }
 	
 	const dispatch = createEventDispatcher();
 
@@ -52,7 +59,7 @@
 		disabled = true;
 		let res = await fetch("/veff_internal_api/update", options);
 		if (res.ok) {
-			dispatch("saved", {req: update, msg: `updated flag ${name} to value ${value}`})
+			dispatch("saved", {req: update, msg: `updated flag ${name} to value ${addedValue}`})
 		} else {
 			dispatch("error", {message: "something went bad" })
 		}
