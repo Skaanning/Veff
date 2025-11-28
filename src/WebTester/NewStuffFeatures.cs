@@ -14,5 +14,6 @@ public class NewStuffFeatures : IFeatureFlagContainer
      [FlagName("Blabla")]
      public required BooleanFlag CanUseEmails { get; init; }
      
+     [InitialFlagValue(null, "2025/11/30")]
      public required DateFlag SomeDateFeatureFlag { get; init; }
 }
