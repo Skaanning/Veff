@@ -1,13 +1,14 @@
 ﻿namespace Veff.Abstractions.Snapshots;
 
 public class BooleanFlagSnapshot(
-    int id,
+    string containerName,
     string name,
+    string type,
     string description,
-    bool isEnabled) : FlagSnapshot(id, name, description)
+    int? percent) : FeatureFlag(containerName, name, description, type, null, percent, null)
 {
     public bool IsEnabled()
     {
-        return isEnabled;
+        return Percent == 100;
     }
 }

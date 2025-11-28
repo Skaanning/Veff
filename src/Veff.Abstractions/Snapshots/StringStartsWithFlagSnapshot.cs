@@ -1,7 +1,7 @@
 ﻿namespace Veff.Abstractions.Snapshots;
 
-public class StringStartsWithsFlagSnapshot(int id, string name, string description, string[] values) 
-    : FlagSnapshot(id, name, description, values)
+public class StringStartsWithFlagSnapshot(string containerName, string name, string description, string type, string[] values) 
+    : FeatureFlag(containerName, name, description, type, values, null, null)
 {
     public bool IsEnabled(string value)
     {
