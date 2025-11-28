@@ -153,6 +153,19 @@ WHERE [Id] = @Id
 
         await cmd.ExecuteNonQueryAsync();    }
 
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var cmd = new SQLiteCommand(@"
+SELECT [Strings]
+FROM Veff_FeatureFlags
+WHERE [Id] = @Id 
+", _connection);
+
+        cmd.Parameters.Add(new SQLiteParameter("@Id", value: id));
+        var strings = (string)cmd.ExecuteScalar();
+        return strings;
+    }
+
     public void Dispose()
     {
         _connection.Dispose();

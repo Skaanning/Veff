@@ -84,6 +84,13 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
         await session.SaveChangesAsync();
     }
 
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var session = documentStore.QuerySession();
+        var strings = session.Query<MyVeffDbModel>().Where(x => x.Id == id).SelectMany(x => x.Strings).ToArray();
+        return string.Join(";", strings);
+    }
+
     public void Dispose()
     {
         documentStore.Dispose();

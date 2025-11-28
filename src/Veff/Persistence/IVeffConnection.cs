@@ -15,4 +15,5 @@ public interface IVeffConnection : IDisposable
     HashSet<string> GetStringValueFromDb(int id, bool ignoreCase);
     int GetPercentValueFromDb(int id);
     Task RemoveFlagsNoLongerInCode(string[] allFlags);
+    string? GetOriginalStringValueFromDb(int id);
 }

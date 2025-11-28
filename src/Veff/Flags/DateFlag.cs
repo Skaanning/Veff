@@ -47,6 +47,7 @@ public class DateFlag : Flag
 
     private bool CheckIfDateIsInEnabledPeriod(DateTime date)
     {
+        date = date.Date;
         return (_cachedFromValue, _cachedToValue) switch
         {
             (null, null) => false,
@@ -59,7 +60,7 @@ public class DateFlag : Flag
     private (DateTime? from, DateTime? to) GetValueFromDb()
     {
         using var connection = VeffDbConnectionFactory.UseConnection();
-        var dates = connection.GetStringValueFromDb(Id).ToArray();
+        var dates = connection.GetOriginalStringValueFromDb(Id)?.Split(";") ?? [];
         var fromDate = dates.Length > 0 && DateTime.TryParse(dates[0], out var from) ? from : (DateTime?)null;
         var toDate = dates.Length > 1 && DateTime.TryParse(dates[1], out var to) ? to : (DateTime?)null;
         return (fromDate, toDate);

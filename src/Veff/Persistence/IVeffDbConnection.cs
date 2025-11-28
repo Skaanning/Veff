@@ -15,4 +15,5 @@ public interface IVeffDbConnection : IDisposable
     Task EnsureTablesExists();
     HashSet<string> GetStringValueFromDb(int id);
     int GetPercentValueFromDb(int id);
+    string? GetOriginalStringValueFromDb(int id);
 }
