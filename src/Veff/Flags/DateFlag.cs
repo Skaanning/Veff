@@ -6,8 +6,6 @@ namespace Veff.Flags;
 
 public class DateFlag : Flag
 {
-    private readonly DateTime? _date;
-
     internal DateFlag(int id,
         string name,
         string description,
@@ -17,7 +15,7 @@ public class DateFlag : Flag
         Id = id;
         Name = name;
         Description = description;
-        _date = date;
+        Date = date;
     }
     
     public override int Id { get; }
@@ -30,10 +28,10 @@ public class DateFlag : Flag
     
     private bool InternalIsEnabled(DateTime? date = null)
     {
-        if (_date == null)
+        if (Date == null)
             return false;
         
-        return _date >= (date ?? DateTime.UtcNow);
+        return Date >= (date ?? DateTime.UtcNow);
     }
 
     public override VeffFeatureFlagViewModel AsDashboardViewModel()
@@ -49,6 +47,6 @@ public class DateFlag : Flag
             nameof(DateFlag),
             0,
             false,
-            _date?.ToString("yyyy/MM/dd") ?? "");
+            Date?.ToString("yyyy/MM/dd") ?? "");
     }
 }

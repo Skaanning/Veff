@@ -9,7 +9,7 @@ public static class VeffFlagMapper
     public static Flag AsFlag(this IVeffFlag flag, IVeffDbConnectionFactory connectionFactory)
     {
         if (flag.Type.Equals(typeof(BooleanFlag).FullName))
-            return new BooleanFlag(flag.Id, flag.Name, flag.Description, flag.Percent == 100, connectionFactory);
+            return new BooleanFlag(flag.Id, flag.Name, flag.Description, 100, connectionFactory);
 
         if (flag.Type.Equals(typeof(PercentageFlag).FullName))
             return new PercentageFlag(flag.Id, flag.Name, flag.Description, flag.Percent, string.Join("", flag.Strings) ?? "", connectionFactory);

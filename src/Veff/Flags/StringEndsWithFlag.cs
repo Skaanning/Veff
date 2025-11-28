@@ -17,7 +17,7 @@ public class StringEndsWithFlag : StringEqualsFlag
     {
     }
 
-    protected internal override bool InternalIsEnabled(
+    protected internal new bool InternalIsEnabled(
         string value,        
         HashSet<string> cachedValues) => cachedValues.Any(x => x.EndsWith(value, StringComparison.OrdinalIgnoreCase));
     
@@ -47,6 +47,6 @@ public class StringEndsWithFlag : StringEqualsFlag
             nameof(StringEndsWithFlag),
             0,
             false,
-            string.Join("\n", Values.ToArray()));
+            string.Join("\n", ValuesSet.ToArray()));
     }
 }

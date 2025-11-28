@@ -17,7 +17,7 @@ public class StringContainsFlag : StringEqualsFlag
     {
     }
 
-    protected internal override bool InternalIsEnabled(
+    protected internal new bool InternalIsEnabled(
         string value, 
         HashSet<string> cachedValues) => cachedValues.Any(x => x.Contains(value, StringComparison.OrdinalIgnoreCase));
     
@@ -46,6 +46,6 @@ public class StringContainsFlag : StringEqualsFlag
             nameof(StringContainsFlag),
             0,
             false,
-            string.Join("\n", Values.ToArray()));
+            string.Join("\n", ValuesSet.ToArray()));
     }
 }

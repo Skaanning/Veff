@@ -10,7 +10,7 @@ public class BooleanFlag : Flag
         int id,
         string name,
         string description,
-        bool isEnabled,
+        int percent,
         IVeffDbConnectionFactory connectionFactory) : base(connectionFactory)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -19,8 +19,9 @@ public class BooleanFlag : Flag
         Id = id;
         Name = name;
         Description = description;
+        Percent = percent;
         _cachedValueExpiry = DateTimeOffset.UtcNow;
-        _cachedValue = isEnabled;
+        _cachedValue = percent == 100;
     }
 
     public override int Id { get; }
@@ -60,7 +61,7 @@ public class BooleanFlag : Flag
     /// }
     /// </code> </example>
     /// </summary>
-    public static BooleanFlag Empty { get; } = new(-1, "empty", "", false, null!);
+    public static BooleanFlag Empty { get; } = new(-1, "empty", "", 0, null!);
 
     public override VeffFeatureFlagViewModel AsDashboardViewModel()
     {

@@ -5,6 +5,8 @@ using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Veff.Abstractions;
+using Veff.Extensions;
 using Veff.Flags;
 
 namespace Veff.ExternalApi;
@@ -20,15 +22,18 @@ internal class VeffExternalApiMiddleware
     }
 
     // ReSharper disable once UnusedMember.Global
-    public async Task InvokeAsync(
-        HttpContext context,
-        IEnumerable<IFeatureFlagContainer> containers,
-        IEnumerable<IVeffExternalApiAuthorizer> authorizers)
+    public async Task InvokeAsync(HttpContext context, IEnumerable<IFeatureFlagContainer> containers, IEnumerable<IVeffExternalApiAuthorizer> authorizers)
     {
-        if (!await CheckAuthorized(context, authorizers)) return;
+        if (!await CheckAuthorized(context, authorizers)) 
+            return;
 
         var featureFlagContainers = containers as IFeatureFlagContainer[] ?? containers.ToArray();
-        if (await HandleFeatureRequest(context, _basePath, featureFlagContainers)) return;
+        
+        if (await HandleGetContainer(context, featureFlagContainers))
+            return;
+        
+        if (await HandleFeatureRequest(context, _basePath, featureFlagContainers)) 
+            return;
         
         await HandleGetAll(context, featureFlagContainers);
     }
@@ -81,7 +86,7 @@ internal class VeffExternalApiMiddleware
             context.Response.StatusCode = StatusCodes.Status200OK;
             context.Response.ContentType = MediaTypeNames.Application.Json;
             
-            var response = new FeatureEvaluationViewModel(result, $"{req.ContainerName}.{req.Name}", $"{req.Value}");
+            var response = new FeatureEvaluation(result, $"{req.ContainerName}.{req.Name}", $"{req.Value}");
            
             var responseString = JsonSerializer.Serialize(response, JsonSerializerOptions.Default);
             
@@ -112,16 +117,55 @@ internal class VeffExternalApiMiddleware
         return true;
     }
 
-    private static async Task HandleGetAll(
-        HttpContext context,
-        IFeatureFlagContainer[] containers)
+    private static async Task HandleGetAll(HttpContext context, IFeatureFlagContainer[] containers)
     {
-        var featureFlagVms = FeatureFlagViewModel.FromFeatureFlagContainers(containers);
+        var featureFlags = FeatureFlagContainerExtensions.FromFeatureFlagContainers(containers);
         context.Response.StatusCode = StatusCodes.Status200OK;
         context.Response.ContentType = MediaTypeNames.Application.Json;
 
-        var serialize = JsonSerializer.Serialize(featureFlagVms, JsonSerializerOptions.Default);
+        var serialize = JsonSerializer.Serialize(featureFlags, JsonSerializerOptions.Default);
         await context.Response.WriteAsync(serialize);
+    }
+    
+    // csharp
+    private static string? GetContainerNameFromPath(HttpContext context, string basePath)
+    {
+        // Check and capture the remainder of the path after "{basePath}/container"
+        if (!context.Request.Path.StartsWithSegments($"{basePath}/container", StringComparison.OrdinalIgnoreCase, out var remaining))
+            return null;
+    
+        var remainder = remaining.Value?.Trim('/') ?? string.Empty;
+        if (string.IsNullOrEmpty(remainder))
+            return null;
+    
+        // First segment is the container name
+        return remainder.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
+    }
+
+    private async Task<bool> HandleGetContainer(HttpContext context, IFeatureFlagContainer[] containers)
+    {
+        var containerName = GetContainerNameFromPath(context, _basePath);
+        if (containerName is null)
+            return false;
+    
+        // Example: find container by type name (case-insensitive)
+        var container = containers.FirstOrDefault(c =>
+            c.GetType().Name.Equals(containerName, StringComparison.OrdinalIgnoreCase));
+    
+        if (container is null)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.ContentType = MediaTypeNames.Text.Plain;
+            await context.Response.WriteAsync($"Container '{containerName}' not found");
+            return false;
+        }
+    
+        var featureFlags = FeatureFlagContainerExtensions.FromFeatureFlagContainers(container);
+        context.Response.StatusCode = StatusCodes.Status200OK;
+        context.Response.ContentType = MediaTypeNames.Application.Json;
+        var serialize = JsonSerializer.Serialize(featureFlags, JsonSerializerOptions.Default);
+        await context.Response.WriteAsync(serialize);
+        return true;
     }
 
     private static async Task<bool> CheckAuthorized(

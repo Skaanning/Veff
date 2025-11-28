@@ -1,4 +1,5 @@
-﻿using Veff.Dashboard;
+﻿using System;
+using Veff.Dashboard;
 using Veff.Persistence;
 
 namespace Veff.Flags;
@@ -6,8 +7,7 @@ namespace Veff.Flags;
 public abstract class Flag
 {
     internal readonly IVeffDbConnectionFactory VeffDbConnectionFactory;
-    protected internal Flag(
-        IVeffDbConnectionFactory veffDbConnectionFactory)
+    protected internal Flag(IVeffDbConnectionFactory veffDbConnectionFactory)
     {
         VeffDbConnectionFactory = veffDbConnectionFactory;
     }
@@ -15,5 +15,9 @@ public abstract class Flag
     public abstract int Id { get; }
     public abstract string Name { get; }
     public abstract string Description { get; }
+    public string[]? Values { get; set; }
+    public int? Percent { get; set; }
+    public DateTime? Date { get; set; }
+
     public abstract VeffFeatureFlagViewModel AsDashboardViewModel();
 }

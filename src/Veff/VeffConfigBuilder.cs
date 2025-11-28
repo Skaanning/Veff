@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Veff.Dashboard;
 using Veff.Extensions;
@@ -22,8 +21,7 @@ public class VeffConfigBuilder
     /// <param name="appBuilder"></param>
     /// <param name="path">Base path for the dashboard</param>
     /// <returns></returns>
-    public VeffConfigBuilder UseVeffDashboard(
-        string path = "/veff-dashboard")
+    public VeffConfigBuilder UseVeffDashboard(string path = "/veff-dashboard")
     {
         path = path.EnsureStartsWith("/");
 
@@ -41,8 +39,7 @@ public class VeffConfigBuilder
     /// <param name="appBuilder"></param>
     /// <param name="basePath">Base path for api</param>
     /// <returns></returns>
-    public VeffConfigBuilder UseVeffExternalApi(
-        string basePath = "/_api/veff")
+    public VeffConfigBuilder UseVeffExternalApi(string basePath = "/_api/veff")
     {
         basePath = basePath.EnsureStartsWith("/");
 

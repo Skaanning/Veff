@@ -22,7 +22,8 @@ public class StringEqualsFlag : Flag
         Name = name;
         Description = description;
         _cachedValueExpiry = DateTimeOffset.UtcNow;
-        _cachedValue = (values)
+        Values = values;
+        _cachedValueSet = (values)
             .Select(x => x.ToLower())
             .ToHashSet();
     }
@@ -30,7 +31,7 @@ public class StringEqualsFlag : Flag
     public override int Id { get; }
     public override string Name { get; }
     public override string Description { get; }
-    
+
     public bool EnabledFor(
         string value)
     {
@@ -47,8 +48,7 @@ public class StringEqualsFlag : Flag
     public bool EnabledForAll(
         params string[] values) => values.All(EnabledFor);
 
-    protected internal virtual bool InternalIsEnabled(
-        string value, HashSet<string> cachedValues)
+    internal bool InternalIsEnabled(string value, HashSet<string> cachedValues)
     {
         return cachedValues.Contains(value);
     }
@@ -56,22 +56,22 @@ public class StringEqualsFlag : Flag
     private HashSet<string> GetValueFromDb()
     {
         if (DateTimeOffset.UtcNow <= _cachedValueExpiry) 
-            return _cachedValue;
+            return _cachedValueSet;
         
         using var connection = VeffDbConnectionFactory.UseConnection();
 
-        _cachedValue = connection.GetStringValueFromDb(Id);
+        _cachedValueSet = connection.GetStringValueFromDb(Id);
         
         _cachedValueExpiry = DateTimeOffset.UtcNow.AddSeconds(VeffDbConnectionFactory.CacheExpiry.TotalSeconds);
         
-        return _cachedValue;
+        return _cachedValueSet;
     }
 
     private DateTimeOffset _cachedValueExpiry;
-    private HashSet<string> _cachedValue;
+    private HashSet<string> _cachedValueSet;
 
-    protected HashSet<string> Values => _cachedValue;
-
+    protected HashSet<string> ValuesSet => _cachedValueSet;
+    
     /// <summary>
     /// Useful for initializing nullable reference types so compiler doesnt complain.
     /// It will be overwritten with the actual value from db before it will ever be used.
@@ -97,6 +97,6 @@ public class StringEqualsFlag : Flag
             nameof(StringEqualsFlag),
             0,
             false,
-            string.Join("\n", Values.ToArray()));
+            string.Join("\n", ValuesSet.ToArray()));
     }
 }

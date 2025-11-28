@@ -43,4 +43,8 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Veff.Abstractions\Veff.Abstractions.csproj" />
+    </ItemGroup>
 </Project>

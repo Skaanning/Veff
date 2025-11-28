@@ -17,7 +17,7 @@ public class StringStartsWithFlag : StringEqualsFlag
     {
     }
 
-    protected internal override bool InternalIsEnabled(
+    protected internal bool InternalIsEnabled(
         string value,
         HashSet<string> cachedValue) => cachedValue.Any(x => x.StartsWith(value, StringComparison.OrdinalIgnoreCase));
 
@@ -46,6 +46,6 @@ public class StringStartsWithFlag : StringEqualsFlag
             nameof(StringStartsWithFlag),
             0,
             false,
-            string.Join("\n", Values.ToArray()));
+            string.Join("\n", ValuesSet.ToArray()));
     }
 }
