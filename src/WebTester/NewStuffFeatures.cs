@@ -14,11 +14,5 @@ public class NewStuffFeatures : IFeatureFlagContainer
      [FlagName("Blabla")]
      public required BooleanFlag CanUseEmails { get; init; }
      
-     public required DateFlag UseNewStuff { get; init; }
-     
-//     public required PercentageFlag SometimesIWork { get; init; }
-//     public required StringEqualsFlag Baz111 { get; init; } 
-//     public required StringContainsFlag Baz333 { get; init; } 
-//     public required StringStartsWithFlag Baz555 { get; init; } 
-//     public required StringEndsWithFlag EndsWith { get; init; }
+     public required DateFlag SomeDateFeatureFlag { get; init; }
 }

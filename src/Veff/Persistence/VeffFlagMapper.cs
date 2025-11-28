@@ -47,7 +47,7 @@ public static class VeffFlagMapper
             var strings = ((VeffDbModel)flag).OriginalString?.Split(';');
             if (strings == null || strings.Length < 2)
             {
-                throw new Exception($"Invalid date flag value for flag {flag.Name}");
+                strings = ["", ""];
             }
             
             var from = string.IsNullOrWhiteSpace(strings.FirstOrDefault()) ? (DateTime?)null : DateTime.Parse(strings.First());
