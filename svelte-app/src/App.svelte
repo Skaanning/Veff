@@ -94,7 +94,7 @@
 								<DateFlag
 									name={f.Name}
 									id={f.Id}
-									value={f.strings}
+									value={f.Strings}
 									description={f.Description}
 									on:error={handleError}
 									on:saved={handleSaved}

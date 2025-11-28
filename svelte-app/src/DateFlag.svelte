@@ -10,13 +10,39 @@
 	export let name;
 	export let description;
 	export let id;
+	let value1;
+	let value2;
+	let addedValue;
 
+	// derive value from value1 and value2
+	$: addedValue = (value1 || value2)
+			? `${value1 || ''};${value2 || ''}`
+			: null;
+	
+	$: [value1, value2] = (value && value.includes(';'))
+			? value.split(';').map(v => toInputDate(v))
+			: [value, null];
+
+	function toInputDate(d) {
+		if (!d && d !== 0) return '';
+		if (d instanceof Date) return d.toISOString().slice(0, 10);
+		if (typeof d === 'number') return new Date(d).toISOString().slice(0, 10);
+		if (typeof d === 'string') {
+			// try parsing an ISO string or accept already "YYYY-MM-DD"
+			const parsed = new Date(d);
+			if (!isNaN(parsed)) return parsed.toISOString().slice(0, 10);
+			// fallback: assume it's already "YYYY-MM-DD"
+			return d;
+		}
+		return '';
+	}
+	
 	const dispatch = createEventDispatcher();
 
 	let disabled = false;
 
 	async function save() {
-		let update = { "Id": id, "Description": description, "Value": value, "Type": "DateFlag" };
+		let update = { "Id": id, "Description": description, "Strings": addedValue, "Type": "DateFlag" };
 		const options = {
 			method: "POST",
 			body: JSON.stringify(update),
@@ -37,9 +63,14 @@
 <Row>
 	<Cell><b>{name}</b></Cell>
 	<Cell style="padding:1rem;">
-		<FormField>
-			<input type="date" bind:value={value} />
-			<span slot="label">Date value</span>
+		<FormField align="end">
+			<span slot="label">From date:</span>
+			<input type="date" bind:value={value1} />
+		</FormField>
+		<br/>
+		<FormField align="end">
+			<span slot="label" style="white-space: pre">To date:    </span>
+			<input type="date" bind:value={value2} />
 		</FormField>
 	</Cell>
 	<Cell>

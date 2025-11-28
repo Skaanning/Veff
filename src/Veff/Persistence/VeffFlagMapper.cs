@@ -44,10 +44,13 @@ public static class VeffFlagMapper
 
         if (flag.Type.Equals(typeof(DateFlag).FullName))
         {
-            var date = flag.Strings?.FirstOrDefault() == null
+            var fromDate = flag.Strings?.FirstOrDefault() == null
                 ? (DateTime?)null
                 : DateTime.Parse(flag.Strings.First());
-            return new DateFlag(flag.Id, FlagNameAttribute.GetFlagName(flag), flag.Description, date, connectionFactory);
+            var toDate = flag.Strings?.Skip(1).FirstOrDefault() == null
+                ? (DateTime?)null
+                : DateTime.Parse(flag.Strings.Skip(1).First());
+            return new DateFlag(flag.Id, FlagNameAttribute.GetFlagName(flag), flag.Description, fromDate, toDate, connectionFactory);
         }
 
         throw new Exception($"Unknown type: {flag.Type}");

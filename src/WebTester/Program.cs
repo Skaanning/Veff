@@ -23,11 +23,11 @@ builder.Services.AddVeff(veffBuilder =>
         .AddExternalApiAuthorizersFromAssembly();
 });
 
-// builder.Services.AddCors();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
-// app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 await app.UseVeff(s =>
 {
@@ -40,6 +40,7 @@ $"""
 {emailFeatures.SendSpamMails.Name} = {emailFeatures.SendSpamMails.IsEnabled}
 {emailFeatures.SendActualEmails.Name}.IsEnabledFor("Bobby") = {emailFeatures.SendActualEmails.EnabledFor("Bobby")}
 {newStuffFeatures.Hello.Name}.IsEnabled = {newStuffFeatures.Hello.IsEnabled}
+{newStuffFeatures.UseNewStuff.Name}.IsEnabledNow = {newStuffFeatures.UseNewStuff.IsEnabledNow()}
 """);
 
 app.Run();
