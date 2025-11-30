@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Veff.Sqlite\Veff.Sqlite.csproj" />
+      <ProjectReference Include="..\Veff.SqlServer\Veff.SqlServer.csproj" />
       <ProjectReference Include="..\Veff\Veff.csproj" />
     </ItemGroup>
 

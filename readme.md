@@ -15,27 +15,49 @@ BooleanFlag, StringFlag and PercentageFlag.
     - can be found in different versions - StringEquals, Contains, StartsWith and EndsWith.
 - **Percentage** set between 0-100%. Will take a Guid or int and give back true/false x% of the time. The results are repeatable,  
 so i.e. a Guid will always evaluate to true for a given percentage, unless you set a new 'randomSeed' on the flag.  
+- **Date** - add a optional *from* and an optional *to* date to describe when the feature is enabled. To be enabled the date must be after the from date (or no from date set),
+and before the to date (or no to date set). If neither of the *from* and *to* dates are set, the flag will always be false.
 
 In addition you can enable a management dashboard where you can see and control your flags.  
 If you need to access the flags from another service or website, you can add a simple external api where external services can ask for the flags and what they would give back for a given value.
 
 ### Usage
 
-Create a normal c# class or record, and add the Flags you want as normal get-only properties.
+Create a normal c# class or record, and add the Flags you want as a normal required property with {get; init;}.
 Remember to 'implement' the empty marker interface `IFeatureFlagContainer`.   
-
-You do not have to set the Flags to anything (e.g. BooleanFlag.Empty as I do below). It is only really useful for calming the roslyn analyzer if you have nullable reference types enabled.
 
 ```C#
 
-public class EmailFeatures : IFeatureFlagContainer
+public class NewStuffFeatures : IFeatureFlagContainer
 {
-    public BooleanFlag SendSpamMails { get; } = BooleanFlag.Empty;
-    public PercentageFlag IncludeFunnyCatPictures { get; } = PercentageFlag.Empty;
-    public StringEqualsFlag SendActualEmails { get; } = StringEqualsFlag.Empty;
+     [FlagName("SendSomeEmails")]
+     [InitialFlagValue(true)]
+     public required BooleanFlag Hello { get; init; }
+     
+     public required BooleanFlag SendCatPictures { get; init; } 
+     
+     [InitialFlagValue("Bobby")]
+     public required StringEqualsFlag SendActualEmails { get; init; } 
+
+     [InitialFlagValue(null, "2025/11/30")]
+     public required DateFlag SomeDateFeatureFlag { get; init; }
 }
 
+public class EmailFeatures : IFeatureFlagContainer
+{
+     [InitialFlagValue(true)]
+     [FlagName("SendSomeEmails", ContainerName = "test")]
+     public required BooleanFlag SendSpamMails { get; set; }
+
+}
+
+
 ```
+
+#### Attributes
+
+Use the InitialFlagValue attribute to set the feature flag to your desired state on the initial run. After you change the value in the database, the InitialFlagValue attribute no longer does anything.   
+Another attribute is the FlagName where you can give the flag another name than the property name. Useful i.e. if you want the dashboard to show another name than what is in the code. It also makes it more resilient to renaming of the flag properties.
 
 
 ### Setup
@@ -51,34 +73,40 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddVeff(veffBuilder =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("SqlDb")!;
-
     veffBuilder
-        .WithSqlServer(connectionString, TimeSpan.FromSeconds(30))
-        .AddFeatureFlagContainersFromAssembly() // Finds all IFeatureFlagContainer in scanned assemblies 
-        .AddDashboardAuthorizersFromAssembly() // Same as above but for IVeffDashboardAuthorizers (only needed if you want to use the dashboard, and hide it behind some authorization)
+        .AddSqlServer("someconnection;", TimeSpan.FromSeconds(5))
+        .AddFeatureFlagContainersFromAssembly() // Finds all IFeatureFlagContainer in scanned assemblies
+        .AddDashboardAuthorizersFromAssembly() // Finds and enables all IVeffDashboardAuthorizers (only needed if you want to use the dashboard, and hide it behind some authorization)
         .AddExternalApiAuthorizersFromAssembly(); // Same as above but for IVeffExternalApiAuthorizers (only needed if you want to use the external api and hide it behind some auth)
 });
 
+
 var app = builder.Build();
 
-app.UseVeff(s =>
+await app.UseVeff(s =>
 {
-    s.UseVeffDashboard(); // setup dashboard where you can manage and edit your feature flags. 
-    s.UseVeffExternalApi(); // exposes a http api that allows external services to make use of the feature flags.
+    s.UseVeffDashboard(); // enables the dashboard where you can update the flag values
+    s.UseVeffExternalApi(); // enables exposes a http api that allows external services to make use of the feature flags
 });
 
-app.MapGet("/", ([FromServices] EmailFeatures ef)  // Just inject your FeatureFlagContainers via normal DI
-    => $"{ef.SendSpamEmails.IsEnabled}\n{ef.SendActualEmails.EnabledFor("me")}");
+
+// example usage
+app.MapGet("/", ([FromServices]EmailFeatures emailFeatures, [FromServices] NewStuffFeatures newStuffFeatures) => 
+$"""
+
+SendSpamMails = {emailFeatures.SendSpamMails.IsEnabled}
+
+SendActualEmails = {newStuffFeatures.SendActualEmails.EnabledFor("Bobby")}
+
+Hello.Name = {newStuffFeatures.Hello.IsEnabled}
+
+SomeDateFeatureFlag = {newStuffFeatures.SomeDateFeatureFlag.IsEnabledNow()}
+
+""");
 
 app.Run();
 
 ```
-
-#### Note
-
-The FeatureContainers does not care about the data they are initialized with, it will be overridden with whats stored in the db. This also means that flags defaults to false until otherwise specified in the dashboard.
-
 
 ### Dashboard
 
@@ -89,9 +117,6 @@ This allows you to manage the flags you added.
 As an example see what the previously shown `EmailFeatures : IFeatureFlagContainer` looks like in the dashboard.
 
 ![dashboard.png](dashboard.png)
-
-(help needed to make this dashboard less of an eye sore)
-
 
 ### External API
 
@@ -161,6 +186,5 @@ Luckily you can easily test by initializing the FeatureContainer with **MockedFl
             Assert.Equal("Hello", doStuff);
         }
     }
-
 
 ```

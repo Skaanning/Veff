@@ -31,7 +31,7 @@ $"""
 
 {emailFeatures.SendSpamMails.Name} = {emailFeatures.SendSpamMails.IsEnabled}
 
-{emailFeatures.SendActualEmails.Name}.IsEnabledFor("Bobby") = {emailFeatures.SendActualEmails.EnabledFor("Bobby")}
+{newStuffFeatures.SendActualEmails.Name}.IsEnabledFor("Bobby") = {newStuffFeatures.SendActualEmails.EnabledFor("Bobby")}
 
 {newStuffFeatures.Hello.Name}.IsEnabled = {newStuffFeatures.Hello.IsEnabled}
 
