@@ -158,6 +158,8 @@ WHERE [Id] = @Id
 
     public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
     {
+        if (allFlags.Length == 0) return;
+        
         var paramNames = allFlags.Select((_, i) => $"@Name{i}").ToArray();
         var sql = $"DELETE FROM Veff_FeatureFlags WHERE [Name] NOT IN ({string.Join(", ", paramNames)})";
 

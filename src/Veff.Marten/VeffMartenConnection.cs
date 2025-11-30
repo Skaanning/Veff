@@ -79,6 +79,8 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
 
     public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
     {
+        if (allFlags.Length == 0) return;
+
         using var session = documentStore.DirtyTrackedSession();
         session.DeleteWhere<MyVeffDbModel>(x => !allFlags.Contains(x.Name));
         await session.SaveChangesAsync();
