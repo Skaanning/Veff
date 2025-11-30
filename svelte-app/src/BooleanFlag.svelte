@@ -41,9 +41,9 @@
 <Row>
 	<Cell><b>{name}</b></Cell>
 	<Cell style="padding:1rem;">
-		<FormField>
+		<FormField align="end">
+			<span slot="label">Is enabled: </span>
 			<Checkbox bind:checked={checked} />
-			<span slot="label">Is enabled</span>
 		</FormField>
 	</Cell>
 	<Cell>

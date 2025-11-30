@@ -1,0 +1,64 @@
+﻿/* Dark Mode Overrides for Material Design Components */
+
+body.dark-mode .mdc-data-table {
+	background-color: #1a1a1a !important;
+	color: #ffffff !important;
+}
+
+body.dark-mode .mdc-data-table__cell {
+	background-color: #2d2d2d !important;
+	color: #ffffff !important;
+	border-color: #404040 !important;
+}
+
+body.dark-mode .mdc-data-table__header-cell {
+	background-color: #383838 !important;
+	color: #ffffff !important;
+	border-color: #404040 !important;
+}
+
+body.dark-mode .mdc-data-table__row {
+	background-color: #2d2d2d !important;
+}
+
+body.dark-mode .mdc-data-table__row:hover {
+	background-color: #373737 !important;
+}
+
+body.dark-mode .mdc-data-table__cell span {
+	color: #ffffff !important;
+}
+
+body.dark-mode .mdc-data-table__header-cell span {
+	color: #ffffff !important;
+}
+
+/* Form Field and Input Styling */
+body.dark-mode .mdc-form-field {
+	color: #ffffff !important;
+}
+
+body.dark-mode .mdc-text-field {
+	background-color: #2d2d2d !important;
+}
+
+body.dark-mode .mdc-text-field__input {
+	background-color: #2d2d2d !important;
+	color: #ffffff !important;
+	caret-color: #ffffff !important;
+}
+
+body.dark-mode input[type="date"],
+body.dark-mode input[type="time"],
+body.dark-mode input[type="datetime-local"] {
+	background-color: #2d2d2d !important;
+	color: #ffffff !important;
+	caret-color: #ffffff !important;
+}
+
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
+body.dark-mode input[type="time"]::-webkit-calendar-picker-indicator,
+body.dark-mode input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+	filter: invert(1) !important;
+	cursor: pointer;
+}

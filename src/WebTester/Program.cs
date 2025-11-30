@@ -1,34 +1,24 @@
-using JasperFx;
-using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Veff;
-// using Veff.Marten;
 using Veff.Sqlite;
 using WebTester;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMarten(opt =>
-{
-    opt.Connection(builder.Configuration.GetConnectionString("martenConnectionString")!);
-    opt.AutoCreateSchemaObjects = AutoCreate.All;
-});
-
 builder.Services.AddVeff(veffBuilder =>
 {
     veffBuilder
-        // .AddMarten(TimeSpan.FromSeconds(5))
-        .AddSqlite("Data Source=veff.db;", TimeSpan.FromSeconds(15))
+        .AddSqlite("Data Source=veff1.db;", TimeSpan.FromSeconds(5))
         .AddFeatureFlagContainersFromAssembly()
         .AddDashboardAuthorizersFromAssembly()
         .AddExternalApiAuthorizersFromAssembly();
 });
 
-// builder.Services.AddCors();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
-// app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 await app.UseVeff(s =>
 {
@@ -36,10 +26,17 @@ await app.UseVeff(s =>
     s.UseVeffExternalApi();
 });
 
-app.MapGet("/", ([FromServices]NewStuffFeatures featureFlagContainer, [FromServices] EmailFeatures ef) => 
+app.MapGet("/", ([FromServices]EmailFeatures emailFeatures, [FromServices] NewStuffFeatures newStuffFeatures) => 
 $"""
-featureFlagContainer.CanUseEmails.IsEnabled = {featureFlagContainer.CanUseEmails.IsEnabled}
-EmailFeatures.SendActualEmails.EnabledFor("me") = {ef.SendActualEmails.EnabledFor("me")}
+
+{emailFeatures.SendSpamMails.Name} = {emailFeatures.SendSpamMails.IsEnabled}
+
+{newStuffFeatures.SendActualEmails.Name}.IsEnabledFor("Bobby") = {newStuffFeatures.SendActualEmails.EnabledFor("Bobby")}
+
+{newStuffFeatures.Hello.Name}.IsEnabled = {newStuffFeatures.Hello.IsEnabled}
+
+{newStuffFeatures.SomeDateFeatureFlag.Name}.IsEnabledNow = {newStuffFeatures.SomeDateFeatureFlag.IsEnabledNow()}
+
 """);
 
 app.Run();

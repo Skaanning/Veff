@@ -1,6 +1,9 @@
 ﻿using System.Data;
+using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Veff.Dashboard;
+using Veff.Exceptions;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff.SqlServer;
@@ -35,10 +38,11 @@ UPDATE [dbo].[Veff_FeatureFlags]
         await sqlCommand.ExecuteNonQueryAsync();
     }
 
-    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
+    public async Task AddFlagsMissingInDb(
+        (string AttrName, string Type, InitialFlagValue? initialValueFlag)[] flagsMissingInDb)
     {
         var values = string.Join(',',
-            flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
+            flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent{i}, @Type{i}, @Strings{i})"));
 
         if (values.Length == 0)
             return;
@@ -54,13 +58,17 @@ UPDATE [dbo].[Veff_FeatureFlags]
                                                                {values}
                                                     """, _connection);
 
-        addFeatureFlags.Parameters.Add("@Percent", SqlDbType.Int).Value = 0;
-        addFeatureFlags.Parameters.Add($"@Strings", SqlDbType.NVarChar).Value = "";
         addFeatureFlags.Parameters.Add($"@Description", SqlDbType.NVarChar).Value = "";
 
         for (var i = 0; i < flagsMissingInDb.Length; i++)
         {
-            (var name, var type) = flagsMissingInDb[i];
+            var (name, type, attribute) = flagsMissingInDb[i];
+
+            if (attribute is not null && !attribute.IsValidFor(type))
+                throw new VeffConfigurationException($"The InitialFlagValue attribute is not valid for the flag {name} of type {type}");
+            
+            addFeatureFlags.Parameters.Add($"@Percent{i}", SqlDbType.Int).Value = attribute?.Percentage ?? 0;
+            addFeatureFlags.Parameters.Add($"@Strings{i}", SqlDbType.NVarChar).Value = attribute?.Value ?? "";
             addFeatureFlags.Parameters.Add($"@Name{i}", SqlDbType.NVarChar).Value = name;
             addFeatureFlags.Parameters.Add($"@Type{i}", SqlDbType.NVarChar).Value = type;
         }
@@ -161,6 +169,19 @@ WHERE [Id] = @Id
         } 
         
         await cmd.ExecuteNonQueryAsync();
+    }
+
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var cmd = new SqlCommand(@"
+SELECT [Strings]
+FROM Veff_FeatureFlags
+WHERE [Id] = @Id 
+", _connection);
+
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        var strings = (string)cmd.ExecuteScalar();
+        return strings;
     }
 
     public void Dispose()

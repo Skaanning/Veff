@@ -1,3 +1,8 @@
 ﻿namespace Veff;
 
-public interface IFeatureFlagContainer { }
+public interface IFeatureFlagContainer
+{
+    public void DoStuff()
+    {
+    }
+}

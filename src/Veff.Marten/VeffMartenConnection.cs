@@ -1,5 +1,7 @@
-﻿using Marten;
+﻿using System.Reflection;
+using Marten;
 using Veff.Dashboard;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff.Marten;
@@ -31,20 +33,30 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
         await session.SaveChangesAsync();
     }
 
-    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
+    public async Task AddFlagsMissingInDb(
+        (string AttrName, string Type, InitialFlagValue? initialValueFlag)[] flagsMissingInDb)
     {
         if (flagsMissingInDb.Length == 0)
             return;
         
         using var session = documentStore.LightweightSession();
 
-        var myVeffDbModels = flagsMissingInDb.Select(x => new MyVeffDbModel 
+        var myVeffDbModels = flagsMissingInDb.Select(x =>
         {
-            Name = x.Name, 
-            Description = "", 
-            Percent = 0, 
-            Type = x.Type, 
-            Strings = []
+            var percentage = x.initialValueFlag?.Percentage ?? 0;
+            var s = x.initialValueFlag?.Value;
+            var strings = s == null 
+                ? Array.Empty<string>() 
+                : [s];
+
+            return new MyVeffDbModel
+            {
+                Name = x.AttrName,
+                Description = "",
+                Percent = 0,
+                Type = x.Type,
+                Strings = strings
+            };
         });
         
         session.StoreObjects(myVeffDbModels);
@@ -70,6 +82,13 @@ public class VeffMartenConnection(IDocumentStore documentStore) : IVeffConnectio
         using var session = documentStore.DirtyTrackedSession();
         session.DeleteWhere<MyVeffDbModel>(x => !allFlags.Contains(x.Name));
         await session.SaveChangesAsync();
+    }
+
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var session = documentStore.QuerySession();
+        var strings = session.Query<MyVeffDbModel>().Where(x => x.Id == id).SelectMany(x => x.Strings).ToArray();
+        return string.Join(";", strings);
     }
 
     public void Dispose()
