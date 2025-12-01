@@ -7,8 +7,8 @@
 
 Well it's easy if you use aspnet core :) 
 
-Currently supports 3 types of feature flags. 
-BooleanFlag, StringFlag and PercentageFlag.
+Currently supports 4 types of feature flags. 
+BooleanFlag, StringFlag, DateFlag and PercentageFlag.
 
 - **Boolean** is a simple true/false
 - **String** can be assigned multiple strings. Case insensitive. Could be useful for emails, auth-roles etc.   
