@@ -3,13 +3,10 @@ using Veff.Persistence;
 
 namespace Veff.Sqlite;
 
-public class VeffSqliteBuilder : VeffSettingsBuilder
+public static class VeffSettingsExtensions
 {
-    protected internal VeffSqliteBuilder(IServiceCollection serviceCollection) : base(serviceCollection)
-    {
-    }
-    
-    public IVeffSettingsBuilder WithSqlite(
+    public static VeffSettingsBuilder AddSqlite(
+        this VeffSettingsBuilder builder,
         string connectionString,
         TimeSpan? cacheExpiry)
     {
@@ -17,7 +14,7 @@ public class VeffSqliteBuilder : VeffSettingsBuilder
         {
             CacheExpiry = cacheExpiry ?? TimeSpan.FromMinutes(1)
         };
-        ServiceCollection.AddSingleton<IVeffDbConnectionFactory>(factory);
-        return this;
+        builder.ServiceCollection.AddSingleton<IVeffDbConnectionFactory>(factory);
+        return builder;
     }
 }

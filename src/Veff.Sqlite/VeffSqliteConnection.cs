@@ -1,5 +1,7 @@
 ﻿using System.Data.SQLite;
 using Veff.Dashboard;
+using Veff.Exceptions;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff.Sqlite;
@@ -34,10 +36,12 @@ UPDATE [Veff_FeatureFlags]
         await sqlCommand.ExecuteNonQueryAsync();
     }
 
-    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
+    public async Task AddFlagsMissingInDb((string AttrName, string Type, InitialFlagValue? initialValueFlag)[] flagsMissingInDb)
     {
-        var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
-
+        var values = string.Join(',', flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent{i}, @Type{i}, @Strings{i})"));
+        if (values.Length == 0)
+            return;
+            
         await using var addFeatureFlags = new SQLiteCommand($"""
 INSERT INTO [Veff_FeatureFlags]
            ([Name]
@@ -49,13 +53,17 @@ INSERT INTO [Veff_FeatureFlags]
            {values}
 """, _connection);
 
-        addFeatureFlags.Parameters.Add(new SQLiteParameter("@Percent", value: 0));
-        addFeatureFlags.Parameters.Add(new SQLiteParameter("@Strings", value: ""));
         addFeatureFlags.Parameters.Add(new SQLiteParameter("@Description", value: ""));
 
         for (var i = 0; i < flagsMissingInDb.Length; i++)
         {
-            var (name, type) = flagsMissingInDb[i];
+            var (name, type, attribute) = flagsMissingInDb[i];
+
+            if (attribute is not null && !attribute.IsValidFor(type))
+                throw new VeffConfigurationException($"The InitialFlagValue attribute is not valid for the flag {name} of type {type}");
+            
+            addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Percent{i}", value: attribute?.Percentage ?? 0));
+            addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Strings{i}", value: attribute?.Value ?? ""));
             addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Name{i}", value: name));
             addFeatureFlags.Parameters.Add(new SQLiteParameter($"@Type{i}", value: type));
         }
@@ -129,6 +137,35 @@ WHERE [Id] = @Id
         cmd.Parameters.Add(new SQLiteParameter("@Id", value: id));
         var executeScalar = (long)cmd.ExecuteScalar();
         return Convert.ToInt32(executeScalar);
+    }
+
+    public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
+    {
+        if (allFlags.Length == 0) return;
+
+        var paramNames = allFlags.Select((_, i) => $"@Name{i}").ToArray();
+        var sql = $"DELETE FROM Veff_FeatureFlags WHERE [Name] NOT IN ({string.Join(", ", paramNames)})";
+
+        await using var cmd = new SQLiteCommand(sql, _connection);
+        var i = 0;
+        foreach (var name in allFlags)
+        {
+            cmd.Parameters.Add(new SQLiteParameter(paramNames[i++], value: name));
+        }
+
+        await cmd.ExecuteNonQueryAsync();    }
+
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var cmd = new SQLiteCommand(@"
+SELECT [Strings]
+FROM Veff_FeatureFlags
+WHERE [Id] = @Id 
+", _connection);
+
+        cmd.Parameters.Add(new SQLiteParameter("@Id", value: id));
+        var strings = (string)cmd.ExecuteScalar();
+        return strings;
     }
 
     public void Dispose()

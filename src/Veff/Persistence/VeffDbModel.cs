@@ -30,8 +30,10 @@ internal class VeffDbModel : IVeffFlag
         Description = description;
         Percent = percent;
         Type = type;
-        Strings = (strings ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries).ToArray();
+        Strings = (strings ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries);
+        OriginalString = strings;
     }
+
 
     public string GetClassName()
         => Name.Split('.', 2)[0];
@@ -45,4 +47,5 @@ internal class VeffDbModel : IVeffFlag
     public int Percent { get; }
     public string Type { get; }
     public string[] Strings { get; }
+    internal string? OriginalString { get; set; }
 }

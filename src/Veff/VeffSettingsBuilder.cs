@@ -6,19 +6,34 @@ using Microsoft.Extensions.DependencyInjection;
 using Veff.Dashboard;
 using Veff.Extensions;
 using Veff.ExternalApi;
+using Veff.Persistence;
 
 namespace Veff;
 
-public class VeffSettingsBuilder : IVeffSettingsBuilder
+public sealed class VeffSettingsBuilder : IVeffSettingsBuilder
 {
-    protected readonly IServiceCollection ServiceCollection;
+    public readonly IServiceCollection ServiceCollection;
 
-    protected VeffSettingsBuilder(
+    internal VeffSettingsBuilder(
         IServiceCollection serviceCollection)
     {
         ServiceCollection = serviceCollection;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="createConnection"></param>
+    /// <param name="cacheExpiry">defaults to 60 seconds</param>
+    /// <returns></returns>
+    public IVeffSettingsBuilder AddPersistence(
+        Func<IServiceProvider, IVeffConnection> createConnection,
+        TimeSpan? cacheExpiry = null)
+    {
+        ServiceCollection.AddSingleton<IVeffDbConnectionFactory>(ctx => new CustomVeffDbConnectionFactory(ctx, createConnection, cacheExpiry));
+        return this;
+    }
+    
     /// <summary>
     /// Uses assembly scan to register all the IFeatureFlagContainers. Uses the type markers provided to find the assemblies
     /// or if nothing is provided the entry assembly of the program.  

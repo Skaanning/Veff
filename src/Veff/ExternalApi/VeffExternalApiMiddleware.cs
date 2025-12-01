@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -73,19 +74,18 @@ internal class VeffExternalApiMiddleware
                             "Value for PercentageFlag should be either a Guid or an int"),
                 BooleanFlag b => b.IsEnabled,
                 StringEqualsFlag f => f.EnabledFor(req.Value),
+                DateFlag f => f.IsEnabled(DateTime.Parse(req.Value)),
                 _ => throw new ArgumentOutOfRangeException("untypedFlag", $"unknown flagtype {untypedFlag?.GetType()}")
             };
 
-            context.Response.StatusCode = 200;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(
-                $$"""
-{
-    "result": {{result}},
-    "property": "{{req.ContainerName}}.{{req.Name}}", 
-    "evaluatedOn": "{{req.Value}}"
-}
-""");
+            context.Response.StatusCode = StatusCodes.Status200OK;
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+            
+            var response = new FeatureEvaluationViewModel(result, $"{req.ContainerName}.{req.Name}", $"{req.Value}");
+           
+            var responseString = JsonSerializer.Serialize(response, JsonSerializerOptions.Default);
+            
+            await context.Response.WriteAsync(responseString);
         }
         catch (ArgumentOutOfRangeException exception)
         {
@@ -97,8 +97,8 @@ internal class VeffExternalApiMiddleware
 
     private static async Task<bool> SetBadRequest(HttpContext httpContext, Input? req = null, ArgumentOutOfRangeException? e = null)
     {
-        httpContext.Response.ContentType = "text/plain";
-        httpContext.Response.StatusCode = 400;
+        httpContext.Response.ContentType = MediaTypeNames.Text.Plain;
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
         if (req is null && e is null)
             await httpContext.Response.WriteAsync("Cannot parse the query params. Use 'containername', 'name' and optionally 'value'");
@@ -107,7 +107,7 @@ internal class VeffExternalApiMiddleware
         else if (req is not null)
             await httpContext.Response.WriteAsync($"Unable to find container {req.ContainerName} with flag {req.Name}");
         else
-            await httpContext.Response.WriteAsync("unknown err");
+            await httpContext.Response.WriteAsync("Unknown error");
         
         return true;
     }
@@ -116,11 +116,11 @@ internal class VeffExternalApiMiddleware
         HttpContext context,
         IFeatureFlagContainer[] containers)
     {
-        var featureFlagVms = FeatureFlagVm.FromFeatureFlagContainers(containers);
-        context.Response.StatusCode = 200;
-        context.Response.ContentType = "application/json";
+        var featureFlagVms = FeatureFlagViewModel.FromFeatureFlagContainers(containers);
+        context.Response.StatusCode = StatusCodes.Status200OK;
+        context.Response.ContentType = MediaTypeNames.Application.Json;
 
-        var serialize = JsonSerializer.Serialize(featureFlagVms);
+        var serialize = JsonSerializer.Serialize(featureFlagVms, JsonSerializerOptions.Default);
         await context.Response.WriteAsync(serialize);
     }
 
@@ -131,8 +131,8 @@ internal class VeffExternalApiMiddleware
         var isAuthorized = await authorizers.IsAuthorized(context);
         if (isAuthorized) return true;
 
-        context.Response.StatusCode = 401;
-        context.Response.ContentType = "text/plain";
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = MediaTypeNames.Text.Plain;
         await context.Response.WriteAsync("no you are not allowed :(");
         return false;
     }

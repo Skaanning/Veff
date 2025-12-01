@@ -49,7 +49,7 @@
 <Row>
 	<Cell><b>{name} ({getTypeDescription()})</b></Cell>
 	<Cell style="padding:1rem;">
-		<Textfield 
+		<Textfield style="width: 80%;"
 			textarea bind:value={strings} label="string values">
 		</Textfield>
 	</Cell>

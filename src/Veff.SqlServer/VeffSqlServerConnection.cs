@@ -1,11 +1,14 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
+using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Veff.Dashboard;
+using Veff.Exceptions;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff.SqlServer;
 
-internal class VeffSqlServerConnection : IVeffConnection 
+internal class VeffSqlServerConnection : IVeffConnection
 {
     private readonly SqlConnection _connection;
 
@@ -17,7 +20,7 @@ internal class VeffSqlServerConnection : IVeffConnection
 
     public async Task SaveUpdate(FeatureFlagUpdate featureFlagUpdate)
     {
-        var sqlCommand = new SqlCommand(@"
+        await using var sqlCommand = new SqlCommand(@"
 UPDATE [dbo].[Veff_FeatureFlags]
    SET [Description] = @Description
       ,[Percent] = @Percent
@@ -34,30 +37,38 @@ UPDATE [dbo].[Veff_FeatureFlags]
 
         await sqlCommand.ExecuteNonQueryAsync();
     }
-    
-    public async Task AddFlagsMissingInDb((string Name, string Type)[] flagsMissingInDb)
+
+    public async Task AddFlagsMissingInDb(
+        (string AttrName, string Type, InitialFlagValue? initialValueFlag)[] flagsMissingInDb)
     {
         var values = string.Join(',',
-            flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent, @Type{i}, @Strings)"));
+            flagsMissingInDb.Select((_, i) => $"(@Name{i}, @Description, @Percent{i}, @Type{i}, @Strings{i})"));
+
+        if (values.Length == 0)
+            return;
 
         using var addFeatureFlags = new SqlCommand($"""
-INSERT INTO [dbo].[Veff_FeatureFlags]
-           ([Name]
-           ,[Description]
-           ,[Percent]
-           ,[Type]
-           ,[Strings])
-     VALUES
-           {values}
-""", _connection);
+                                                    INSERT INTO [dbo].[Veff_FeatureFlags]
+                                                               ([Name]
+                                                               ,[Description]
+                                                               ,[Percent]
+                                                               ,[Type]
+                                                               ,[Strings])
+                                                         VALUES
+                                                               {values}
+                                                    """, _connection);
 
-        addFeatureFlags.Parameters.Add("@Percent", SqlDbType.Int).Value = 0;
-        addFeatureFlags.Parameters.Add($"@Strings", SqlDbType.NVarChar).Value = "";
         addFeatureFlags.Parameters.Add($"@Description", SqlDbType.NVarChar).Value = "";
 
         for (var i = 0; i < flagsMissingInDb.Length; i++)
         {
-            (var name, var type) = flagsMissingInDb[i];
+            var (name, type, attribute) = flagsMissingInDb[i];
+
+            if (attribute is not null && !attribute.IsValidFor(type))
+                throw new VeffConfigurationException($"The InitialFlagValue attribute is not valid for the flag {name} of type {type}");
+            
+            addFeatureFlags.Parameters.Add($"@Percent{i}", SqlDbType.Int).Value = attribute?.Percentage ?? 0;
+            addFeatureFlags.Parameters.Add($"@Strings{i}", SqlDbType.NVarChar).Value = attribute?.Value ?? "";
             addFeatureFlags.Parameters.Add($"@Name{i}", SqlDbType.NVarChar).Value = name;
             addFeatureFlags.Parameters.Add($"@Type{i}", SqlDbType.NVarChar).Value = type;
         }
@@ -67,10 +78,10 @@ INSERT INTO [dbo].[Veff_FeatureFlags]
 
     public async Task<IEnumerable<IVeffFlag>> GetAllValues()
     {
-        using var allValuesCommand = new SqlCommand("""
-SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
-FROM Veff_FeatureFlags
-""", _connection);
+        await using var allValuesCommand = new SqlCommand("""
+                                                          SELECT [Id], [Name], [Description], [Percent], [Type], [Strings]
+                                                          FROM Veff_FeatureFlags
+                                                          """, _connection);
         await using var sqlDataReader = await allValuesCommand.ExecuteReaderAsync();
 
         var veff = new List<IVeffFlag>();
@@ -91,27 +102,27 @@ FROM Veff_FeatureFlags
 
     public async Task EnsureTablesExists()
     {
-        using var command = new SqlCommand("""
-EXEC sp_tables
-    @table_name = 'Veff_FeatureFlags',
-    @table_owner = 'dbo',
-    @fUsePattern = 1;
-""", _connection);
+        await using var command = new SqlCommand("""
+                                                 EXEC sp_tables
+                                                     @table_name = 'Veff_FeatureFlags',
+                                                     @table_owner = 'dbo',
+                                                     @fUsePattern = 1;
+                                                 """, _connection);
 
         var any = await command.ExecuteScalarAsync();
 
         if (any is null)
         {
-            using var createTableCmd = new SqlCommand("""
-CREATE TABLE Veff_FeatureFlags(
-    [Id] INT PRIMARY KEY IDENTITY (1, 1),
-    [Name] varchar(255),
-    [Description] varchar(255),
-	[Percent] int,
-    [Type] varchar(255),
-    [Strings] varchar(max),
-)
-""", _connection);
+            await using var createTableCmd = new SqlCommand("""
+                CREATE TABLE Veff_FeatureFlags(
+                    [Id] INT PRIMARY KEY IDENTITY (1, 1),
+                    [Name] varchar(255),
+                    [Description] varchar(255),
+                    [Percent] int,
+                    [Type] varchar(255),
+                    [Strings] varchar(1024)
+                    )
+                """, _connection);
 
             await createTableCmd.ExecuteNonQueryAsync();
         }
@@ -143,6 +154,36 @@ WHERE [Id] = @Id
 
         cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
         return (int)cmd.ExecuteScalar();
+    }
+
+    public async Task RemoveFlagsNoLongerInCode(string[] allFlags)
+    {
+        if (allFlags.Length == 0) return;
+        
+        var paramNames = allFlags.Select((_, i) => $"@Name{i}").ToArray();
+        var sql = $"DELETE FROM Veff_FeatureFlags WHERE [Name] NOT IN ({string.Join(", ", paramNames)})";
+
+        await using var cmd = new SqlCommand(sql, _connection);
+        var i = 0;
+        foreach (var name in allFlags)
+        {
+            cmd.Parameters.Add(paramNames[i++], SqlDbType.NVarChar).Value = name;
+        } 
+        
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    public string? GetOriginalStringValueFromDb(int id)
+    {
+        using var cmd = new SqlCommand(@"
+SELECT [Strings]
+FROM Veff_FeatureFlags
+WHERE [Id] = @Id 
+", _connection);
+
+        cmd.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+        var strings = (string)cmd.ExecuteScalar();
+        return strings;
     }
 
     public void Dispose()

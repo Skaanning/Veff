@@ -3,7 +3,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Veff.Dashboard;
+using Veff.Exceptions;
 using Veff.Extensions;
+using Veff.Flags;
+using Veff.Flags.Attributes;
 
 namespace Veff.Persistence;
 
@@ -25,27 +28,62 @@ internal class VeffDbConnection : IVeffDbConnection
     public async Task<VeffDashboardInitViewModel> GetAll()
     {
         var all = await _connection.GetAllValues();
-        var veffFeatureFlagViewModels = all.Select(x => x.AsFlag(_veffDbConnectionFactory).AsDashboardViewModel()).ToArray();
+        
+        var veffFeatureFlagViewModels = all.Select(x => x.AsFlag(_veffDbConnectionFactory, []).AsDashboardViewModel()).ToArray();
         return new VeffDashboardInitViewModel(veffFeatureFlagViewModels);
     }
 
-    public async Task SyncFeatureFlags(IEnumerable<(string Name, string Type)> featureFlagNames)
+    public async Task SyncFeatureFlags(IEnumerable<(PropertyInfo PropInfo, string Name, string AttrName, string Type)> featureFlagNames)
     {
         var allValues = await _connection.GetAllValues();
+        var flagsInCode = featureFlagNames.ToArray();
         
-        var hashSet = allValues.Select(x => x.Name).ToHashSet();
-        var flagsMissingInDb = featureFlagNames.Where(x => !hashSet.Contains(x.Name)).ToArray();
+        var allFlags = allValues.Select(x => x.Name).ToHashSet();
 
-        await _connection.AddFlagsMissingInDb(flagsMissingInDb);
+        await _connection.RemoveFlagsNoLongerInCode(flagsInCode.Select(x => x.AttrName).ToArray());
+        
+        var flagsMissingInDb = flagsInCode.Where(x => !allFlags.Contains(x.AttrName)).ToArray();
+        if (flagsMissingInDb.Length == 0) 
+            return;
+
+        var missingInDb = flagsMissingInDb.Select(x =>
+        {
+            var initialFlagValue = x.PropInfo.GetCustomAttributes<InitialFlagValue>().FirstOrDefault();
+            return (x.AttrName, x.Type, initialFlagValue);
+        }).ToArray();
+        await _connection.AddFlagsMissingInDb(missingInDb);
     }
 
     public async Task SyncValuesFromDb(IEnumerable<IFeatureFlagContainer> veffContainers)
     {
-        var veff = await _connection.GetAllValues();
+        var allFlags =  await _connection.GetAllValues();
 
-        var lookup = veff.ToLookup(x => x.GetClassName());
-        var containerDictionary = veffContainers.ToDictionary(x => x.GetType().Name);
+        var lookup = allFlags.ToLookup(x => x.GetClassName());
+        var featureFlagContainers = veffContainers.ToArray();
+        var propertyInfos = featureFlagContainers
+            .SelectMany(z => z.GetType().GetProperties()
+                .Where(x => x.PropertyType.IsAssignableTo(typeof(Flag))).Select(x => (container: z, propInfo: x)));
+        var attributes = propertyInfos
+            .SelectMany(x => x.propInfo.GetCustomAttributes()
+                .OfType<FlagNameAttribute>()
+                .Select(y => (x.container, x.propInfo, attribute: y)))
+            .ToArray();
 
+        var containerDictionary = featureFlagContainers.ToDictionary(x => x.GetType().Name);
+        foreach (var mappings in attributes)
+        {
+            if (string.IsNullOrWhiteSpace(mappings.attribute.ContainerName)) continue;
+            
+            if (!containerDictionary.TryAdd(mappings.attribute.ContainerName!, mappings.container))
+            {
+                if (containerDictionary[mappings.attribute.ContainerName!] == mappings.container)
+                    continue;
+                
+                throw new VeffConfigurationException($"The container name {mappings.attribute.ContainerName} is used for multiple containers. " +
+                                                     $"A container name is only allowed to be used for a single container.");
+            }
+        }
+        
         foreach (var ffClass in lookup)
         {
             if (!containerDictionary.TryGetValue(ffClass.Key, out var container)) continue;
@@ -54,22 +92,19 @@ internal class VeffDbConnection : IVeffDbConnection
             {
                 var p = container
                     .GetType()
-                    .GetProperty(veffFlag.GetPropertyName());
+                    .GetProperty(veffFlag.GetPropertyName())
+                    ?? attributes.Where(x => x.container == container).FirstOrDefault(x=> x.attribute.Name.Equals(veffFlag.GetPropertyName())).propInfo;
 
                 if (p is null) return;
 
                 if (p.CanWrite)
                 {
-                    p.SetValue(container, veffFlag.AsFlag(_veffDbConnectionFactory));
+                    p.SetValue(container, veffFlag.AsFlag(_veffDbConnectionFactory, p.GetCustomAttributes()));
                 }
                 else
                 {
-                    var field = container
-                        .GetType()
-                        .GetField($"<{veffFlag.GetPropertyName()}>k__BackingField",
-                            BindingFlags.Instance | BindingFlags.NonPublic);
-
-                    field?.SetValue(container, veffFlag.AsFlag(_veffDbConnectionFactory));
+                    throw new VeffConfigurationException($"Feature flag properties must have a setter, " +
+                                                         $"missing setter on {veffFlag.GetClassName()}.{veffFlag.GetPropertyName()}");
                 }
             });
         }
@@ -78,6 +113,7 @@ internal class VeffDbConnection : IVeffDbConnection
     public Task EnsureTablesExists() => _connection.EnsureTablesExists();
 
     public HashSet<string> GetStringValueFromDb(int id) => _connection.GetStringValueFromDb(id, true);
+    public string? GetOriginalStringValueFromDb(int id) => _connection.GetOriginalStringValueFromDb(id);
 
     public int GetPercentValueFromDb(int id) => _connection.GetPercentValueFromDb(id);
     

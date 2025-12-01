@@ -7,11 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Veff.Sqlite\Veff.Sqlite.csproj" />
+      <ProjectReference Include="..\Veff.SqlServer\Veff.SqlServer.csproj" />
       <ProjectReference Include="..\Veff\Veff.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Marten" Version="7.5.0" />
+      <PackageReference Include="Marten" Version="8.5.0" />
     </ItemGroup>
 
 </Project>

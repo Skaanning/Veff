@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Veff.Extensions;
 using Veff.Flags;
+using Veff.Flags.Attributes;
 using Veff.Persistence;
 
 namespace Veff;
@@ -42,7 +44,7 @@ public static class ApplicationBuilderExtensions
         IVeffDbConnectionFactory connectionFactory,
         IEnumerable<IFeatureFlagContainer> containers)
     {
-        var featureFlagNames = new List<(string, string)>();
+        var featureFlagNames = new List<(PropertyInfo, string, string, string)>();
         foreach (var veffContainer in containers)
         {
             var type = veffContainer.GetType();
@@ -50,8 +52,22 @@ public static class ApplicationBuilderExtensions
 
             type.GetProperties()
                 .Where(x => x.PropertyType.IsAssignableTo(targetType))
-                .Select(x => ($"{type.Name}.{x.Name}", x.PropertyType.ToString()))
-                .ForEach(x => featureFlagNames.Add(x));
+                .Select(x =>
+                {
+                    var attr = x.GetCustomAttributes(true)
+                        .OfType<FlagNameAttribute>()
+                        .FirstOrDefault();
+                    
+                    var propName = $"{type.Name}.{x.Name}";
+                    var containerName = attr?.ContainerName ?? type.Name;
+                    var attrName = attr != null ? $"{containerName}.{attr.Name}" : propName;
+
+                    return (x, propName, attrName, x.PropertyType.ToString());
+                })
+                .ForEach(x =>
+                {
+                    featureFlagNames.Add(x);
+                });
         }
 
         using var conn = connectionFactory.UseConnection();

@@ -5,14 +5,14 @@ using Veff.Flags;
 
 namespace Veff.ExternalApi;
 
-internal class FeatureFlagVm
+internal class FeatureFlagViewModel
 {
     public string ContainerName { get; init; } = "";
     public string Name { get; init; } = "";
     public string Description { get; init; } = "";
     public string Type { get; init; } = "";
 
-    public static FeatureFlagVm[] FromFeatureFlagContainers(params IFeatureFlagContainer[] container)
+    public static FeatureFlagViewModel[] FromFeatureFlagContainers(params IFeatureFlagContainer[] container)
     {
         return container
             .SelectMany(x =>
@@ -23,7 +23,7 @@ internal class FeatureFlagVm
                     .Select(p => (flag: p.GetValue(x) as Flag, containerName: x.GetType().Name));
             })
             .SelectToArray((x) => 
-                new FeatureFlagVm
+                new FeatureFlagViewModel
                 {
                     ContainerName = x.containerName,
                     Name = x.flag!.Name.Split(".").Last(),
