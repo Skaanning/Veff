@@ -18,6 +18,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Marten", "src\Veff.Mar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Snapshot", "src\Veff.Snapshot\Veff.Snapshot.csproj", "{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sln", "Sln", "{0718E902-CE34-4FD8-8BDB-ADC20FB79B8C}"
+	ProjectSection(SolutionItems) = preProject
+		pushtonuget.ps1 = pushtonuget.ps1
+		readme.md = readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
