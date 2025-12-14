@@ -16,6 +16,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Sqlite", "src\Veff.Sql
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Marten", "src\Veff.Marten\Veff.Marten.csproj", "{C6B7363D-2793-45D8-99B6-D2D95921B7E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veff.Snapshot", "src\Veff.Snapshot\Veff.Snapshot.csproj", "{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sln", "Sln", "{0718E902-CE34-4FD8-8BDB-ADC20FB79B8C}"
+	ProjectSection(SolutionItems) = preProject
+		pushtonuget.ps1 = pushtonuget.ps1
+		readme.md = readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +54,10 @@ Global
 		{C6B7363D-2793-45D8-99B6-D2D95921B7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6B7363D-2793-45D8-99B6-D2D95921B7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6B7363D-2793-45D8-99B6-D2D95921B7E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28D2B9C6-3FBD-47DA-9C0F-CC782E3C81FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7664A6DA-EAD5-4DDF-9D9F-76ED5268314F} = {999C4320-7557-49D7-9BD9-7C4F87149515}

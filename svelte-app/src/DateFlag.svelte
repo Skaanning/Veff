@@ -17,14 +17,16 @@
 	// derive value from value1 and value2
 	$: addedValue = (value1 || value2)
 			? `${value1 || ''};${value2 || ''}`
-			: null;
+			: ";";
 	
 	$: [value1, value2] = (value && value.includes(';'))
 			? value.split(';').map(v => toInputDate(v))
 			: [value, null];
 
 	function toInputDate(d) {
+		if (!d) return '';
 		let date = new Date(d);
+		if (isNaN(date)) return '';
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
 		const day = String(date.getDate()).padStart(2, '0');

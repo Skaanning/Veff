@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Veff;
 using Veff.Sqlite;
@@ -38,5 +39,19 @@ $"""
 {newStuffFeatures.SomeDateFeatureFlag.Name}.IsEnabledNow = {newStuffFeatures.SomeDateFeatureFlag.IsEnabledNow()}
 
 """);
+
+app.MapGet("/snapshot", ([FromServices] EmailFeatures emailFeatures) =>
+{
+    var snapshot = emailFeatures.ToSnapshot<EmailFeatureSnapshot>();
+    return $"""
+           {JsonSerializer.Serialize(snapshot, new JsonSerializerOptions {WriteIndented = true})}
+           
+           snapshot.EndingFlag.EnabledFor("Bob") = {snapshot.EndingFlag.EnabledFor("Bob")}
+           snapshot.EndingFlag.EnabledFor("obby") = {snapshot.EndingFlag.EnabledFor("obby")}
+           snapshot.SendSpamMails.IsEnabled = {snapshot.SendSpamMails.IsEnabled}
+           snapshot.SomeDateFeatureFlag.IsEnabledNow() = {snapshot.SomeDateFeatureFlag.IsEnabledNow()}
+           
+           """;
+});
 
 app.Run();
