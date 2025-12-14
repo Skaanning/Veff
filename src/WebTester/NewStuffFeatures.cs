@@ -1,6 +1,7 @@
 ﻿using Veff;
 using Veff.Flags;
 using Veff.Flags.Attributes;
+using Veff.Snapshot;
 
 namespace WebTester;
 
@@ -24,5 +25,14 @@ public class EmailFeatures : IFeatureFlagContainer
      [InitialFlagValue(true)]
      [FlagName("SendSomeEmails", ContainerName = "test")]
      public required BooleanFlag SendSpamMails { get; set; }
+     public required DateFlag SomeDateFeatureFlag { get; init; }
+     public required StringEndsWithFlag EndingFlag { get; init; }
 
+}
+
+public class EmailFeatureSnapshot : IFeatureFlagSnapshotContainer
+{
+     public required BooleanFlagSnapshot SendSpamMails { get; set; }
+     public required DateFlagSnapshot SomeDateFeatureFlag { get; init; }
+     public required StringEndsWithFlagSnapshot EndingFlag { get; init; }
 }

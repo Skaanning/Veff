@@ -25,6 +25,11 @@
     <ItemGroup>
         <None Include="..\..\readme.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Veff.Snapshot\Veff.Snapshot.csproj" />
+    </ItemGroup>
+
     
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
