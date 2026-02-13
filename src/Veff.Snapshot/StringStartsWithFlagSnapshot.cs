@@ -3,9 +3,10 @@ using System.Linq;
 
 namespace Veff.Snapshot;
 
+[Serializable]
 public class StringStartsWithFlagSnapshot : StringEqualsFlagSnapshot
 {
-    internal StringStartsWithFlagSnapshot(
+    public StringStartsWithFlagSnapshot(
         int id,
         string name,
         string description,

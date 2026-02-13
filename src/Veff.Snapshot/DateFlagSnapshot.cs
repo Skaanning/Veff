@@ -2,9 +2,10 @@
 
 namespace Veff.Snapshot;
 
+[Serializable]
 public class DateFlagSnapshot : FlagSnapshot
 {
-    internal DateFlagSnapshot(int id,
+    public DateFlagSnapshot(int id,
         string name,
         string description,
         DateTime? fromDate,

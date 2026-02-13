@@ -1,8 +1,11 @@
-﻿namespace Veff.Snapshot;
+﻿using System;
 
+namespace Veff.Snapshot;
+
+[Serializable]
 public abstract class FlagSnapshot
 {
-    protected FlagSnapshot(int id, string name, string description)
+    public FlagSnapshot(int id, string name, string description)
     {
         Id = id;
         Name = name;

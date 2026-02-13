@@ -3,9 +3,10 @@ using System.Linq;
 
 namespace Veff.Snapshot;
 
+[Serializable]
 public class StringContainsFlagSnapshot : StringEqualsFlagSnapshot
 {
-    internal StringContainsFlagSnapshot(
+    public StringContainsFlagSnapshot(
         int id,
         string name,
         string description,

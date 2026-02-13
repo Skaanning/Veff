@@ -3,9 +3,10 @@ using System.Text;
 
 namespace Veff.Snapshot;
 
+[Serializable]
 public class PercentageFlagSnapshot : FlagSnapshot
 {
-    internal PercentageFlagSnapshot(
+    public PercentageFlagSnapshot(
         int id,
         string name,
         string description,

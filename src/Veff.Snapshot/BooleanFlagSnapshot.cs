@@ -1,8 +1,11 @@
-﻿namespace Veff.Snapshot;
+﻿using System;
 
+namespace Veff.Snapshot;
+
+[Serializable]
 public class BooleanFlagSnapshot : FlagSnapshot
 {
-    internal BooleanFlagSnapshot(int id, string name, string description, bool isEnabled) : base(id, name, description)
+    public BooleanFlagSnapshot(int id, string name, string description, bool isEnabled) : base(id, name, description)
     {
         IsEnabled = isEnabled;
     }

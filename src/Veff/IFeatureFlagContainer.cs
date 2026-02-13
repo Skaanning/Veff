@@ -56,21 +56,21 @@ public static class FeatureFlagContainerExtensions
             var flagType = flagValue.GetType();
             
             // Try to call various IsEnabled methods to refresh cache
-            var isEnabledMethod = flagType.GetMethod("IsEnabled", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance, null, [], null);
+            var isEnabledMethod = flagType.GetMethod("IsEnabled", BindingFlags.Public | BindingFlags.Instance, null, [], null);
             if (isEnabledMethod != null)
             {
                 _ = isEnabledMethod.Invoke(flagValue, null);
                 continue;
             }
             
-            var isEnabledNowMethod = flagType.GetMethod("IsEnabledNow", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance, null, [], null);
+            var isEnabledNowMethod = flagType.GetMethod("IsEnabledNow", BindingFlags.Public | BindingFlags.Instance, null, [], null);
             if (isEnabledNowMethod != null)
             {
                 _ = isEnabledNowMethod.Invoke(flagValue, null);
                 continue;
             }
             
-            var enabledForMethod = flagType.GetMethod("EnabledFor", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var enabledForMethod = flagType.GetMethod("EnabledFor", BindingFlags.Public | BindingFlags.Instance);
             if (enabledForMethod != null)
             {
                 // For string flags, call with a sample string; for percentage, call with a sample int
@@ -108,7 +108,7 @@ public static class FeatureFlagContainerExtensions
             var isEnabled = (bool)isEnabledProp!.GetValue(value)!;
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(bool)],
                 null);
@@ -126,7 +126,7 @@ public static class FeatureFlagContainerExtensions
             var toDate = (DateTime?)cachedToField?.GetValue(value);
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(DateTime?), typeof(DateTime?)],
                 null);
@@ -143,7 +143,7 @@ public static class FeatureFlagContainerExtensions
             var randomSeed = (string)randomSeedProp!.GetValue(value)!;
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(int), typeof(string)],
                 null);
@@ -159,7 +159,7 @@ public static class FeatureFlagContainerExtensions
             var values = cachedHashSet?.ToArray() ?? [];
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(string[])],
                 null);
@@ -175,7 +175,7 @@ public static class FeatureFlagContainerExtensions
             var values = cachedHashSet?.ToArray() ?? [];
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(string[])],
                 null);
@@ -191,7 +191,7 @@ public static class FeatureFlagContainerExtensions
             var values = cachedHashSet?.ToArray() ?? [];
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(string[])],
                 null);
@@ -207,7 +207,7 @@ public static class FeatureFlagContainerExtensions
             var values = cachedHashSet?.ToArray() ?? [];
             
             var ctor = targetType.GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                BindingFlags.Public | BindingFlags.Instance,
                 null,
                 [typeof(int), typeof(string), typeof(string), typeof(string[])],
                 null);
@@ -218,16 +218,16 @@ public static class FeatureFlagContainerExtensions
         return null;
     }
     
-    private static System.Reflection.FieldInfo? GetFieldFromTypeOrBase(Type type, string fieldName)
+    private static FieldInfo? GetFieldFromTypeOrBase(Type type, string fieldName)
     {
-        var field = type.GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var field = type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
         if (field != null)
             return field;
         
         var baseType = type.BaseType;
         while (baseType != null)
         {
-            field = baseType.GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            field = baseType.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
             if (field != null)
                 return field;
             
